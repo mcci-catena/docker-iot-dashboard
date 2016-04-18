@@ -1,0 +1,27 @@
+node-red:
+  build: node-red
+  volumes:
+    - /var/lib/node-red/:/root/.node-red/
+  ports:
+    - "1880:1880"
+  links:
+    - influxdb
+  
+influxdb:
+  image: tutum/influxdb
+  env_file: influxdb/.env
+  volumes:
+    - /var/lib/influxdb:/data
+  ports:
+    - "8083:8083"
+    - "8086:8086"
+
+grafana:
+  image: grafana/grafana:develop
+  env_file: grafana/.env
+  volumes:
+    - /var/lib/grafana:/var/lib/grafana 
+  ports:
+    - "80:3000"
+  links:
+    - influxdb

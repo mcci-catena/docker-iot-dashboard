@@ -17,7 +17,7 @@ influxdb:
     - "8086:8086"
 
 grafana:
-  image: grafana/grafana:develop
+  image: grafana/grafana
   env_file: grafana/.env
   volumes:
     - /var/lib/grafana:/var/lib/grafana 

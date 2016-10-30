@@ -9,5 +9,6 @@ ADD evb /root/.node-red/lib/flows/evb
 
 WORKDIR /root/.node-red
 RUN npm install -g node-red-contrib-influxdb
+RUN npm install -g node-red-contrib-ttn
 
 CMD ["/usr/local/bin/node-red"]

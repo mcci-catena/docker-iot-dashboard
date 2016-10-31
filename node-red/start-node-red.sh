@@ -42,7 +42,7 @@ function _error {
 	exit 1
 }
 
-function _copy {
+function _copyfile {
 	# $1 is the source file
 	# $2 is the source dir
 	# $3 is the target-relative location
@@ -56,11 +56,11 @@ function _copy {
 	if [ ! -d "$TARGET/$3" ]; then
 		mkdir -p "$TARGET/$3" || _error "can't mkdir:" "$TARGET/$3"
 	fi
-	if [ -f "$TARGET/$2/$3" ]; then
+	if [ -f "$TARGET/$3/$1" ]; then
 		_verbose "target file exists, reusing:" "$TARGET/$3/$1"
 	else
 		_verbose "creating file:" "$TARGET/$3/$1"
-		cp -p "$2/$1" "$3" || _error "can't copy:" "$2/$1" "to:" "$TARGET/$3/$1"
+		cp -p "$2/$1" "$TARGET/$3" || _error "can't copy:" "$2/$1" "to:" "$TARGET/$3/$1"
 	fi
 }
 

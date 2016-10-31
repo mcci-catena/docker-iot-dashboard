@@ -2,6 +2,8 @@ version: '2'
 services:
   node-red:
     build: node-red
+    volumes:
+      - /var/lib/node-red:/root/.node-red/
     ports:
       - "1880:1880"
     links:

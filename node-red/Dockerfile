@@ -6,7 +6,7 @@ RUN mkdir /root/.node-red/lib/flows
 
 WORKDIR /root/.node-red
 RUN npm install -g node-red-contrib-influxdb
-RUN npm install -g node-red-contrib-ttn
+RUN npm install -g node-red-contrib-ttn@1.0.0
 
 # seed the files that have to be present, but in an area
 # that doesn't get overlaid by host file-system files

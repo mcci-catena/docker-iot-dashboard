@@ -33,8 +33,8 @@ Then use port addresses when opening the remote, for example **localhost:11880**
 1. Define root URL and passwords in `grafana/.env` and `influxdb/.env`
 2. `% docker-compose build`
 3. `% docker-compose up`
-4. Open Node-RED on **http://machine.example.net:1880** (or, if using the above SSH mappings, **[http://localhost:11880]**) and build a flow that stores data in InfluxDB
-5. Open Grafana on **http://machine.example.net** (or, if using the above SSH mappings, **[http://localhost:10080]**), and build a dashboard that retrieves data from InfluxDB
+4. Open Node-RED on **http://machine.example.net:1880** (or, if using the above SSH mappings, **(http://localhost:11880)[http://localhost:11880]**) and build a flow that stores data in InfluxDB
+5. Open Grafana on **http://machine.example.net** (or, if using the above SSH mappings, **[http://localhost:10080](http://localhost:10080)**), and build a dashboard that retrieves data from InfluxDB
 
 ## Examples
 

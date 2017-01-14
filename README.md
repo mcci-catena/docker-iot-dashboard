@@ -33,8 +33,8 @@ Then use port addresses when opening the remote, for example **localhost:11880**
 1. Define root URL and passwords in `grafana/.env` and `influxdb/.env`
 2. `% docker-compose build`
 3. `% docker-compose up`
-4. Open Node-RED on **http://machine.example.net:1880** (or, if using the above SSH mappings, **http://localhost:11880**) and build a flow that stores data in InfluxDB
-5. Open Grafana on **http://machine.example.net** (or, if using the above SSH mappings, **http://localhost:10080**), and build a dashboard that retrieves data from InfluxDB
+4. Open Node-RED on **http://machine.example.net:1880** (or, if using the above SSH mappings, **[http://localhost:11880]**) and build a flow that stores data in InfluxDB
+5. Open Grafana on **http://machine.example.net** (or, if using the above SSH mappings, **[http://localhost:10080]**), and build a dashboard that retrieves data from InfluxDB
 
 ## Examples
 
@@ -43,4 +43,5 @@ Node-RED installs with several example flows that reads data from test nodes and
 This prototype still requires that you set up the database and the grafana dashboards manually, but we hope to add a reasonable set of initial files in the next release.
 
 ## Acknowledgements
-This builds on work done by Johan Stokking of (The Things Network)[www.thethingsnetwork.org] for the staging environment. Additional adaptation done by Terry Moore of (MCCI)[www.mcci.com].
+This builds on work done by Johan Stokking of [The Things Network](www.thethingsnetwork.org) for the staging environment. Additional adaptation done by Terry Moore of [MCCI](www.mcci.com).
+

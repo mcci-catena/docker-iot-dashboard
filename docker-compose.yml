@@ -7,24 +7,25 @@ services:
       - ./node-red/data:/data
     ports:
       - "1880:1880"
-#    links:
-#      - influxdb
+    links:
+      - influxdb
     
-#  influxdb:
-#    image: tutum/influxdb
-#    env_file: influxdb/.env
-#      - /var/lib/influxdb:/data
-#    ports:
-#      - "8083:8083"
-#    volumes:
-#      - "8086:8086"
+  influxdb:
+    image: tutum/influxdb
+    env_file: influxdb/.env
+    volumes:
+      - /var/lib/influxdb:/data
+    ports:
+      - "8083:8083"
+      - "8086:8086"
   
-#  grafana:
-#    image: grafana/grafana
-#    env_file: grafana/.env
-#    volumes:
-#      - /var/lib/grafana:/var/lib/grafana 
-#    ports:
-#      - "80:3000"
-#    links:
-#      - influxdb
+  grafana:
+    image: grafana/grafana
+    env_file: grafana/.env
+    volumes:
+      - /var/lib/grafana:/var/lib/grafana 
+    ports:
+      - "80:3000"
+    links:
+      - influxdb
+

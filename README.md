@@ -1,5 +1,12 @@
 # The Things Network Dashboard Example
 
+## Assumptions
+
+* You must have docker-compose 1.9 or later (for which see https://github.com/docker-compose -- beaware that apt-get normally doesn't grab this).
+* /var/lib/node-red will have your local node red data.
+* /var/lib/influxdb will have your local influxdb data (this is what you should back up)
+* /var/lib/grafana will have your dashboards
+
 ## Composition
 
 * Node-RED runs on port 1880

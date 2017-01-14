@@ -1,15 +1,15 @@
-FROM cpswan/node-red
+# 
+# Dockerfile for building the node red image.
+#
 
-RUN mkdir -p /root/.node-red /root/node-red-files
-RUN mkdir /root/.node-red/lib
-RUN mkdir /root/.node-red/lib/flows
+# build the node red image using the offical node red distribution
+FROM nodered/node-red-docker
 
-WORKDIR /root/.node-red
-RUN npm install -g node-red-contrib-influxdb
-RUN npm install -g node-red-contrib-ttn@1.0.0
+# add the influxDB connector
+RUN npm install node-red-contrib-influxdb
 
-# seed the files that have to be present, but in an area
-# that doesn't get overlaid by host file-system files
-ADD settings.js evb start-node-red.sh /root/node-red-files/
+# add The Things Network connector
+RUN npm install node-red-contrib-ttn
 
-CMD ["/bin/bash", "/root/node-red-files/start-node-red.sh", "/usr/local/bin/node-red"]
+# end of file
+

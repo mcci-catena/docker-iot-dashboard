@@ -4,7 +4,7 @@ services:
     build: node-red
     user: "root"
     volumes:
-      - "${DATA}/var/lib/node-red:/data"
+      - "${TTN_DASHBOARD_DATA}/var/lib/node-red:/data"
     ports:
       - "1880:1880"
     links:
@@ -14,7 +14,7 @@ services:
     image: tutum/influxdb
     env_file: influxdb/.env
     volumes:
-      - "${DATA}/var/lib/influxdb:/data"
+      - "${TTN_DASHBOARD_DATA}/var/lib/influxdb:/data"
     ports:
       - "8083:8083"
       - "8086:8086"
@@ -23,7 +23,7 @@ services:
     image: grafana/grafana
     env_file: grafana/.env
     volumes:
-      - "${DATA}/var/lib/grafana:/var/lib/grafana"
+      - "${TTN_DASHBOARD_DATA}/var/lib/grafana:/var/lib/grafana"
     ports:
       - "80:3000"
     links:

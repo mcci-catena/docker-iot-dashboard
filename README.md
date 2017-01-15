@@ -11,10 +11,13 @@ This example uses [docker-compose](https://docs.docker.com/compose/overview/) to
 3. An instance of [Grafana](http://grafana.org/), which gives a web-based dashboard interface to the data.
 
 ## Security
-* This version uses fixed login keys, which you should edit prior to deploying. The keys are in the files `ingressdb/.env` and `grafana/.env`.
-* This version does not use HTTPS for access to the various services.
-* Microsoft Azure, by default, will not open any of the ports to the outside world, so the above two items are not a concern until you open the ports.
-The suggested work-around is to use SSH and proxy the ports:
+This version uses fixed login keys, which you should edit prior to deploying. The keys are in the files `ingressdb/.env` and `grafana/.env`.
+
+This version does **not** natively provide HTTPS for securing access to the various services.
+
+Microsoft Azure, by default, will not open any of the ports to the outside world, so the above two items are not a concern until you open the ports.
+
+Rather than opening ports on Azure, we suggest you use SSH and proxy the ports:
 ```sh
 ssh -L10080:localhost:80 -L11880:localhost:1880 -L180:localhost:8083 -L18086:localhost:8086 user@myhost.example.net
 ```
@@ -23,7 +26,7 @@ Then use port addresses when opening the remote service in your browser, specifi
 To access | Open this link
 ----------|---------------
 Node-RED | [http://localhost:11800](http://localhost:11800)
-IngressDB adminitrative page | [http://localhost:18083](http://localhost:18083)
+IngressDB administrative page | [http://localhost:18083](http://localhost:18083)
 Grafana | [http://localhost:10080](http://localhost:10080)
 
 ## Assumptions
@@ -35,9 +38,10 @@ Grafana | [http://localhost:10080](http://localhost:10080)
 
 ## Composition and External Ports
 
-* Node-RED runs on port 1880
-* Grafana runs on port 80
+* Node-RED runs on port 1880.
+* Grafana runs on port 80.
 * InfluxDB runs on port 8086 and is linked as host name **influxdb** (without a domain name; this is used when connecting from the other two docker images, so as to keep the traffic internal to the node).
+* In addition InfluxDB exports an administrative web interface on port 8083.
 
 ## Installation
 
@@ -51,7 +55,7 @@ Grafana | [http://localhost:10080](http://localhost:10080)
 
 Node-RED installs with several example flows that reads data from test nodes and stores the data in InfluxDB. Import the example from Menu > Import > Library, and then edit both the TTN connection (on the left) and the InfluxDB connection (on the right).
 
-This prototype still requires that you set up the database and the grafana dashboards manually, but we hope to add a reasonable set of initial files in the next release.
+This version requires that you set up the database and the grafana dashboards manually, but we hope to add a reasonable set of initial files in the next release.
 
 ## Acknowledgements
 This builds on work done by Johan Stokking of [The Things Network](www.thethingsnetwork.org) for the staging environment. Additional adaptation done by Terry Moore of [MCCI](www.mcci.com).

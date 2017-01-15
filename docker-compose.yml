@@ -11,7 +11,7 @@ services:
       - influxdb
     
   influxdb:
-    image: tutum/influxdb
+    image: tutum/influxdb:0.9
     env_file: influxdb/.env
     volumes:
       - "${TTN_DASHBOARD_DATA}/var/lib/influxdb:/data"

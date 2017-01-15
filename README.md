@@ -13,6 +13,7 @@ The suggested work-around is to use SSH and proxy the ports:
 ssh -L10080:localhost:80 -L11880:localhost:1880 -L180:localhost:8083 -L18086:localhost:8086 user@myhost.example.net
 ```
 Then use port addresses when opening the remote service in your browser, specificaly:
+
 To access | Open this link
 ----------+---------------
 node red | http://localhost:11800

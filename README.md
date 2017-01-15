@@ -30,7 +30,7 @@ IngressDB administrative page | [http://localhost:18083](http://localhost:18083)
 Grafana | [http://localhost:10080](http://localhost:10080)
 
 This can be visualized as below:
-![Connection Architecture using SSH](assets/Connection-architecture.png)
+![Connection Architecture using SSH](assets/Connection-architecture.svg)
 
 ## Assumptions
 

@@ -5,15 +5,19 @@ This repository contains a complete example that grabs device data from The Thin
 You can set this up on a "Ubuntu + Docker" VM from the Microsoft Azure store with minimal effort. You should set up this service to run all the time so as to capture the data from your devices; you then access the data at your convenience using a web browser.
 
 ## Security
-* This version uses fixed login keys, which you should edit prior to deploying.
+* This version uses fixed login keys, which you should edit prior to deploying. The keys are in the files `ingressdb/.env` and `grafana/.env`.
 * This version does not use HTTPS for access to the various services.
 * Microsoft Azure, by default, will not open any of the ports to the outside world, so the above two items are not a concern until you open the ports.
 The suggested work-around is to use SSH and proxy the ports:
 ```sh
-ssh -L10080:80 -L11880:1880 -L18083:8083 -L18086:8086 user@myhost.example.net
+ssh -L10080:localhost:80 -L11880:localhost:1880 -L180:localhost:8083 -L18086:localhost:8086 user@myhost.example.net
 ```
-Then use port addresses when opening the remote, for example **localhost:11880** is used to access **node red**.
-
+Then use port addresses when opening the remote service in your browser, specificaly:
+To access | Open this link
+----------+---------------
+node red | http://localhost:11800
+IngressDB adminitrative page | http://localhost::18083
+grafana | http://localhost:10080
 
 ## Assumptions
 

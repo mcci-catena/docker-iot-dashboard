@@ -29,6 +29,9 @@ Node-RED | [http://localhost:11800](http://localhost:11800)
 IngressDB administrative page | [http://localhost:18083](http://localhost:18083)
 Grafana | [http://localhost:10080](http://localhost:10080)
 
+This can be visualized as below:
+![Connection Architecture using SSH](assets/Connection-architecture.png)
+
 ## Assumptions
 
 * You must have docker-compose 1.9 or later (for which see https://github.com/docker-compose -- be aware that apt-get normally doesn't grab this; if configured at all, it frequently gets an out-of-date version).

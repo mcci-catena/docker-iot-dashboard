@@ -51,6 +51,31 @@ Grafana | [http://localhost:10080](http://localhost:10080)
 4. Open Node-RED on **http://machine.example.net:1880** (or, if using the above SSH mappings, **[http://localhost:11880](http://localhost:11880)**) and build a flow that stores data in InfluxDB
 5. Open Grafana on **http://machine.example.net** (or, if using the above SSH mappings, **[http://localhost:10080](http://localhost:10080)**), and build a dashboard that retrieves data from InfluxDB
 
+## Data Files
+
+Datafiles are kept in the following locations by default.
+
+Component | Data file location
+----------|-------------------
+Node-RED | `/var/log/node-red`
+InfluxDB | `/var/log/influxdb`
+Grafana | `/var/log/grafana`
+
+You can store these data files in a different location by setting the environment variable `TTN_DASHBOARD_DATA` to the **absolute path** to the containing direcotry. The above paths are appended to the value of `TTN_DASHBOARD_DATA`. Directories are created as needed. For example:
+```sh
+export TTN_DASHBOARD_DATA=/dashboard-data
+docker-compose up -d
+```
+In this case, the data files are created in the following locations:
+
+Component | Data file location
+----------|-------------------
+Node-RED | `/dashboard-data/var/log/node-red`
+InfluxDB | `/dashboard-data/var/log/influxdb`
+Grafana | `/dashboard-data/var/log/grafana`
+
+Data files left in these locations will be resued.
+
 ## Examples
 
 Node-RED installs with several example flows that reads data from test nodes and stores the data in InfluxDB. Import the example from Menu > Import > Library, and then edit both the TTN connection (on the left) and the InfluxDB connection (on the right).

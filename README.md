@@ -10,6 +10,8 @@ This example uses [docker-compose](https://docs.docker.com/compose/overview/) to
 2. An instance of [InfluxDB](https://www.influxdata.com/), which stores the data as time-series measurements with tags.
 3. An instance of [Grafana](http://grafana.org/), which gives a web-based dashboard interface to the data.
 
+To make things more specific, most of the description here assumes use of Microsoft Azure. However, I have tested this on Ubuntu 16 LTS without difficulty (apart from the additional complexity of setting up `apt-get` to fetch docker, and the need for a manual install of `docker-compose`). I belive that this will work on any Linux or Linux-like platform that supports docker, docker-compose, and node-red. It's likely to run on a Raspberry Pi 2, and it might even run on a C.H.I.P. computer... but as of this writing, this has not been tested.
+
 ## Security
 This version uses fixed login keys, which you should edit prior to deploying. The keys are in the files `ingressdb/.env` and `grafana/.env`.
 
@@ -86,8 +88,6 @@ Component | Data file location
 Node-RED | `/dashboard-data/var/lib/node-red`
 InfluxDB | `/dashboard-data/var/lib/influxdb`
 Grafana | `/dashboard-data/var/lib/grafana`
-
-To make things more specific, most of the description here assumes use of Microsoft Azure. However, I have tested this on Ubuntu 16 LTS without difficulty (apart from the additional complexity of setting up `apt-get` to fetch docker, and the need for a manual install of `docker-compose`). I belive that this will work on any Linux or Linux-like platform that supports docker, docker-compose, and node-red. It's likely to run on a Raspberry Pi 2, and it might even run on a C.H.I.P. computer... but as of this writing, this has not been tested.
 
 ### Reuse and removal of data files
 Since data files on the host are not removed between runs, as long as you

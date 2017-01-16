@@ -70,9 +70,9 @@ Data files are kept in the following locations by default.
 
 Component | Data file location on host | Location in container
 ----------|----------------------------|----------------------
-Node-RED | `/var/lib/node-red` | /data
-InfluxDB | `/var/lib/influxdb`| /data
-Grafana | `/var/lib/grafana`| /var/lib/grafana
+Node-RED | `/var/lib/node-red` | `/data`
+InfluxDB | `/var/lib/influxdb`| `/data`
+Grafana | `/var/lib/grafana`| `/var/lib/grafana`
 
 You can quickly override the default locations on the **host** (e.g. for testing). You do this by setting the environment variable `TTN_DASHBOARD_DATA` to the **absolute path** to the containing direcotry prior to calling `docker-compose up`. The above paths are appended to the value of `TTN_DASHBOARD_DATA`. Directories are created as needed. Consider the following example:
 ```bash
@@ -107,10 +107,10 @@ This version requires that you set up Node-RED, the database and the grafana das
 
 There is one point that is somewhat confusing about the connections from Node-RED and Grafana to InfluxDB. Even though InfluxDB is running on the same host, it is logically running on its own virtual machine (created by docker). Because of this, Node-RED and Grafana cannot use **localhost** when connecting to Grafana. A special name is provided by docker: **influxdb**.  Note that there's no DNS suffix.  If you don't use **influxdb**, Node-RED and Grafana will not be able to connect.
 
-### Connecting to Grafana
+## Logging in to Grafana
 * On the login screen, the user name is "admin". The password is given by the value of the variable `GF_SECURITY_ADMIN_PASSWORD` in `grafana/.env`.
 
-### Settings in Grafana
+### Data source settings in Grafana
 * Set the URL (under Http Settings) to `http://influxdb:8086`.
 * Select the database. There's a default database called "demo", which is always created. (This is determined by the file `influxdb/.env`.)
 * Set the user to "admin"

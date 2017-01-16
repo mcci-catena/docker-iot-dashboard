@@ -41,49 +41,82 @@ This can be visualized as below:
 
 ## Composition and External Ports
 
+Within their containers, the individual programs use their usual ports, but these are isolated from the outside world, except as specified by `docker-compose.yml`.
+
+In `docker-compose.yml`, the following ports on the docker host are connected to the individual programs.
+
 * Node-RED runs on port 1880.
 * Grafana runs on port 80.
-* InfluxDB runs on port 8086 and is linked as host name **influxdb** (without a domain name; this is used when connecting from the other two docker images, so as to keep the traffic internal to the node).
-* In addition InfluxDB exports an administrative web interface on port 8083.
+* The API port for InfluxDB runs on port 8086 and is linked as host name **influxdb** (without a domain name; this is used when connecting from the other two docker images, so as to keep the traffic internal to the node).
+* The administrative services for InfluxDB are available to a web browser on port 8083.
+
+Remember, if your server is running on a cloud platform like Microsoft Azure or AWS, you'll either need to open up the firewall (and deal with security), or use SSH tunneling as described above.
 
 ## Installation
 
-1. Define root URL and passwords in `grafana/.env` and `influxdb/.env`
-2. `% docker-compose build`
-3. `% docker-compose up`
-4. Open Node-RED on **http://machine.example.net:1880** (or, if using the above SSH mappings, **[http://localhost:11880](http://localhost:11880)**) and build a flow that stores data in InfluxDB
-5. Open Grafana on **http://machine.example.net** (or, if using the above SSH mappings, **[http://localhost:10080](http://localhost:10080)**), and build a dashboard that retrieves data from InfluxDB
+1. Make sure your server has `git`, `docker` and `docker-compose` installed, with the versions mentioned above under **Assumptions**.
+2. Use `git clone` to copy this repository to your host.
+3. Define root URL and passwords in `grafana/.env` and `influxdb/.env`
+4. `% docker-compose build`
+5. `% docker-compose up`
+6. Open Node-RED on **http://machine.example.net:1880** (or, if using the above SSH mappings, **[http://localhost:11880](http://localhost:11880)**) and build a flow that stores data in InfluxDB
+7. Open Grafana on **http://machine.example.net** (or, if using the above SSH mappings, **[http://localhost:10080](http://localhost:10080)**), and build a dashboard that retrieves data from InfluxDB
 
 ## Data Files
 
-Datafiles are kept in the following locations by default.
+When designing this collection of services, we had to decide where to store the data files. We had two choices: keep them inside the docker containers, or keep them in locations on the host system. The advantage of the the former is that everything is reset when you rebuild the docker images. The disavantage of the former is that you lose all your data when you rebuild. On the other hand, there's another level of indirection when keeping things on the host, as the files reside in different locations on the host and in the docker containers.
 
-Component | Data file location
-----------|-------------------
-Node-RED | `/var/log/node-red`
-InfluxDB | `/var/log/influxdb`
-Grafana | `/var/log/grafana`
+Data files are kept in the following locations by default.
 
-You can store these data files in a different location by setting the environment variable `TTN_DASHBOARD_DATA` to the **absolute path** to the containing direcotry. The above paths are appended to the value of `TTN_DASHBOARD_DATA`. Directories are created as needed. For example:
-```sh
-export TTN_DASHBOARD_DATA=/dashboard-data
-docker-compose up -d
+Component | Data file location on host | Location in container
+----------|----------------------------|----------------------
+Node-RED | `/var/lib/node-red` | /data
+InfluxDB | `/var/lib/influxdb`| /data
+Grafana | `/var/lib/grafana`| /var/lib/grafana
+
+You can quickly override the default locations on the **host** (e.g. for testing). You do this by setting the environment variable `TTN_DASHBOARD_DATA` to the **absolute path** to the containing direcotry prior to calling `docker-compose up`. The above paths are appended to the value of `TTN_DASHBOARD_DATA`. Directories are created as needed. Consider the following example:
+```bash
+% export TTN_DASHBOARD_DATA=/dashboard-data
+% docker-compose up -d
 ```
 In this case, the data files are created in the following locations:
 
 Component | Data file location
 ----------|-------------------
-Node-RED | `/dashboard-data/var/log/node-red`
-InfluxDB | `/dashboard-data/var/log/influxdb`
-Grafana | `/dashboard-data/var/log/grafana`
+Node-RED | `/dashboard-data/var/lib/node-red`
+InfluxDB | `/dashboard-data/var/lib/influxdb`
+Grafana | `/dashboard-data/var/lib/grafana`
 
-Data files left in these locations will be resued.
+### Reuse and removal of data files
+Since data files on the host are not removed between runs, as long as you
+don't remove the files betewwn runs, your data will preserved.
 
-## Examples
+Sometimes this is inconvienient, and you'll want to remove some or all of the
+data. For a variety of reasons, the data files and directories are created owned by root, so you must use the `sudo` command to remove the data files. Here's an example of how to do it:
+```bash
+% sudo rm -rf /var/lib/node-red
+% sudo rm -rf /var/lib/influxdb
+% sudo rm -rf /var/lib/grafana
+```
 
-Node-RED installs with several example flows that reads data from test nodes and stores the data in InfluxDB. Import the example from Menu > Import > Library, and then edit both the TTN connection (on the left) and the InfluxDB connection (on the right).
+## Node-RED and Grafana Examples
 
-This version requires that you set up the database and the grafana dashboards manually, but we hope to add a reasonable set of initial files in the next release.
+This version requires that you set up Node-RED, the database and the grafana dashboards manually, but we hope to add a reasonable set of initial files in the next release.
+
+## Connecting to InfluxDB from Node-RED and Grafana
+
+There is one point that is somewhat confusing about the connections from Node-RED and Grafana to InfluxDB. Even though InfluxDB is running on the same host, it is logically running on its own virtual machine (created by docker). Because of this, Node-RED and Grafana cannot use **localhost** when connecting to Grafana. A special name is provided by docker: **influxdb**.  Note that there's no DNS suffix.  If you don't use **influxdb**, Node-RED and Grafana will not be able to connect.
+
+### Connecting to Grafana
+* On the login screen, the user name is "admin". The password is given by the value of the variable `GF_SECURITY_ADMIN_PASSWORD` in `grafana/.env`.
+
+### Settings in Grafana
+* Set the URL (under Http Settings) to `http://influxdb:8086`.
+* Select the database. There's a default database called "demo", which is always created. (This is determined by the file `influxdb/.env`.)
+* Set the user to "admin"
+* Set the password to the value given for `INFLUXDB_INIT_PWD` in `influxdb/.env`.
+* Click "Save & Test".
+
 
 ## Acknowledgements
 This builds on work done by Johan Stokking of [The Things Network](www.thethingsnetwork.org) for the staging environment. Additional adaptation done by Terry Moore of [MCCI](www.mcci.com).

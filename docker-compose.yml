@@ -1,6 +1,7 @@
 version: '2'
 services:
   node-red:
+    restart: unless-stopped
     build: node-red
     user: "root"
     volumes:
@@ -11,6 +12,7 @@ services:
       - influxdb
     
   influxdb:
+    restart: unless-stopped
     image: tutum/influxdb:0.9
     env_file: influxdb/.env
     volumes:
@@ -20,6 +22,7 @@ services:
       - "8086:8086"
   
   grafana:
+    restart: unless-stopped
     image: grafana/grafana
     env_file: grafana/.env
     volumes:

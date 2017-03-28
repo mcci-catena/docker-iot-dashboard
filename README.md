@@ -76,7 +76,7 @@ Node-RED | `/var/lib/node-red` | `/data`
 InfluxDB | `/var/lib/influxdb`| `/data`
 Grafana | `/var/lib/grafana`| `/var/lib/grafana`
 
-You can quickly override the default locations on the **host** (e.g. for testing). You do this by setting the environment variable `TTN_DASHBOARD_DATA` to the **absolute path** to the containing direcotry prior to calling `docker-compose up`. The above paths are appended to the value of `TTN_DASHBOARD_DATA`. Directories are created as needed. Consider the following example:
+You can quickly override the default locations on the **host** (e.g. for testing). You do this by setting the environment variable `TTN_DASHBOARD_DATA` to the **absolute path** to the containing directory prior to calling `docker-compose up`. The above paths are appended to the value of `TTN_DASHBOARD_DATA`. Directories are created as needed. Consider the following example:
 ```bash
 % export TTN_DASHBOARD_DATA=/dashboard-data
 % docker-compose up -d
@@ -91,7 +91,7 @@ Grafana | `/dashboard-data/var/lib/grafana`
 
 ### Reuse and removal of data files
 Since data files on the host are not removed between runs, as long as you
-don't remove the files betewwn runs, your data will preserved.
+don't remove the files between runs, your data will preserved.
 
 Sometimes this is inconvienient, and you'll want to remove some or all of the
 data. For a variety of reasons, the data files and directories are created owned by root, so you must use the `sudo` command to remove the data files. Here's an example of how to do it:

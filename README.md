@@ -60,7 +60,9 @@ Remember, if your server is running on a cloud platform like Microsoft Azure or 
 2. Use `git clone` to copy this repository to your host.
 3. Define root URL and passwords in `grafana/.env` and `influxdb/.env`
 4. `% docker-compose build`
+   If this fails with the message, `ERROR: Couldn't connect to Docker daemon at http+docker://localunixsocket - is it running?`, then probably your user ID is not in the `docker` group. To fix this, `sudo adduser MYUSER docker`, where "MYUSER" is your login ID. Then **very important** log out and log back in.
 5. `% docker-compose up`
+   If this fails (for example, Node-RED dies with a "killed" status), confirm taht you have a directory named `/var/lib/node-red`, that it's owned by root, and that it has typical directory permissions.
 6. Open Node-RED on **http://machine.example.net:1880** (or, if using the above SSH mappings, **[http://localhost:11880](http://localhost:11880)**) and build a flow that stores data in InfluxDB
 7. Open Grafana on **http://machine.example.net** (or, if using the above SSH mappings, **[http://localhost:10080](http://localhost:10080)**), and build a dashboard that retrieves data from InfluxDB
 

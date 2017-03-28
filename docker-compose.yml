@@ -13,7 +13,7 @@ services:
     
   influxdb:
     restart: unless-stopped
-    image: tutum/influxdb:0.9
+    image: tutum/influxdb
     env_file: influxdb/.env
     volumes:
       - "${TTN_DASHBOARD_DATA}/var/lib/influxdb:/data"

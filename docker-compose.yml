@@ -1,34 +1,51 @@
 version: '2'
 services:
+  # the apache server connects us to the outside world
+  apache:
+    restart: unless-stopped
+    build: apache
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "${TTN_DASHBOARD_DATA}/var/lib/docker-apache2/htdocs:/usr/local/apache2/htdocs"
+      - "${TTN_DASHBOARD_DATA}/var/lib/docker-apache2/letsencrypt:/etc/letsencrypt"
+      - "${TTN_DASHBOARD_DATA}/var/lib/docker-apache2/authdata:/etc/apache2/authdata"
+
+    #
+    # apache proxies for all of the below, so it needs to have links to them.
+    # Examine apache/proxy-*.conf to see how the links are set up. Also bear
+    # in mind that the individual servers (e.g. grafana) may need to be
+    # informed about the nature of the redirections.
+    #
+    links:
+      - grafana
+      - node-red
+      - influxdb
+
   node-red:
     restart: unless-stopped
     build: node-red
     user: "root"
     volumes:
       - "${TTN_DASHBOARD_DATA}/var/lib/node-red:/data"
-    ports:
-      - "1880:1880"
+    # nodered opens ports on influxdb so it needs to be able to talk to it.
     links:
       - influxdb
-    
+
   influxdb:
     restart: unless-stopped
     image: tutum/influxdb
     env_file: influxdb/.env
     volumes:
       - "${TTN_DASHBOARD_DATA}/var/lib/influxdb:/data"
-    ports:
-      - "8083:8083"
-      - "8086:8086"
-  
+
   grafana:
     restart: unless-stopped
     image: grafana/grafana
     env_file: grafana/.env
     volumes:
       - "${TTN_DASHBOARD_DATA}/var/lib/grafana:/var/lib/grafana"
-    ports:
-      - "80:3000"
+    # grafana opens ports on influxdb, so it needs to be able to talk to it.
     links:
       - influxdb
-

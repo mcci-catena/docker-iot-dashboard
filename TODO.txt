@@ -1,0 +1,15 @@
+1) Prepare a script that queries the user during the setup and sets the 
+grafana admin user name and initial password (seeding grafana/.env, or 
+overriding it).
+
+2) the script should also get names and roles for access to node-red and
+influxdb. It then will seed .hgaccess and .htgroup. 
+
+3) same script should be able to show user-by-user roles, and adjust them.
+
+4) Add the auto-update cron script 
+
+5) See if there's a way to make the docker-compose print a message and stop 
+if the configuration operation hasn't been done.
+
+6) update the README.md

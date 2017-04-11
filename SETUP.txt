@@ -1,0 +1,23 @@
+1) in ./apache/certbot-config.sh, change the FQDN to the FQDN of this server.
+
+2) in ./apache/proxy-*.sh, change all the FQDNs to the FQDN of this server.
+
+3) add {APACHE}/etc/apache2/authdata as user www-data
+
+4) add {APACHE}/etc/apache2/authdata/.htpasswd as user www-data, and
+
+5) htpasswd /etc/apache2/authdata/.htpasswd {tmm}
+>>>>enter password twice
+
+6) add {APACHE}/etc/apache2/authdata/.htgroup (owned by www-data) and enter:
+node-red: {tmm}
+admin: {tmm}
+query: {tmm}
+
+7) verify that grafana is working at https://{FQDN}/ and https:{{F
+
+8) verify that you can log in as https://ithaca-power.mcci.com/node-red/ and
+https://ithaca-power.mcci.com/influxdb/
+
+9) In influxdb UI, change the query URL to https://{FQDN}/influxdb, [x] SSL,
+and then save; provide credentials;

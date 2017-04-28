@@ -35,9 +35,10 @@ This can be visualized as below:
 ## Assumptions
 
 * You must have docker-compose 1.9 or later (for which see https://github.com/docker-compose -- be aware that apt-get normally doesn't grab this; if configured at all, it frequently gets an out-of-date version).
-* `/var/lib/node-red` will have your local Node-RED data.
-* `/var/lib/influxdb` will have your local influxdb data (this is what you should back up)
-* `/var/lib/grafana` will have your dashboards
+* The environment variable `TTN_DASHBOARD_DATA`, if set, points to the common directory for your data.
+* `${TTN_DASHBOARD_DATA}/var/lib/node-red` will have your local Node-RED data.
+* `${TTN_DASHBOARD_DATA}/var/lib/influxdb` will have your local influxdb data (this is what you should back up)
+* `${TTN_DASHBOARD_DATA}/var/lib/grafana` will have your dashboards
 
 ## Composition and External Ports
 
@@ -125,9 +126,9 @@ This code is not yet on the main branch because of the following remaining work 
 2. admin script to show roles and maintain the htpasswd 
 3. add the auto-update cron script -- right now you have to restart in order to get the SSL certs updated. Not a big deal, as the patches-requiring-reboot interval is shorter than the life of the certs, but still, this should be fixed.
 4. Switch to [phusion](https://github.com/phusion/baseimage-docker) for the base inmage, instead of ubuntu.
-5. add a safety check, so that a manual launch without running the configuration script will cause things to display a useful message and shut down.
+5. add a safety check, so that a manual launch without running the configuration script will cause things to display a useful message and shut down. At that point, we can make `TTN_DASHBOARD_DATA` mandatory, and set it to `/var/lib` by default.
 6. providue suitable intial files for Grafana and NodeRed, assuming Catena-4450 sensor node.
-7. the intial script should prompt for the data base naem.
+7. the intial script should prompt for the data base name.
 
 ## Acknowledgements
 This builds on work done by Johan Stokking of [The Things Network](www.thethingsnetwork.org) for the staging environment. Additional adaptation done by Terry Moore of [MCCI](www.mcci.com).

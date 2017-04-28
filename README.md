@@ -116,8 +116,7 @@ There is one point that is somewhat confusing about the connections from Node-RE
 ### Data source settings in Grafana
 * Set the URL (under Http Settings) to `http://influxdb:8086`.
 * Select the database. There's a default database called "demo", which is always created. (This is determined by the file `influxdb/.env`.)
-* Set the user to "admin"
-* Set the password to the value given for `INFLUXDB_INIT_PWD` in `influxdb/.env`.
+* Leave user and password blank.
 * Click "Save & Test".
 
 ## Future work

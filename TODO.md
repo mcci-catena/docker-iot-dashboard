@@ -1,4 +1,8 @@
+1. Convert to (phusion)[https://github.com/phusion/baseimage-docker]; documents are (here)[http://phusion.github.io/baseimage-docker/]
+
 1. Prepare a script that queries the user during the setup and sets the grafana admin user name and initial password (seeding grafana/.env, or overriding it).
+
+2. don't forget to exclude grafana/.env from the git repo, so there are no passwords at all. 
 
 2. the script should also get names and roles for access to node-red and influxdb. It then will seed .hgaccess and .htgroup.
 

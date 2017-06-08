@@ -1,6 +1,6 @@
 1. Convert to (phusion)[https://github.com/phusion/baseimage-docker]; documents are (here)[http://phusion.github.io/baseimage-docker/]
 
-1. Prepare a script that queries the user during the setup and sets the grafana admin user name and initial password (seeding grafana/.env, or overriding it).
+1. Prepare a script that queries the user during the setup and sets the grafana admin user name and initial password (seeding grafana/.env, or overriding it). Also set name of influxdb database (change from demo).
 
 2. don't forget to exclude grafana/.env from the git repo, so there are no passwords at all. 
 

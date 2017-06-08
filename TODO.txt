@@ -13,3 +13,8 @@ influxdb. It then will seed .hgaccess and .htgroup.
 if the configuration operation hasn't been done.
 
 6) update the README.md
+
+7) integrate the other things from SETUP.txt
+
+8) Change to use phusion as the base: use phusion/baseimage rather than 
+ubuntu/ubuntu, and then add the proper tweaks. See https://github.com/phusion/baseimage-docker

@@ -40,11 +40,15 @@ module.exports = {
     //  defaults to no timeout
     //socketTimeout: 120000,
 
+    // Timeout in milliseconds for HTTP request connections
+    //  defaults to 120 seconds
+    //httpRequestTimeout: 120000,
+
     // The maximum length, in characters, of any message sent to the debug sidebar tab
     debugMaxLength: 1000,
 
     // The file containing the flows. If not set, it defaults to flows_<hostname>.json
-    flowFile: 'flows.json',
+    //flowFile: 'flows.json',
 
     // To enabled pretty-printing of the flow within the flow file, set the following
     //  property to true:
@@ -71,7 +75,7 @@ module.exports = {
 
     // The following property can be used in place of 'httpAdminRoot' and 'httpNodeRoot',
     // to apply the same root to both parts.
-    //httpRoot: '/red',
+    // httpRoot: '/node-red',
 
     // When httpAdminRoot is used to move the UI to a different root path, the
     // following property can be used to identify a directory of static content

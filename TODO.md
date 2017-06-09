@@ -1,4 +1,4 @@
-1. Convert to (phusion)[https://github.com/phusion/baseimage-docker]; documents are (here)[http://phusion.github.io/baseimage-docker/]
+1. Convert to [phusion](https://github.com/phusion/baseimage-docker); documents are [here](http://phusion.github.io/baseimage-docker/)
 
 2. Prepare a script that queries the user during the setup and sets the grafana admin user name and initial password (seeding grafana/.env, or overriding it). Also set name of influxdb database (change from demo).  And change all the FQDNs.And change the email address in certbot-config.sh.
 

@@ -25,22 +25,22 @@ first boot**.
    ```sh
 	for each USER in $USERS ; do 
 		htpasswd /etc/apache2/authdata/.htpasswd $USER
->>>>enter password twice
+   >>>>enter password twice
 	done
    ```
    4. add {APACHE}/etc/apache2/authdata/.htgroup (owned by www-data)
    ```sh
 	touch /etc/apache2/authdata/.htgroup
 	chown www-data /etc/apache2/authdata/.htgroup
-	echo "node-red: ${USERS} >>/etc/apache2/authdata/.htgroup
-	echo "admin: ${USERS} >>/etc/apache2/authdata/.htgroup
-	echo "group: ${USERS} >>/etc/apache2/authdata/.htgroup
+	echo "node-red: ${USERS}" >>/etc/apache2/authdata/.htgroup
+	echo "admin: ${USERS}" >>/etc/apache2/authdata/.htgroup
+	echo "group: ${USERS}" >>/etc/apache2/authdata/.htgroup
    ```
 
 7. verify that grafana is working at https://{FQDN}/ and https://{FQDN}/grafana
 
-8. verify that you can log in as https://ithaca-power.mcci.com/node-red/ and
-https://ithaca-power.mcci.com/influxdb/
+8. verify that you can log in as https://{FQDN}/node-red/ and
+https://{FQDN}/influxdb/
 
 9. In influxdb UI, change the query URL to https://{FQDN}/influxdb, [x] SSL,
 don't fill in user name here, just press save. Browser will ask for credentials; provide credentials.

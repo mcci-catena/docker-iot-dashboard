@@ -1,3 +1,9 @@
+1. Make sure that you have the following tools installed on the host server.
+
+   Tool|On Ubuntu|On CentOS 7
+   ----|---------|-----------
+   `htpasswd`|`sudo apt-get install apache2-utils`|`sudo yum install httpd-tools`
+
 1. in `./apache/certbot-config.sh`, change the FQDN to the FQDN of this server.
 
 2. in `./apache/certbot-config.sh`, add CERTBOT\_EMAIL with the right email address for use with certbot certificate requests.
@@ -34,7 +40,7 @@ first boot**.
 	chown www-data /etc/apache2/authdata/.htgroup
 	echo "node-red: ${USERS}" >>/etc/apache2/authdata/.htgroup
 	echo "admin: ${USERS}" >>/etc/apache2/authdata/.htgroup
-	echo "group: ${USERS}" >>/etc/apache2/authdata/.htgroup
+	echo "query: ${USERS}" >>/etc/apache2/authdata/.htgroup
    ```
 
 7. verify that grafana is working at https://{FQDN}/ and https://{FQDN}/grafana

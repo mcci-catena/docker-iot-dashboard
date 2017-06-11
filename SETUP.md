@@ -19,7 +19,7 @@ first boot**.
    2. add {APACHE}/etc/apache2/authdata/.htpasswd as user www-data
    ```sh
 	touch /etc/apache2/authdata/.htpasswd
-	chown www-data /etc/apache2/.htpasswd
+	chown www-data /etc/apache2/authdata/.htpasswd
    ```
    3. Add user logins for influxdb, queries, node-red. Make `USERS` be a list of login IDs.
    ```sh

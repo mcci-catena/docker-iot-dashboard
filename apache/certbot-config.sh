@@ -1,3 +1,3 @@
 # change this to the actual FQDN(s) of the server
-CERTBOT_DOMAINS="mcci-ttn-demo.mcci.com"
-CERTBOT_EMAIL="tmm@mcci.com"
+CERTBOT_DOMAINS="@{DOMAINS}"
+CERTBOT_EMAIL="@{CERBOT_EMAIL}"

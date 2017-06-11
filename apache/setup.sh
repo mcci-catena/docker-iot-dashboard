@@ -44,7 +44,7 @@ if [ -z "$APACHE_FQDN" -o "$APACHE_FQDN" = "." ]; then
 fi
 
 # run cerbot to set up apache
-if [ "$CERTBOT_TEST" = "test" ]; then
+if [ "$CERTBOT_TEST" != "test" ]; then
     certbot --agree-tos --email "${CERTBOT_EMAIL}" --non-interactive --domains "$CERTBOT_DOMAINS" --apache --agree-tos --rsa-key-size 4096 --redirect || exit 4
 
     # certbot actually launched apache. The simple hack is to stop it; then launch 

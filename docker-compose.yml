@@ -107,16 +107,16 @@ services:
 
   influxdb:
     restart: unless-stopped
-    image: tutum/influxdb
+    image: influxdb:1.2.4
     volumes:
-      - "${TTN_DASHBOARD_DATA}influxdb:/data"
+      - "${TTN_DASHBOARD_DATA}influxdb:/var/lib/influxdb"
     environment:
       INFLUXDB_INIT_PWD: "${TTN_DASHBOARD_INFLUXDB_ADMIN_PASSWORD:-!notset}"
       PRE_CREATE_DB: "${TTN_DASHBOARD_INFLUXDB_INITIAL_DATABASE_NAME:-demo}"
 
   grafana:
     restart: unless-stopped
-    image: grafana/grafana
+    image: grafana/grafana:4.3.2
     volumes:
       - "${TTN_DASHBOARD_DATA}grafana:/var/lib/grafana"
     environment:

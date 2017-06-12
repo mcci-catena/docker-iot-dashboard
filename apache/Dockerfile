@@ -21,7 +21,7 @@ RUN /usr/sbin/a2enmod proxy && \
     /usr/sbin/a2enmod authz_user authz_groupfile proxy_wstunnel
 
 # RUN mkdir -p /root
-COPY setup.sh certbot-config.sh proxy-*.conf /root/
+COPY setup.sh proxy-*.conf /root/
 
 #
 # we need to run cron (for letsencrypt update) and apache. Try doing it

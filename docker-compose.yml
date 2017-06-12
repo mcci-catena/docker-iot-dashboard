@@ -1,16 +1,88 @@
-version: '2'
+##############################################################################
+#
+# Name: docker-compose.yml
+#
+# Function:
+# 	Configure the docker-ttn-dashboard collection of docker containers.
+#
+# Copyright:
+#	This file copyright (c) 2017 by
+#
+#		MCCI Corporation
+#		3520 Krums Corners Road
+#		Ithaca, NY 14850
+#
+#	Distributed under the terms of the license file shipped with this
+#	collection.
+#
+# Author:
+#	Terry Moore, MCCI Corporation 
+#	Based on work by Johan Stocking, The Things Network
+#
+##############################################################################
+
+#
+# Note: if you are running this manually, you must set a number of variables,
+# not least TTN_DASHBOARD_DATA, which must be the path to the top data directory
+# for these apps. If you use dashboard-ctl, this will be done for you.
+#
+# To get a list of all variables used in this file, use the following command:
+# sed -n -e 's/[^$]*${\([^:-}]*\)[:-}][^$]*/\1\n/gp' docker-compose.yml | sort -u
+#
+# TTN_DASHBOARD_APACHE_FQDN
+#	The fully-qualified domain name to be served by Apache.
+#
+# TTN_DASHBOARD_CERTBOT_EMAIL
+#	The email address to be used for registering with Let's Encrypt.
+#
+# TTN_DASHBOARD_CERTBOT_FQDN
+#	The domain(s) to be used by certbot when registering with Let's Encrypt.
+#
+# TTN_DASHBOARD_DATA
+#	The path to the data directory. This must end with a '/', and must either
+#	be absolute or must begin with './'. (If not, you'll get parse errors.)
+#
+# TTN_DASHBOARD_GRAFANA_ADMIN_PASSWORD
+#	The password to be used for the admin user on first login. This is ignored
+#	after the Grafana database has been built.
+#
+# TTN_DASHBOARD_INFLUXDB_ADMIN_PASSWORD
+#	The password to be used for the admin user by influxdb. Again, this is 
+#	ignored after the influxdb database has been built.
+#
+# TTN_DASHBOARD_INFLUXDB_INITIAL_DATABASE_NAME
+#	The inital database to be created on first launch of influxdb. Ignored
+#	after influxdb has been launched.
+#
+# TTN_DASHBOARD_PORT_HTTP
+#	The port to listen to for HTTP. Primarily for test purposes. Defaults to 
+#	80.
+#
+# TTN_DASHBOARD_PORT_HTTPS
+#	The port to listen to for HTTPS. Primarily for test purposes. Defaults to 
+#	443.
+#
+# Also see apache/setup.sh, which uses some additional test variables when
+# debugging.
+#
+
+version: '2.1'
 services:
   # the apache server connects us to the outside world
   apache:
+    environment:
+      CERTBOT_DOMAINS: "${TTN_DASHBOARD_CERTBOT_FQDN:-.}"
+      CERTBOT_EMAIL: "${TTN_DASHBOARD_CERTBOT_EMAIL:-.}"
+      APACHE_FQDN: "${TTN_DASHBOARD_APACHE_FQDN:-.}"
     restart: unless-stopped
     build: apache
     ports:
-      - "80:80"
-      - "443:443"
+      - "${TTN_DASHBOARD_PORT_HTTP:-80}:80"
+      - "${TTN_DASHBOARD_PORT_HTTPS:-443}:443"
     volumes:
-      - "${TTN_DASHBOARD_DATA}/var/lib/docker-apache2/htdocs:/usr/local/apache2/htdocs"
-      - "${TTN_DASHBOARD_DATA}/var/lib/docker-apache2/letsencrypt:/etc/letsencrypt"
-      - "${TTN_DASHBOARD_DATA}/var/lib/docker-apache2/authdata:/etc/apache2/authdata"
+      - "${TTN_DASHBOARD_DATA}docker-apache2/htdocs:/usr/local/apache2/htdocs"
+      - "${TTN_DASHBOARD_DATA}docker-apache2/letsencrypt:/etc/letsencrypt"
+      - "${TTN_DASHBOARD_DATA}docker-apache2/authdata:/etc/apache2/authdata"
 
     #
     # apache proxies for all of the below, so it needs to have links to them.
@@ -28,24 +100,31 @@ services:
     build: node-red
     user: "root"
     volumes:
-      - "${TTN_DASHBOARD_DATA}/var/lib/node-red:/data"
+      - "${TTN_DASHBOARD_DATA}node-red:/data"
     # nodered opens ports on influxdb so it needs to be able to talk to it.
     links:
       - influxdb
 
   influxdb:
     restart: unless-stopped
-    image: tutum/influxdb
-    env_file: influxdb/.env
+    image: influxdb:1.2.4
     volumes:
-      - "${TTN_DASHBOARD_DATA}/var/lib/influxdb:/data"
+      - "${TTN_DASHBOARD_DATA}influxdb:/var/lib/influxdb"
+    environment:
+      INFLUXDB_INIT_PWD: "${TTN_DASHBOARD_INFLUXDB_ADMIN_PASSWORD:-!notset}"
+      PRE_CREATE_DB: "${TTN_DASHBOARD_INFLUXDB_INITIAL_DATABASE_NAME:-demo}"
 
   grafana:
     restart: unless-stopped
-    image: grafana/grafana
-    env_file: grafana/.env
+    image: grafana/grafana:4.3.2
     volumes:
-      - "${TTN_DASHBOARD_DATA}/var/lib/grafana:/var/lib/grafana"
+      - "${TTN_DASHBOARD_DATA}grafana:/var/lib/grafana"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: "${TTN_DASHBOARD_GRAFANA_ADMIN_PASSWORD:-!notset}"
+      GF_SERVER_ROOT_URL: '%(protocol)s://%(domain)s:%(http_port)s/grafana/'
+
     # grafana opens ports on influxdb, so it needs to be able to talk to it.
     links:
       - influxdb
+
+### end of file ###

@@ -3,7 +3,7 @@
 #
 
 # build the node red image using the offical node red distribution
-FROM nodered/node-red-docker
+FROM nodered/node-red-docker:0.16.2
 
 # add the influxDB connector
 RUN npm install node-red-contrib-influxdb

@@ -46,6 +46,22 @@
 #	The password to be used for the admin user on first login. This is ignored
 #	after the Grafana database has been built.
 #
+# TTN_DASHBOARD_GRAFANA_PROJECT_NAME
+#	The project name to be used for the emails from the administrator.
+#
+# TTN_DASHBOARD_GRAFANA_LOG_MODE
+#	Set the grafana log mode.
+#
+# TTN_DASHBOARD_GRAFANA_LOG_LEVEL
+#	Set the grafana log level (e.g. debug)
+#
+# TTN_DASHBOARD_GRAFANA_SMTP_ENABLED
+#	Set to true to enable SMTP.
+#
+# TTN_DASHBOARD_GRAFANA_SMTP_HOST_FQDN
+#	The FQDN of the smtp host to be used for sending mail.
+#	Defaults to localhost.
+#
 # TTN_DASHBOARD_INFLUXDB_ADMIN_PASSWORD
 #	The password to be used for the admin user by influxdb. Again, this is 
 #	ignored after the influxdb database has been built.
@@ -121,7 +137,14 @@ services:
       - "${TTN_DASHBOARD_DATA}grafana:/var/lib/grafana"
     environment:
       GF_SECURITY_ADMIN_PASSWORD: "${TTN_DASHBOARD_GRAFANA_ADMIN_PASSWORD:-!notset}"
-      GF_SERVER_ROOT_URL: '%(protocol)s://%(domain)s:%(http_port)s/grafana/'
+      GF_SERVER_DOMAIN: ${TTN_DASHBOARD_APACHE_FQDN}
+      GF_SERVER_ROOT_URL: 'https://%(domain)s/grafana/'
+      GF_SMTP_ENABLED: ${TTN_DASHBOARD_GRAFANA_SMTP_ENABLED:-false}
+      GF_SMTP_HOST: ${TTN_DASHBOARD_GRAFANA_SMTP_HOST_FQDN:-localhost}:25
+      GF_SMTP_FROM_ADDRESS: "grafana@${TTN_DASHBOARD_GRAFANA_SMTP_HOST_FQDN:-localhost}"
+      GF_SMTP_FROM_NAME: "${TTN_DASHBOARD_GRAFANA_PROJECT_NAME:-Default} grafana admin"
+      GF_LOG_MODE: ${TTN_DASHBOARD_GRAFANA_LOG_MODE:-console,file}
+      GF_LOG_LEVEL: ${TTN_DASHBOARD_GRAFANA_LOG_LEVEL:-info}
 
     # grafana opens ports on influxdb, so it needs to be able to talk to it.
     links:

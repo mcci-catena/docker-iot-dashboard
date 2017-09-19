@@ -130,6 +130,27 @@ services:
       INFLUXDB_INIT_PWD: "${TTN_DASHBOARD_INFLUXDB_ADMIN_PASSWORD:-!notset}"
       PRE_CREATE_DB: "${TTN_DASHBOARD_INFLUXDB_INITIAL_DATABASE_NAME:-demo}"
 
+  ############# Murugan Changes for influxdb backup
+
+  influxdb-backup:
+    restart: unless-stopped
+    image: muruganchandrasekar/influxdb_backup_1.2.4:latest
+    volumes:
+     # Dircectory for database backup
+      - "${TTN_DASHBOARD_DATA}influx-backup:/tmp/backup"
+     # Connecting influxdb data directory to extra instances
+      - "${TTN_DASHBOARD_DATA}influxdb:/var/lib/influxdb"
+     # dropbox syncing
+#      - "/home/cmurugan/Dropbox/murugan:/tmp/backup"
+    environment:
+      INFLUX_HOST: influxdb                                  
+      DATABASES: demo:_internal:testdb
+
+    links:
+      - "influxdb:influxdb"
+
+  ##############  Murugan Finished here
+
   grafana:
     restart: unless-stopped
     image: grafana/grafana:4.3.2

@@ -134,12 +134,16 @@ services:
     restart: unless-stopped
     build: influxdb-backup  
     volumes:
-     # Dircectory for database backup and also will be used for Dropbox
+     # Dircectory for database backup inside "./data" 
       - "${TTN_DASHBOARD_DATA}influx-backup:/var/lib/influxdb-backup"
      # Connecting influxdb data directory to extra instances
       - "${TTN_DASHBOARD_DATA}influxdb:/var/lib/influxdb"
     environment:
       INFLUX_HOST: influxdb                                  
+      S3_BUCKET_INFLUXDB: "${TTN_DASHBOARD_AWS_S3_BUCKET_INFLUXDB:-.}"
+      AWS_ACCESS_KEY_ID: "${TTN_DASHBOARD_AWS_ACCESS_KEY_ID:-.}"
+      AWS_SECRET_ACCESS_KEY: "${TTN_DASHBOARD_AWS_SECRET_ACCESS_KEY:-.}"
+      AWS_DEFAULT_REGION: "${TTN_DASHBOARD_AWS_DEFAULT_REGION:-.}"
     links:
       - "influxdb:influxdb"
 

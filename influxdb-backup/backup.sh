@@ -1,5 +1,5 @@
 #!/bin/bash
-#The Shell script will be used for taking backup 
+#The Shell script will be used for taking backup and send it to Amazon s3 bucket. 
 
 DATABASES=$(/bin/showdb.sh)
 
@@ -20,5 +20,6 @@ if [ $? -eq 0 ]; then
 
 fi
 
+# Remove the old backup data in local directory to avoid excessive storage use
 find /var/lib/amazon-bucket/ -type f -mtime +90 -exec rm {} \;
 

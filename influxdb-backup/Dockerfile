@@ -8,7 +8,7 @@ FROM phusion/baseimage
 # Install influxdb database
 RUN curl -sL https://repos.influxdata.com/influxdb.key | apt-key add -
 RUN echo "deb https://repos.influxdata.com/ubuntu xenial stable" > /etc/apt/sources.list.d/influxdb.list
-RUN apt-get install -y influxdb
+RUN apt-get update && apt-get install -y influxdb
 
 # To backup influxdb to S3 Bucket, some packages need to be installed as follows:
 RUN apt-get update && apt-get install -y python-pip 

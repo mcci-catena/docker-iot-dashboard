@@ -120,6 +120,7 @@ services:
     # nodered opens ports on influxdb so it needs to be able to talk to it.
     links:
       - influxdb
+      - postfix
 
   influxdb:
     restart: unless-stopped
@@ -145,11 +146,24 @@ services:
       AWS_SECRET_ACCESS_KEY: "${TTN_DASHBOARD_AWS_SECRET_ACCESS_KEY:-.}"
       AWS_DEFAULT_REGION: "${TTN_DASHBOARD_AWS_DEFAULT_REGION:-.}"
     links:
-      - "influxdb:influxdb"
+      - influxdb
+
+
+  postfix:
+    restart: unless-stopped
+    build: 
+      context: ./postfix 
+      dockerfile: Dockerfile 
+      args:
+        relay_ip: "${TTN_DASHBOARD_MAIL_RELAY_IP:-.}"
+        host_name: "${TTN_DASHBOARD_MAIL_HOST_NAME:-.}"
+    ports:
+        - "${TTN_DASHBOARD_PORT_POSTFIX:-25}:25"
+
 
   grafana:
     restart: unless-stopped
-    image: grafana/grafana:4.3.2
+    image: grafana/grafana:latest
     volumes:
       - "${TTN_DASHBOARD_DATA}grafana:/var/lib/grafana"
     environment:
@@ -157,14 +171,15 @@ services:
       GF_SERVER_DOMAIN: ${TTN_DASHBOARD_APACHE_FQDN}
       GF_SERVER_ROOT_URL: 'https://%(domain)s/grafana/'
       GF_SMTP_ENABLED: ${TTN_DASHBOARD_GRAFANA_SMTP_ENABLED:-false}
-      GF_SMTP_HOST: ${TTN_DASHBOARD_GRAFANA_SMTP_HOST_FQDN:-localhost}:25
-      GF_SMTP_FROM_ADDRESS: "grafana@${TTN_DASHBOARD_GRAFANA_SMTP_HOST_FQDN:-localhost}"
+      GF_SMTP_SKIP_VERIFY: ${TTN_DASHBOARD_GRAFANA_SMTP_SKIP_VERIFY:-false}
+      GF_SMTP_HOST: ${TTN_DASHBOARD_GRAFANA_SMTP_HOST:-localhost}:25
+      GF_SMTP_FROM_ADDRESS: "grafana@localhost.com"
       GF_SMTP_FROM_NAME: "${TTN_DASHBOARD_GRAFANA_PROJECT_NAME:-Default} grafana admin"
       GF_LOG_MODE: ${TTN_DASHBOARD_GRAFANA_LOG_MODE:-console,file}
       GF_LOG_LEVEL: ${TTN_DASHBOARD_GRAFANA_LOG_LEVEL:-info}
-
-    # grafana opens ports on influxdb, so it needs to be able to talk to it.
+    # grafana opens ports on influxdb and postfix, so it needs to be able to talk to it.
     links:
       - influxdb
+      - postfix
 
 ### end of file ###

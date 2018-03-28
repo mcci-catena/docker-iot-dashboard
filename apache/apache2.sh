@@ -1,2 +1,2 @@
 #!/bin/sh
-exec /usr/sbin/apache2 -f
+exec /usr/sbin/apache2 -k restart

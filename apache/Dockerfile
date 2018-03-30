@@ -28,6 +28,10 @@ RUN mkdir -p /etc/my_init.d
 COPY setup.sh /etc/my_init.d/setup.sh
 RUN chmod +x /etc/my_init.d/setup.sh
 
+# Enable letsencrypt renewal crontab
+COPY certbot_cron.sh /etc/my_init.d/certbot_cron.sh
+RUN chmod +x /etc/my_init.d/certbot_cron.sh
+
 # Start the Apache2 daemon during container startup
 RUN mkdir /etc/service/apache2
 COPY apache2.sh /etc/service/apache2/run

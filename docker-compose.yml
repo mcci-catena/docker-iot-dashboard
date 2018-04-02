@@ -124,12 +124,13 @@ services:
 
   influxdb:
     restart: unless-stopped
-    image: influxdb:1.2.4
+    image: influxdb:latest
     volumes:
       - "${TTN_DASHBOARD_DATA}influxdb:/var/lib/influxdb"
     environment:
       INFLUXDB_INIT_PWD: "${TTN_DASHBOARD_INFLUXDB_ADMIN_PASSWORD:-!notset}"
       PRE_CREATE_DB: "${TTN_DASHBOARD_INFLUXDB_INITIAL_DATABASE_NAME:-demo}"
+      INFLUXDB_BIND_ADDRESS: "influxdb:8088"
 
   influxdb-backup:
     restart: unless-stopped

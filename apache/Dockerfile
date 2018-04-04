@@ -2,8 +2,8 @@
 # Dockerfile for building the apache image
 #
 
-# gack. start from ubuntu.
-FROM ubuntu:latest
+# Start from Phusion.
+FROM phusion/baseimage
 
 RUN /usr/bin/apt-get update && /usr/bin/apt-get install software-properties-common -y
 RUN /usr/bin/add-apt-repository ppa:certbot/certbot && /usr/bin/apt-get update && /usr/bin/apt-get install apache2 -y
@@ -23,9 +23,18 @@ RUN /usr/sbin/a2enmod proxy && \
 # RUN mkdir -p /root
 COPY setup.sh proxy-*.conf /root/
 
-#
-# we need to run cron (for letsencrypt update) and apache. Try doing it
-# by launching with bash... supervisord is sort of heavy for our purposes.
-# 
-CMD [ "/bin/bash", "/root/setup.sh" ]
+# Running scripts during container startup for letsencrypt update and Apache
+RUN mkdir -p /etc/my_init.d
+COPY setup.sh /etc/my_init.d/setup.sh
+RUN chmod +x /etc/my_init.d/setup.sh
+
+# Enable letsencrypt renewal crontab
+COPY certbot_cron.sh /etc/my_init.d/certbot_cron.sh
+RUN chmod +x /etc/my_init.d/certbot_cron.sh
+
+# Start the Apache2 daemon during container startup
+RUN mkdir /etc/service/apache2
+COPY apache2.sh /etc/service/apache2/run
+RUN chmod +x /etc/service/apache2/run
+
 # end of file

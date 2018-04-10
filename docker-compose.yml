@@ -113,28 +113,38 @@ services:
 
   node-red:
     restart: unless-stopped
-    build: node-red
+    build: 
+      context: ./node-red
+      dockerfile: Dockerfile
+      args:
+        node_red_version: "${TTN_DASHBOARD_NODE_RED_VERSION:-'0.16.2'}"
+        node_red_contrib_version: "${TTN_DASHBOARD_NODE_RED_CONTRIB_VERSION:-'2.0.1'}"
     user: "root"
     volumes:
       - "${TTN_DASHBOARD_DATA}node-red:/data"
-    # nodered opens ports on influxdb so it needs to be able to talk to it.
+    # nodered opens ports on influxdb and postfix so it needs to be able to talk to it.
     links:
       - influxdb
       - postfix
 
   influxdb:
     restart: unless-stopped
-    image: influxdb:latest
+    image: "influxdb:${TTN_DASHBOARD_INFLUXDB_VERSION:-'1.4.0'}"
     volumes:
       - "${TTN_DASHBOARD_DATA}influxdb:/var/lib/influxdb"
     environment:
       INFLUXDB_INIT_PWD: "${TTN_DASHBOARD_INFLUXDB_ADMIN_PASSWORD:-!notset}"
       PRE_CREATE_DB: "${TTN_DASHBOARD_INFLUXDB_INITIAL_DATABASE_NAME:-demo}"
+    # Enabling remote backup for extra instance( influxdb-backup )
       INFLUXDB_BIND_ADDRESS: "influxdb:8088"
 
   influxdb-backup:
     restart: unless-stopped
-    build: influxdb-backup  
+    build:   
+      context: ./influxdb-backup
+      dockerfile: Dockerfile
+      args: 
+        version: "${TTN_DASHBOARD_INFLUXDB_VERSION:-'1.4.0'}"
     volumes:
      # Dircectory for database backup inside "./data" 
       - "${TTN_DASHBOARD_DATA}influx-backup:/var/lib/influxdb-backup"
@@ -146,6 +156,7 @@ services:
       AWS_ACCESS_KEY_ID: "${TTN_DASHBOARD_AWS_ACCESS_KEY_ID:-.}"
       AWS_SECRET_ACCESS_KEY: "${TTN_DASHBOARD_AWS_SECRET_ACCESS_KEY:-.}"
       AWS_DEFAULT_REGION: "${TTN_DASHBOARD_AWS_DEFAULT_REGION:-.}"
+    # grafana opens ports on influxdb, so it needs to be able to talk to it.
     links:
       - influxdb
 
@@ -164,7 +175,7 @@ services:
 
   grafana:
     restart: unless-stopped
-    image: grafana/grafana:latest
+    image: grafana/grafana:${TTN_DASHBOARD_GRAFANA_VERSION:-latest}
     volumes:
       - "${TTN_DASHBOARD_DATA}grafana:/var/lib/grafana"
     environment:

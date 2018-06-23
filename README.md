@@ -1,4 +1,4 @@
-Forked from mcci-catena/docker-ttn-dashboard (with gratitude) and adapted to for my project use case.
+Forked from [mcci-catena/docker-ttn-dashboard](https://github.com/mcci-catena/docker-ttn-dashboard) (with gratitude) and adapted for my project use case.
 
 Adaptions
 * Integration of chronograf, telegraf for browser based influxdb admin - web admin on influxdb deprecated sine version1.3.*

@@ -6,7 +6,7 @@ Adaptions
 * resolve some postfix installation issues
 * ... other
 
-# Dashboard example for The Things Network
+# IoT Dashboard Components
 
 This repository contains a complete example that grabs device data from The Things Network, stores it in a database, and then displays the data using a web-based dashboard.
 

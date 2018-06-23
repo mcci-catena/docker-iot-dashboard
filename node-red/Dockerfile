@@ -3,7 +3,7 @@
 #
 
 # build the node red image using the offical node red distribution
-FROM nodered/node-red-docker:0.16.2
+FROM nodered/node-red-docker:latest
 
 # To avoid SSL certification issue
 ENV NODE_TLS_REJECT_UNAUTHORIZED=0

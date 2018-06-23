@@ -41,7 +41,7 @@ For concreteness, the following table assumes that __base__ is `server.example.c
 To access | Open this link | Notes
 ----------|----------------|--------
 Node-RED | [https://server.example.com/node-red/](https://server.example.com/node-red/) | Port number is not needed and shouldn't be used.
-InfluxDB administrative page | [https://server.example.com/influxdb/](https://server.example.com/influxdb/) | Port number is not needed and shouldn't be used.
+Chronograf web admin fr InfluxDB | [https://server.example.com/chronograf/](https://server.example.com/chronograf/) | Port number is not needed and shouldn't be used.
 InfluxDB API | [https://server.example.com/influxdb/:8083](https://server.example.com/influxdb/:8083) | Port number __is__ needed; in addition, you'll have to supply login credentials.
 Grafana | [https://server.example.com](https://server.example.com) | Port number is not needed and shouldn't be used.
 

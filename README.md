@@ -17,7 +17,8 @@ This example uses [docker-compose](https://docs.docker.com/compose/overview/) to
 1. An instance of [Apache](http://apache.org), which proxies the other services, handles access control, gets SSL certificates from [Let's Encrypt](https://letsencrypt.org), and faces the outside world.
 2. An instance of [Node-RED](http://nodered.org/), which processes the data from the individual nodes, and puts it into the database.
 3. An instance of [InfluxDB](https://www.influxdata.com/), which stores the data as time-series measurements with tags.
-4. An instance of [Grafana](http://grafana.org/), which gives a web-based dashboard interface to the data.
+4. An instance of [TICK](https://docs.influxdata.com/chronograf/v1.5/introduction/getting-started/) stack (Telegraf, InfluxDB, Chronograf, and Kapacitor), which provides web based administrative tools to manage and monitor your InfluxDB instance(s).
+5. An instance of [Grafana](http://grafana.org/), which gives a web-based dashboard interface to the data.
 
 To make things more specific, most of the description here assumes use of Microsoft Azure. However, I have tested this on Ubuntu 16 LTS without difficulty (apart from the additional complexity of setting up `apt-get` to fetch docker, and the need for a manual install of `docker-compose`), and on DreamCompute. I belive that this will work on any Linux or Linux-like platform that supports docker, docker-compose, and node-red. It's likely to run on a Raspberry Pi 2, and it might even run on a C.H.I.P. computer... but as of this writing, this has not been tested.
 

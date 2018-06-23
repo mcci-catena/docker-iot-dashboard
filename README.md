@@ -1,3 +1,11 @@
+Forked from mcci-catena/docker-ttn-dashboard (with gratitude) and adapted to for my project use case.
+
+Adaptions
+* Integration of chronograf, telegraf for browser based influxdb admin - web admin on influxdb deprecated sine version1.3.*
+* addition of .env file
+* resolve some postfix installation issues
+* ... other
+
 # Dashboard example for The Things Network
 
 This repository contains a complete example that grabs device data from The Things Network, stores it in a database, and then displays the data using a web-based dashboard.

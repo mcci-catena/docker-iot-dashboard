@@ -1,7 +1,7 @@
 Forked from [mcci-catena/docker-ttn-dashboard](https://github.com/mcci-catena/docker-ttn-dashboard) (with gratitude) and adapted for my project use case.
 
 Adaptions
-* Integration of Chronograf, Telegraf, Kapacitor for browser based influxdb admin - web admin on influxdb deprecated sine version1.3.*
+* Integration of Chronograf, Telegraf, Kapacitor for browser based influxdb admin - web admin on influxdb deprecated since version1.3.*
 * addition of .env file
 * resolve some postfix installation issues
 * ... other

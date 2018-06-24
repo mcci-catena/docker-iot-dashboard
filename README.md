@@ -4,7 +4,7 @@ Adaptions
 * Integration of Chronograf, Telegraf, Kapacitor for browser based influxdb admin - web admin on influxdb deprecated since version1.3.*
 * addition of .env file
 * resolve some postfix installation issues
-Create anonymous access org in grafana, enable anonymous access
+* Create anonymous access org in grafana, enable anonymous access
 * ... other
 
 # IoT Dashboard Components

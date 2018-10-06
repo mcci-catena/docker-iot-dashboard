@@ -15,7 +15,7 @@ first boot**.
 
 6. verify that grafana is working at https://{FQDN}/ and https://{FQDN}/grafana
 
-7. using `docker-compose apache run /bin/bash`, 
+7. using `docker-compose run apache /bin/bash`,
 
    1. add Apache's /etc/apache2/authdata as user www-data
    ```sh

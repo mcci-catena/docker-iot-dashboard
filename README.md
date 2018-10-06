@@ -84,6 +84,7 @@ Your `.env` file should look like this:
     TTN_DASHBOARD_DATA=/full/path/to/directory/
     TTN_DASHBOARD_APACHE_FQDN=myhost.example.com
     TTN_DASHBOARD_CERTBOT_FQDN=myhost.example.com
+    TTN_DASHBOARD_CERTBOT_EMAIL=someone@example.com
     TTN_DASHBOARD_GRAFANA_ADMIN_PASSWORD=SomethingVerySecretIndeed
     TTN_DASHBOARD_INFLUXDB_INITIAL_DATABASE_NAME=demo
     ### end of file ###

@@ -128,8 +128,8 @@ services:
     volumes:
       - "${TTN_DASHBOARD_DATA}influxdb:/var/lib/influxdb"
     environment:
+      INFLUXDB_DB: "${TTN_DASHBOARD_INFLUXDB_INITIAL_DATABASE_NAME:-demo}"
       INFLUXDB_INIT_PWD: "${TTN_DASHBOARD_INFLUXDB_ADMIN_PASSWORD:-!notset}"
-      PRE_CREATE_DB: "${TTN_DASHBOARD_INFLUXDB_INITIAL_DATABASE_NAME:-demo}"
       INFLUXDB_BIND_ADDRESS: "influxdb:8088"
 
   influxdb-backup:
@@ -154,7 +154,7 @@ services:
     restart: unless-stopped
     build: 
       context: ./postfix 
-      dockerfile: Dockerfile 
+      dockerfile: Dockerfile
       args:
         relay_ip: "${TTN_DASHBOARD_MAIL_RELAY_IP:-.}"
         host_name: "${TTN_DASHBOARD_MAIL_HOST_NAME:-.}"

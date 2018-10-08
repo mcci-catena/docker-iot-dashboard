@@ -13,6 +13,7 @@ RUN apt-get update && apt-get install -y \
 # passing arguments to build postfix image 
 ARG relay_ip
 ARG host_name
+ARG domain
 
 # Install Postfix
 run echo "postfix postfix/mailname string $host_name" | debconf-set-selections
@@ -20,6 +21,7 @@ run echo "postfix postfix/main_mailer_type string 'Internet Site'" | debconf-set
 run apt-get update && apt-get install -y postfix
 run postconf -e relayhost=$relay_ip 
 run postconf -e myhostname=$host_name
+run postconf -e mydomain=$domain
 run postconf -e smtp_generic_maps=hash:/etc/postfix/generic
 run postconf -e mynetworks="127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128 172.18.0.0/16" 
  

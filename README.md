@@ -78,6 +78,11 @@ Remember, if your server is running on a cloud platform like Microsoft Azure or 
    This sets the *initial* password for the Grafana `admin` login. You should change this via the Grafana UI after booting the server.
    6. `TTN_DASHBOARD_INFLUXDB_INITIAL_DATABASE_NAME=demo`
    Change "demo" to the desired name of the initial database that will be created in InfluxDB. 
+   7. `TTN_DASHBOARD_MAIL_HOST_NAME=myhost.example.com`
+   This sets the name of your mail server. Used by Postfix.
+   8. `TTN_DASHBOARD_MAIL_DOMAIN=example.com`
+   This sets the domain name of your mail server. Used by Postfix.
+   
 Your `.env` file should look like this:
    ```sh
     # setup for this docker-ttn-dashboard instance, used by docker-compose
@@ -87,6 +92,8 @@ Your `.env` file should look like this:
     TTN_DASHBOARD_CERTBOT_EMAIL=someone@example.com
     TTN_DASHBOARD_GRAFANA_ADMIN_PASSWORD=SomethingVerySecretIndeed
     TTN_DASHBOARD_INFLUXDB_INITIAL_DATABASE_NAME=demo
+    TTN_DASHBOARD_MAIL_HOST_NAME=myhost.example.com
+    TTN_DASHBOARD_MAIL_DOMAIN=example.com
     ### end of file ###
    ```
 5. `% docker-compose build`

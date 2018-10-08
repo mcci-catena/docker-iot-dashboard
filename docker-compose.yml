@@ -165,6 +165,7 @@ services:
   grafana:
     restart: unless-stopped
     image: grafana/grafana:latest
+    user: "root"
     volumes:
       - "${TTN_DASHBOARD_DATA}grafana:/var/lib/grafana"
     environment:

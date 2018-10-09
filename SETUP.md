@@ -4,47 +4,33 @@
    ----|---------|-----------
    `htpasswd`|`sudo apt-get install apache2-utils`|`sudo yum install httpd-tools`
 
-2. get a fully-qualified domain name for your server, for which you control DNS. Call this the "FQDN" (fully-qualified domain name).
+2. Get a fully-qualified domain name (FQDN) for your server, for which you control DNS.
 
-3. Createa a `.env` file as instructed in README.md. 
+3. Create a `.env` file as instructed in README.md.
 
-4. Be aware that the grafana env admin\_password is ignored **except on the
-first boot**.
+7. Using `docker-compose run apache /bin/bash`:
+   * If this fails with the message, `ERROR: Couldn't connect to Docker daemon at http+docker://localunixsocket - is it running?`, then probably your user ID is not in the `docker` group. To fix this, `sudo adduser MYUSER docker`, where "MYUSER" is your login ID. Then (**very important**) log out and log back in.
 
-5. Follow the instructions from README.md to get grafana working and to get the server up.
-
-6. verify that grafana is working at https://{FQDN}/ and https://{FQDN}/grafana
-
-7. using `docker-compose run apache /bin/bash`,
-
-   1. add Apache's /etc/apache2/authdata as user www-data
+   1. Add Apache's `/etc/apache2/authdata` as user www-data
    ```sh
-	mkdir /etc/apache2/authdata
 	chown www-data /etc/apache2/authdata
    ```
-   2. add Apache's /etc/apache2/authdata/.htpasswd as user www-data
+   2. Add Apache's `/etc/apache2/authdata/.htpasswd`.
    ```sh
 	touch /etc/apache2/authdata/.htpasswd
 	chown www-data /etc/apache2/authdata/.htpasswd
    ```
-   3. Add user logins for influxdb, queries, node-red. Make `USERS` be a list of login IDs.
+   3. Add user logins for node-red and influxdb queries. Make `USERS` be a list of login IDs.
    ```sh
-   	export USERS="tmm amy josh"
-	for each USER in $USERS ; do 
-		htpasswd /etc/apache2/authdata/.htpasswd $USER
-   >>>>enter password twice
-	done
+	export USERS="tmm amy josh"
+	for USER in $USERS; do echo "Set password for "$USER; htpasswd /etc/apache2/authdata/.htpasswd $USER; done
    ```
-   4. add Apache's /etc/apache2/authdata/.htgroup (owned by www-data)
+   4. Add Apache's `/etc/apache2/authdata/.htgroup`.
    ```sh
-   	# this assumes USERS is still set from previous step.
+	# this assumes USERS is still set from previous step.
 	touch /etc/apache2/authdata/.htgroup
 	chown www-data /etc/apache2/authdata/.htgroup
 	echo "node-red: ${USERS}" >>/etc/apache2/authdata/.htgroup
-	echo "admin: ${USERS}" >>/etc/apache2/authdata/.htgroup
 	echo "query: ${USERS}" >>/etc/apache2/authdata/.htgroup
    ```
-
-8. verify that you can log in as https://{FQDN}/node-red/. 
-
-9. Current versions of influxdb may support an administrative interface at https://{FQDN}/influxdb/. If so, in the influxdb UI, change the query URL to https://{FQDN}/influxdb, [x] SSL. Don't fill in user name here, just press save. Browser will ask for credentials; provide credentials.
+   5. Exit Apache's container with Ctrl-D.

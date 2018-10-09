@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # set up the environment; these might not be set.
 export HOME="/root"

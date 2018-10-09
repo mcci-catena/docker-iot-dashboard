@@ -11,7 +11,7 @@ This example uses [docker-compose](https://docs.docker.com/compose/overview/) to
 3. An instance of [InfluxDB](https://www.influxdata.com/), which stores the data as time-series measurements with tags.
 4. An instance of [Grafana](http://grafana.org/), which gives a web-based dashboard interface to the data.
 
-To make things more specific, most of the description here assumes use of Microsoft Azure. However, I have tested this on Ubuntu 16 LTS without difficulty (apart from the additional complexity of setting up `apt-get` to fetch docker, and the need for a manual install of `docker-compose`), and on DreamCompute. I belive that this will work on any Linux or Linux-like platform that supports docker, docker-compose, and node-red. It's likely to run on a Raspberry Pi 2, and it might even run on a C.H.I.P. computer... but as of this writing, this has not been tested.
+To make things more specific, most of the description here assumes use of Microsoft Azure. However, I have tested this on Ubuntu 16 LTS without difficulty (apart from the additional complexity of setting up `apt-get` to fetch docker, and the need for a manual install of `docker-compose`), and on DreamCompute. I believe that this will work on any Linux or Linux-like platform that supports docker, docker-compose, and node-red. It's likely to run on a Raspberry Pi 2, and it might even run on a C.H.I.P. computer... but as of this writing, this has not been tested.
 
 ## Definitions
 * The **host system** is the system running Docker and Docker-compose.
@@ -76,8 +76,15 @@ Remember, if your server is running on a cloud platform like Microsoft Azure or 
    This sets the contact email for Let's Encyrypt. The script automatically accepts the Let's Encrypt terms of service, and this indicates who is doing the accepting.
    5. `TTN_DASHBOARD_GRAFANA_ADMIN_PASSWORD=SomethingVerySecretIndeed`
    This sets the *initial* password for the Grafana `admin` login. You should change this via the Grafana UI after booting the server.
-   6. `TTN_DASHBOARD_INFLUXDB_INITIAL_DATABASE_NAME=demo`
+   6. `TTN_DASHBOARD_GRAFANA_SMTP_FROM_ADDRESS`
+   This sets the Grafana originating mail address.
+   7. `TTN_DASHBOARD_INFLUXDB_INITIAL_DATABASE_NAME=demo`
    Change "demo" to the desired name of the initial database that will be created in InfluxDB. 
+   8. `TTN_DASHBOARD_MAIL_HOST_NAME=myhost.example.com`
+   This sets the name of your mail server. Used by Postfix.
+   9. `TTN_DASHBOARD_MAIL_DOMAIN=example.com`
+   This sets the domain name of your mail server. Used by Postfix.
+   
 Your `.env` file should look like this:
    ```sh
     # setup for this docker-ttn-dashboard instance, used by docker-compose
@@ -86,15 +93,18 @@ Your `.env` file should look like this:
     TTN_DASHBOARD_CERTBOT_FQDN=myhost.example.com
     TTN_DASHBOARD_CERTBOT_EMAIL=someone@example.com
     TTN_DASHBOARD_GRAFANA_ADMIN_PASSWORD=SomethingVerySecretIndeed
+    TTN_DASHBOARD_GRAFANA_SMTP_FROM_ADDRESS=grafana@example.com
     TTN_DASHBOARD_INFLUXDB_INITIAL_DATABASE_NAME=demo
+    TTN_DASHBOARD_MAIL_HOST_NAME=myhost.example.com
+    TTN_DASHBOARD_MAIL_DOMAIN=example.com
     ### end of file ###
    ```
-5. `% docker-compose build`
-   * If this fails with the message, `ERROR: Couldn't connect to Docker daemon at http+docker://localunixsocket - is it running?`, then probably your user ID is not in the `docker` group. To fix this, `sudo adduser MYUSER docker`, where "MYUSER" is your login ID. Then (**very important**) log out and log back in.
-6. `% docker-compose up` or `% docker-comose up -d`
+4. Setup Apache:
+   * Follow instructions from `SETUP.md`
+6. `% docker-compose up` or `% docker-compose up -d`
    * If this fails (for example, Node-RED dies with a "killed" status), check your `.env` file.
 7. Open Grafana on **https://myhost.example.com**, and log in as admin. Change your password. Set up your first data source using InfluxDB. See below for more detailed instructions.
-8. Open Node-RED on **https://myhost.example.com/node-red/**,  and build a flow that stores data in InfluxDB.  **Be sure to add the trailing slash! Otherwise you'll get a 404 from Grafana. We'll fix this soon.**
+8. Open Node-RED on **https://myhost.example.com/node-red/**, and build a flow that stores data in InfluxDB. **Be sure to add the trailing slash! Otherwise you'll get a 404 from Grafana. We'll fix this soon.**
 
 ## Data Files
 
@@ -153,12 +163,12 @@ There is one point that is somewhat confusing about the connections from Node-RE
 ## Future work
 Although the dashboard is already very useful, it's incomplete.  Please refer to `TODO.md`, and also note that we're considering the following. Check in for updates!
 
-1. add a script to setup the passwords initially for grafana and for access to node-red and influxdb.
-2. admin script to show roles and maintain the htpasswd 
-3. add the auto-update cron script -- right now you have to restart in order to get the SSL certs updated. Not a big deal, as the patches-requiring-reboot interval is shorter than the life of the certs, but still, this should be fixed.
+1. Add a script to setup the passwords initially for grafana and for access to node-red and influxdb.
+2. Admin script to show roles and maintain the htpasswd 
+3. Add the auto-update cron script -- right now you have to restart in order to get the SSL certs updated. Not a big deal, as the patches-requiring-reboot interval is shorter than the life of the certs, but still, this should be fixed.
 4. Switch to [phusion](https://github.com/phusion/baseimage-docker) for the base image, instead of ubuntu.
-6. providue suitable intial files for Grafana and NodeRed, assuming Catena-4450 sensor node.
-7. the intial script should prompt for the data base name.
+6. Provide suitable intial files for Grafana and NodeRed, assuming Catena-4450 sensor node.
+7. The intial script should prompt for the data base name.
 
 ## Acknowledgements
 This builds on work done by Johan Stokking of [The Things Network](www.thethingsnetwork.org) for the staging environment. Additional adaptation done by Terry Moore of [MCCI](www.mcci.com).

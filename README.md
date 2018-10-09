@@ -167,7 +167,7 @@ Although the dashboard is already very useful, it's incomplete.  Please refer to
 2. Admin script to show roles and maintain the htpasswd 
 3. Add the auto-update cron script -- right now you have to restart in order to get the SSL certs updated. Not a big deal, as the patches-requiring-reboot interval is shorter than the life of the certs, but still, this should be fixed.
 4. Switch to [phusion](https://github.com/phusion/baseimage-docker) for the base image, instead of ubuntu.
-6. Providue suitable intial files for Grafana and NodeRed, assuming Catena-4450 sensor node.
+6. Provide suitable intial files for Grafana and NodeRed, assuming Catena-4450 sensor node.
 7. The intial script should prompt for the data base name.
 
 ## Acknowledgements

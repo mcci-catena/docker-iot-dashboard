@@ -117,8 +117,8 @@ services:
       context: ./node-red
       dockerfile: Dockerfile
       args:
-        node_red_version: "${TTN_DASHBOARD_NODE_RED_VERSION:-'0.16.2'}"
-        node_red_contrib_version: "${TTN_DASHBOARD_NODE_RED_CONTRIB_VERSION:-'2.0.1'}"
+        node_red_version: "${TTN_DASHBOARD_NODE_RED_VERSION:-'latest'}"
+        node_red_contrib_ttn_version: "${TTN_DASHBOARD_NODE_RED_CONTRIB_TTN_VERSION:-'latest'}"
     user: "root"
     volumes:
       - "${TTN_DASHBOARD_DATA}node-red:/data"
@@ -129,7 +129,7 @@ services:
 
   influxdb:
     restart: unless-stopped
-    image: "influxdb:${TTN_DASHBOARD_INFLUXDB_VERSION:-'1.4.0'}"
+    image: "influxdb:${TTN_DASHBOARD_INFLUXDB_VERSION:-'latest'}"
     volumes:
       - "${TTN_DASHBOARD_DATA}influxdb:/var/lib/influxdb"
     environment:
@@ -144,7 +144,7 @@ services:
       context: ./influxdb-backup
       dockerfile: Dockerfile
       args: 
-        version: "${TTN_DASHBOARD_INFLUXDB_VERSION:-'1.4.0'}"
+        version: "${TTN_DASHBOARD_INFLUXDB_VERSION:-'latest'}"
     volumes:
      # Dircectory for database backup inside "./data" 
       - "${TTN_DASHBOARD_DATA}influx-backup:/var/lib/influxdb-backup"

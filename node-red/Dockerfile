@@ -15,8 +15,8 @@ RUN npm install node-red-contrib-influxdb
 
 # add The Things Network connector
 # passing arguments to build specific 
-ARG node_red_contrib_version
-RUN npm install node-red-contrib-ttn@${node_red_contrib_version}
+ARG node_red_contrib_ttn_version
+RUN npm install node-red-contrib-ttn@${node_red_contrib_ttn_version}
 
 # copy the settings file
 USER node-red

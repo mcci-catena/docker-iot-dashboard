@@ -111,21 +111,16 @@ upload: ../../var/lib/influxdb-S3-bucket/metdata_db_backup_2018-10-25.tar.gz to 
 
 ```console
 
-root@56a388b52486:/opt/influxdb-backup# cd /var/lib/influxdb-backup/
+root@a16175bb4ce0:/opt/influxdb-backup# ls /var/lib/influxdb-backup/
 
-root@56a388b52486:/var/lib/influxdb-backup# ls -al
-total 456
-drwxr-xr-x  2 root root   4096 Apr 10 09:50 .
-drwxr-xr-x 35 root root   4096 Apr 10 09:50 ..
--rw-r--r--  1 root root 174592 Apr 10 09:50 _internal.monitor.00001.00
--rw-r--r--  1 root root 250368 Apr 10 09:50 _internal.monitor.00002.00
--rw-r--r--  1 root root    131 Apr  9 10:07 meta.00
--rw-r--r--  1 root root    234 Apr 10 09:38 meta.01
--rw-r--r--  1 root root    234 Apr 10 09:44 meta.02
--rw-r--r--  1 root root    234 Apr 10 09:50 meta.03
--rw-r--r--  1 root root    234 Apr 10 09:50 meta.04
--rw-r--r--  1 root root    234 Apr 10 09:50 meta.05
--rw-r--r--  1 root root   2048 Apr 10 09:50 testdb.autogen.00003.00
+20181024T142358Z.manifest   20181024T143005Z.s3.tar.gz  20181025T094917Z.s1.tar.gz  20181025T095242Z.s6.tar.gz  20181025T110044Z.meta
+20181024T142358Z.meta       20181024T160855Z.manifest   20181025T094917Z.s5.tar.gz  20181025T100801Z.manifest   20181025T110044Z.s1.tar.gz
+20181024T142358Z.s1.tar.gz  20181024T160855Z.meta       20181025T094917Z.s6.tar.gz  20181025T100801Z.meta       20181025T110044Z.s6.tar.gz
+20181024T142358Z.s2.tar.gz  20181024T160855Z.s1.tar.gz  20181025T095242Z.manifest   20181025T100801Z.s1.tar.gz  20181025T110044Z.s7.tar.gz
+20181024T143005Z.manifest   20181024T160855Z.s5.tar.gz  20181025T095242Z.meta       20181025T100801Z.s5.tar.gz
+20181024T143005Z.meta       20181025T094917Z.manifest   20181025T095242Z.s1.tar.gz  20181025T100801Z.s6.tar.gz
+20181024T143005Z.s1.tar.gz  20181025T094917Z.meta       20181025T095242Z.s5.tar.gz  20181025T110044Z.manifest
+
 
 ```
 
@@ -179,6 +174,7 @@ restore: DB metadata not changed. database may already exist
 ```console 
 
 root@a16175bb4ce0:/opt/influxdb-backup# influx
+
 Connected to http://localhost:8086 version 1.6.4
 InfluxDB shell version: 1.6.4
 > show databases

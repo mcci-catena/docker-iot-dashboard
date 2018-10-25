@@ -172,6 +172,8 @@ root@a16175bb4ce0:/opt/influxdb-backup# influxd restore -portable -host $INFLUX_
 2018/10/25 11:03:04 error updating meta: DB metadata not changed. database may already exist
 restore: DB metadata not changed. database may already exist
 
+```
+
 ### Checking the Database has been restored
 
 ```console 

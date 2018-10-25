@@ -117,8 +117,8 @@ services:
       context: ./node-red
       dockerfile: Dockerfile
       args:
-        node_red_version: "${TTN_DASHBOARD_NODE_RED_VERSION:-'latest'}"
-        node_red_contrib_ttn_version: "${TTN_DASHBOARD_NODE_RED_CONTRIB_TTN_VERSION:-'latest'}"
+        node_red_version: "${TTN_DASHBOARD_NODE_RED_VERSION:-latest}"
+        node_red_contrib_ttn_version: "${TTN_DASHBOARD_NODE_RED_CONTRIB_TTN_VERSION:-latest}"
     user: "root"
     volumes:
       - "${TTN_DASHBOARD_DATA}node-red:/data"
@@ -129,36 +129,25 @@ services:
 
   influxdb:
     restart: unless-stopped
-    image: "influxdb:${TTN_DASHBOARD_INFLUXDB_VERSION:-'latest'}"
-    volumes:
-      - "${TTN_DASHBOARD_DATA}influxdb:/var/lib/influxdb"
-    environment:
-      INFLUXDB_INIT_PWD: "${TTN_DASHBOARD_INFLUXDB_ADMIN_PASSWORD:-!notset}"
-      PRE_CREATE_DB: "${TTN_DASHBOARD_INFLUXDB_INITIAL_DATABASE_NAME:-demo}"
-    # Enabling remote backup for extra instance( influxdb-backup )
-      INFLUXDB_BIND_ADDRESS: "influxdb:8088"
-
-  influxdb-backup:
-    restart: unless-stopped
     build:   
       context: ./influxdb-backup
       dockerfile: Dockerfile
-      args: 
-        version: "${TTN_DASHBOARD_INFLUXDB_VERSION:-'latest'}"
+      args:
+        version: "${TTN_DASHBOARD_INFLUXDB_VERSION:-latest}"
     volumes:
-     # Dircectory for database backup inside "./data" 
-      - "${TTN_DASHBOARD_DATA}influx-backup:/var/lib/influxdb-backup"
-     # Connecting influxdb data directory to extra instances
       - "${TTN_DASHBOARD_DATA}influxdb:/var/lib/influxdb"
+     # Dircectory for influxdb metadata and database backup inside "./data" 
+      - "${TTN_DASHBOARD_DATA}influx-backup:/var/lib/influxdb-backup"
+      - "${TTN_DASHBOARD_DATA}influxdb-S3-bucket:/var/lib/influxdb-S3-bucket"
     environment:
-      INFLUX_HOST: influxdb                                  
+      INFLUXDB_INIT_PWD: "${TTN_DASHBOARD_INFLUXDB_ADMIN_PASSWORD:-!notset}"
+      PRE_CREATE_DB: "${TTN_DASHBOARD_INFLUXDB_INITIAL_DATABASE_NAME:-demo}"
+      INFLUXDB_BIND_ADDRESS: "influxdb:8088"
+    # Backuping influxdb metadata and database to cloud
       S3_BUCKET_INFLUXDB: "${TTN_DASHBOARD_AWS_S3_BUCKET_INFLUXDB:-.}"
       AWS_ACCESS_KEY_ID: "${TTN_DASHBOARD_AWS_ACCESS_KEY_ID:-.}"
       AWS_SECRET_ACCESS_KEY: "${TTN_DASHBOARD_AWS_SECRET_ACCESS_KEY:-.}"
       AWS_DEFAULT_REGION: "${TTN_DASHBOARD_AWS_DEFAULT_REGION:-.}"
-    # grafana opens ports on influxdb, so it needs to be able to talk to it.
-    links:
-      - influxdb
 
 
   postfix:

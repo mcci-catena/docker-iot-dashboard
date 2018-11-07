@@ -130,7 +130,7 @@ services:
   influxdb:
     restart: unless-stopped
     build:   
-      context: ./influxdb-backup
+      context: ./influxdb
       dockerfile: Dockerfile
       args:
         version: "${TTN_DASHBOARD_INFLUXDB_VERSION:-latest}"
@@ -158,8 +158,10 @@ services:
       args:
         relay_ip: "${TTN_DASHBOARD_MAIL_RELAY_IP:-.}"
         host_name: "${TTN_DASHBOARD_MAIL_HOST_NAME:-.}"
+        domain: "${TTN_DASHBOARD_MAIL_DOMAIN:-.}"
+    hostname: "${TTN_DASHBOARD_MAIL_HOST_NAME:-.}"
     ports:
-        - "${TTN_DASHBOARD_PORT_POSTFIX:-25}:25"
+      - "${TTN_DASHBOARD_PORT_POSTFIX:-25}:25"
 
 
   grafana:
@@ -174,7 +176,7 @@ services:
       GF_SERVER_ROOT_URL: 'https://%(domain)s/grafana/'
       GF_SMTP_ENABLED: ${TTN_DASHBOARD_GRAFANA_SMTP_ENABLED:-false}
       GF_SMTP_SKIP_VERIFY: ${TTN_DASHBOARD_GRAFANA_SMTP_SKIP_VERIFY:-false}
-      GF_SMTP_HOST: ${TTN_DASHBOARD_GRAFANA_SMTP_HOST:-localhost}:25
+      GF_SMTP_HOST: ${TTN_DASHBOARD_GRAFANA_SMTP_HOST:-localhost.com}:25
       GF_SMTP_FROM_ADDRESS: "grafana@localhost.com"
       GF_SMTP_FROM_NAME: "${TTN_DASHBOARD_GRAFANA_PROJECT_NAME:-Default} grafana admin"
       GF_LOG_MODE: ${TTN_DASHBOARD_GRAFANA_LOG_MODE:-console,file}

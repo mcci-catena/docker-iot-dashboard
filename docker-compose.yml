@@ -62,6 +62,9 @@
 #	The FQDN of the smtp host to be used for sending mail.
 #	Defaults to localhost.
 #
+# TTN_DASHBOARD_GRAFANA_INSTALL_PLUGINS
+#	A list of grafana plugins to install.
+#
 # TTN_DASHBOARD_INFLUXDB_ADMIN_PASSWORD
 #	The password to be used for the admin user by influxdb. Again, this is 
 #	ignored after the influxdb database has been built.
@@ -171,15 +174,16 @@ services:
       - "${TTN_DASHBOARD_DATA}grafana:/var/lib/grafana"
     environment:
       GF_SECURITY_ADMIN_PASSWORD: "${TTN_DASHBOARD_GRAFANA_ADMIN_PASSWORD:-!notset}"
-      GF_SERVER_DOMAIN: ${TTN_DASHBOARD_APACHE_FQDN}
-      GF_SERVER_ROOT_URL: 'https://%(domain)s/grafana/'
-      GF_SMTP_ENABLED: ${TTN_DASHBOARD_GRAFANA_SMTP_ENABLED:-false}
-      GF_SMTP_SKIP_VERIFY: ${TTN_DASHBOARD_GRAFANA_SMTP_SKIP_VERIFY:-false}
-      GF_SMTP_HOST: ${TTN_DASHBOARD_MAIL_HOST_NAME:-localhost}:25
-      GF_SMTP_FROM_ADDRESS: ${TTN_DASHBOARD_GRAFANA_SMTP_FROM_ADDRESS:-grafana@localhost}
+      GF_SERVER_DOMAIN: "${TTN_DASHBOARD_APACHE_FQDN}"
+      GF_SERVER_ROOT_URL: "https://%(domain)s/grafana/"
+      GF_SMTP_ENABLED: "${TTN_DASHBOARD_GRAFANA_SMTP_ENABLED:-false}"
+      GF_SMTP_SKIP_VERIFY: "${TTN_DASHBOARD_GRAFANA_SMTP_SKIP_VERIFY:-false}"
+      GF_SMTP_HOST: "${TTN_DASHBOARD_MAIL_HOST_NAME:-localhost}:25"
+      GF_SMTP_FROM_ADDRESS: "${TTN_DASHBOARD_GRAFANA_SMTP_FROM_ADDRESS:-grafana@localhost}"
       GF_SMTP_FROM_NAME: "${TTN_DASHBOARD_GRAFANA_PROJECT_NAME:-Default} grafana admin"
-      GF_LOG_MODE: ${TTN_DASHBOARD_GRAFANA_LOG_MODE:-console,file}
-      GF_LOG_LEVEL: ${TTN_DASHBOARD_GRAFANA_LOG_LEVEL:-info}
+      GF_LOG_MODE: "${TTN_DASHBOARD_GRAFANA_LOG_MODE:-console,file}"
+      GF_LOG_LEVEL: "${TTN_DASHBOARD_GRAFANA_LOG_LEVEL:-info}"
+      GF_INSTALL_PLUGINS: "${TTN_DASHBOARD_GRAFANA_INSTALL_PLUGINS:-}"
     # grafana opens ports on influxdb and postfix, so it needs to be able to talk to it.
     links:
       - influxdb

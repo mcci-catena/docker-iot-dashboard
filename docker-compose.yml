@@ -27,7 +27,7 @@
 # for these apps. If you use dashboard-ctl, this will be done for you.
 #
 # To get a list of all variables used in this file, use the following command:
-# sed -n -e 's/[^$]*${\([^:-}]*\)[:-}][^$]*/\1\n/gp' docker-compose.yml | sort -u
+# sed -n -e 's/#.*$//' -e 's/[^$]*${\([^:-}]*\)[:-}][^$]*/\1\n/gp' docker-compose.yml | LC_ALL=C sort -u
 #
 # TTN_DASHBOARD_APACHE_FQDN
 #	The fully-qualified domain name to be served by Apache.

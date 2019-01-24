@@ -58,6 +58,10 @@
 # TTN_DASHBOARD_GRAFANA_SMTP_ENABLED
 #	Set to true to enable SMTP.
 #
+# TTN_DASHBOARD_GRAFANA_SMTP_SKIP_VERIFY
+#	Set to true to disable SSL verification.
+#	Defaults to false.
+#
 # TTN_DASHBOARD_GRAFANA_SMTP_HOST_FQDN
 #	The FQDN of the smtp host to be used for sending mail.
 #	Defaults to localhost.
@@ -159,7 +163,7 @@ services:
       context: ./postfix 
       dockerfile: Dockerfile
       args:
-        relay_ip: "${TTN_DASHBOARD_MAIL_RELAY_IP:-.}"
+        relay_ip: "${TTN_DASHBOARD_MAIL_RELAY_IP:-}"
         host_name: "${TTN_DASHBOARD_MAIL_HOST_NAME:-.}"
         domain: "${TTN_DASHBOARD_MAIL_DOMAIN:-.}"
     ports:

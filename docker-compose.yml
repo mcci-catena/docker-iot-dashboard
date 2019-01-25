@@ -166,8 +166,6 @@ services:
         relay_ip: "${TTN_DASHBOARD_MAIL_RELAY_IP:-}"
         host_name: "${TTN_DASHBOARD_MAIL_HOST_NAME:-.}"
         domain: "${TTN_DASHBOARD_MAIL_DOMAIN:-.}"
-    ports:
-        - "${TTN_DASHBOARD_PORT_POSTFIX:-25}:25"
 
 
   grafana:

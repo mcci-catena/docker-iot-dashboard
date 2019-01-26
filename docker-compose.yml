@@ -6,7 +6,7 @@
 # 	Configure the docker-ttn-dashboard collection of docker containers.
 #
 # Copyright:
-#	This file copyright (c) 2017 by
+#	This file copyright (c) 2017-2019 by
 #
 #		MCCI Corporation
 #		3520 Krums Corners Road
@@ -16,7 +16,7 @@
 #	collection.
 #
 # Author:
-#	Terry Moore, MCCI Corporation 
+#	Terry Moore, MCCI Corporation
 #	Based on work by Johan Stocking, The Things Network
 #
 ##############################################################################
@@ -29,8 +29,23 @@
 # To get a list of all variables used in this file, use the following command:
 # sed -n -e 's/#.*$//'  -e 's/[^$]*${\([^-:}]*\)[-:}][^$]*/\1/p' docker-compose.yml | LC_ALL=C sort -u
 #
+# to get a list of undocumented variables, use the following command:
+# comm <(sed -n -e 's/#.*$//' -e 's/[^$]*${\([^-:}]*\)[-:}][^$]*/\1/p' docker-compose.yml | LC_ALL=C sort -u)  <(sed -n -e '/^# TTN_[A-Z_0-9]*$/s/^# //p' docker-compose.yml | LC_ALL=C sort -u )
+#
 # TTN_DASHBOARD_APACHE_FQDN
 #	The fully-qualified domain name to be served by Apache.
+#
+# TTN_DASHBOARD_AWS_ACCESS_KEY_ID
+# The access key for AWS for backups.
+#
+# TTN_DASHBOARD_AWS_DEFAULT_REGION
+# The AWS default region.
+#
+# TTN_DASHBOARD_AWS_S3_BUCKET_INFLUXDB
+# The S3 bucket to use for uploading the influxdb backup data.
+#
+# TTN_DASHBOARD_AWS_SECRET_ACCESS_KEY
+# The AWS API secret key for backing up influxdb data.
 #
 # TTN_DASHBOARD_CERTBOT_EMAIL
 #	The email address to be used for registering with Let's Encrypt.
@@ -62,29 +77,38 @@
 #	Set to true to disable SSL verification.
 #	Defaults to false.
 #
-# TTN_DASHBOARD_GRAFANA_SMTP_HOST_FQDN
-#	The FQDN of the smtp host to be used for sending mail.
-#	Defaults to localhost.
-#
 # TTN_DASHBOARD_GRAFANA_INSTALL_PLUGINS
 #	A list of grafana plugins to install.
 #
+# TTN_DASHBOARD_GRAFANA_SMTP_FROM_ADDRESS
+# The "from" address for Grafana emails.
+#
 # TTN_DASHBOARD_INFLUXDB_ADMIN_PASSWORD
-#	The password to be used for the admin user by influxdb. Again, this is 
+#	The password to be used for the admin user by influxdb. Again, this is
 #	ignored after the influxdb database has been built.
 #
 # TTN_DASHBOARD_INFLUXDB_INITIAL_DATABASE_NAME
 #	The inital database to be created on first launch of influxdb. Ignored
 #	after influxdb has been launched.
 #
+# TTN_DASHBOARD_MAIL_DOMAIN
+# the postfix mail domain.
+#
+# TTN_DASHBOARD_MAIL_HOST_NAME
+# the external FQDN for the mail host.
+#
+# TTN_DASHBOARD_MAIL_RELAY_IP
+# the mail relay machine, assuming that the real mailer is upstream from us.
+#
 # TTN_DASHBOARD_PORT_HTTP
-#	The port to listen to for HTTP. Primarily for test purposes. Defaults to 
+#	The port to listen to for HTTP. Primarily for test purposes. Defaults to
 #	80.
 #
 # TTN_DASHBOARD_PORT_HTTPS
-#	The port to listen to for HTTPS. Primarily for test purposes. Defaults to 
+#	The port to listen to for HTTPS. Primarily for test purposes. Defaults to
 #	443.
 #
+
 # Also see apache/setup.sh, which uses some additional test variables when
 # debugging.
 #
@@ -141,14 +165,14 @@ services:
 
   influxdb-backup:
     restart: unless-stopped
-    build: influxdb-backup  
+    build: influxdb-backup
     volumes:
-     # Dircectory for database backup inside "./data" 
+     # Dircectory for database backup inside "./data"
       - "${TTN_DASHBOARD_DATA}influx-backup:/var/lib/influxdb-backup"
      # Connecting influxdb data directory to extra instances
       - "${TTN_DASHBOARD_DATA}influxdb:/var/lib/influxdb"
     environment:
-      INFLUX_HOST: influxdb                                  
+      INFLUX_HOST: influxdb
       S3_BUCKET_INFLUXDB: "${TTN_DASHBOARD_AWS_S3_BUCKET_INFLUXDB:-.}"
       AWS_ACCESS_KEY_ID: "${TTN_DASHBOARD_AWS_ACCESS_KEY_ID:-.}"
       AWS_SECRET_ACCESS_KEY: "${TTN_DASHBOARD_AWS_SECRET_ACCESS_KEY:-.}"
@@ -159,8 +183,8 @@ services:
 
   postfix:
     restart: unless-stopped
-    build: 
-      context: ./postfix 
+    build:
+      context: ./postfix
       dockerfile: Dockerfile
       args:
         relay_ip: "${TTN_DASHBOARD_MAIL_RELAY_IP:-}"

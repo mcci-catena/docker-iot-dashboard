@@ -16,7 +16,7 @@
 #	collection.
 #
 # Author:
-#	Terry Moore, MCCI Corporation 
+#	Terry Moore, MCCI Corporation
 #	Based on work by Johan Stocking, The Things Network
 #
 ##############################################################################
@@ -84,7 +84,7 @@
 # The "from" address for Grafana emails.
 #
 # TTN_DASHBOARD_INFLUXDB_ADMIN_PASSWORD
-#	The password to be used for the admin user by influxdb. Again, this is 
+#	The password to be used for the admin user by influxdb. Again, this is
 #	ignored after the influxdb database has been built.
 #
 # TTN_DASHBOARD_INFLUXDB_INITIAL_DATABASE_NAME
@@ -101,11 +101,11 @@
 # the mail relay machine, assuming that the real mailer is upstream from us.
 #
 # TTN_DASHBOARD_PORT_HTTP
-#	The port to listen to for HTTP. Primarily for test purposes. Defaults to 
+#	The port to listen to for HTTP. Primarily for test purposes. Defaults to
 #	80.
 #
 # TTN_DASHBOARD_PORT_HTTPS
-#	The port to listen to for HTTPS. Primarily for test purposes. Defaults to 
+#	The port to listen to for HTTPS. Primarily for test purposes. Defaults to
 #	443.
 #
 
@@ -165,14 +165,14 @@ services:
 
   influxdb-backup:
     restart: unless-stopped
-    build: influxdb-backup  
+    build: influxdb-backup
     volumes:
-     # Dircectory for database backup inside "./data" 
+     # Dircectory for database backup inside "./data"
       - "${TTN_DASHBOARD_DATA}influx-backup:/var/lib/influxdb-backup"
      # Connecting influxdb data directory to extra instances
       - "${TTN_DASHBOARD_DATA}influxdb:/var/lib/influxdb"
     environment:
-      INFLUX_HOST: influxdb                                  
+      INFLUX_HOST: influxdb
       S3_BUCKET_INFLUXDB: "${TTN_DASHBOARD_AWS_S3_BUCKET_INFLUXDB:-.}"
       AWS_ACCESS_KEY_ID: "${TTN_DASHBOARD_AWS_ACCESS_KEY_ID:-.}"
       AWS_SECRET_ACCESS_KEY: "${TTN_DASHBOARD_AWS_SECRET_ACCESS_KEY:-.}"
@@ -183,8 +183,8 @@ services:
 
   postfix:
     restart: unless-stopped
-    build: 
-      context: ./postfix 
+    build:
+      context: ./postfix
       dockerfile: Dockerfile
       args:
         relay_ip: "${TTN_DASHBOARD_MAIL_RELAY_IP:-}"

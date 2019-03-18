@@ -26,7 +26,7 @@ Access to Node-RED and InfluxDB is via special URLs (__base__/node-red/ and __ba
 
 The initial administrator's login password for grafana must be initialized prior to starting the very first; it's stored in `grafana/.env`. (When you start the grafana container the first time, it creates `grafana.db` in the grafana container, and stores the password at that time. If `grafana.db` already exists, the password in `grafana/.env` is ignored.)
 
-Microsoft Azure, by default, will not open any of the ports to the outside world, so you will need to open port 443 for SSL access to Apache. If you want to use the influxdb API remotely, you'll also need to open port 8083.
+Microsoft Azure, by default, will not open any of the ports to the outside world, so you will need to open port 443 for SSL access to Apache.
 
 For concreteness, the following table assumes that __base__ is `server.example.com`.
 
@@ -34,7 +34,6 @@ To access | Open this link | Notes
 ----------|----------------|--------
 Node-RED | [https://server.example.com/node-red/](https://server.example.com/node-red/) | Port number is not needed and shouldn't be used.
 InfluxDB administrative page | [https://server.example.com/influxdb/](https://server.example.com/influxdb/) | Port number is not needed and shouldn't be used.
-InfluxDB API | [https://server.example.com/influxdb/:8083](https://server.example.com/influxdb/:8083) | Port number __is__ needed; in addition, you'll have to supply login credentials.
 Grafana | [https://server.example.com](https://server.example.com) | Port number is not needed and shouldn't be used.
 
 This can be visualized as below:

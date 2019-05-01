@@ -97,14 +97,8 @@
 #	The inital database to be created on first launch of influxdb. Ignored
 #	after influxdb has been launched.
 #
-# TTN_DASHBOARD_MAIL_DOMAIN
-# the postfix mail domain.
-#
 # TTN_DASHBOARD_MAIL_HOST_NAME
-# the external FQDN for the mail host.
-#
-# TTN_DASHBOARD_MAIL_RELAY_IP
-# the mail relay machine, assuming that the real mailer is upstream from us.
+# 	The mail hostname.
 #
 # TTN_DASHBOARD_PORT_HTTP
 #	The port to listen to for HTTP. Primarily for test purposes. Defaults to
@@ -157,10 +151,10 @@ services:
     user: "root"
     volumes:
       - "${TTN_DASHBOARD_DATA}node-red:/data"
-    # nodered opens ports on influxdb so it needs to be able to talk to it.
+    # nodered opens ports on influxdb and smtp so it needs to be able to talk to them.
     links:
       - influxdb
-      - postfix
+      - smtp
     environment:
       TZ: "${TTN_DASHBOARD_TIMEZONE:-GMT}"
 
@@ -191,17 +185,12 @@ services:
     links:
       - influxdb
 
-
-  postfix:
+  smtp:
     restart: unless-stopped
-    build:
-      context: ./postfix
-      dockerfile: Dockerfile
-      args:
-        relay_ip: "${TTN_DASHBOARD_MAIL_RELAY_IP:-}"
-        host_name: "${TTN_DASHBOARD_MAIL_HOST_NAME:-.}"
-        domain: "${TTN_DASHBOARD_MAIL_DOMAIN:-.}"
-
+    # https://hub.docker.com/r/namshi/smtp
+    image: namshi/smtp
+    environment:
+      MAILNAME: "${TTN_DASHBOARD_MAIL_HOST_NAME:-.}"
 
   grafana:
     restart: unless-stopped
@@ -215,16 +204,16 @@ services:
       GF_SERVER_ROOT_URL: "https://%(domain)s/grafana/"
       GF_SMTP_ENABLED: "${TTN_DASHBOARD_GRAFANA_SMTP_ENABLED:-false}"
       GF_SMTP_SKIP_VERIFY: "${TTN_DASHBOARD_GRAFANA_SMTP_SKIP_VERIFY:-false}"
-      GF_SMTP_HOST: "postfix:25"
+      GF_SMTP_HOST: "smtp:25"
       GF_SMTP_FROM_ADDRESS: "${TTN_DASHBOARD_GRAFANA_SMTP_FROM_ADDRESS:-grafana@localhost}"
       GF_SMTP_FROM_NAME: "${TTN_DASHBOARD_GRAFANA_PROJECT_NAME:-Default} grafana admin"
       GF_LOG_MODE: "${TTN_DASHBOARD_GRAFANA_LOG_MODE:-console,file}"
       GF_LOG_LEVEL: "${TTN_DASHBOARD_GRAFANA_LOG_LEVEL:-info}"
       GF_INSTALL_PLUGINS: "${TTN_DASHBOARD_GRAFANA_INSTALL_PLUGINS:-}"
       GF_USERS_ALLOW_SIGN_UP: "${TTN_DASHBOARD_GRAFANA_USERS_ALLOW_SIGN_UP:-false}"
-    # grafana opens ports on influxdb and postfix, so it needs to be able to talk to it.
+    # grafana opens ports on influxdb and smtp, so it needs to be able to talk to them.
     links:
       - influxdb
-      - postfix
+      - smtp
 
 ### end of file ###

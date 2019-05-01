@@ -29,9 +29,12 @@
 # To get a list of all variables used in this file, use the following command:
 # sed -n -e 's/#.*$//'  -e 's/[^$]*${\([^-:}]*\)[-:}][^$]*/\1/p' docker-compose.yml | LC_ALL=C sort -u
 #
-# to get a list of undocumented variables, use the following command:
+# To get a list of undocumented variables, use the following command,
+# then look in the left hand column:
+#
 # comm <(sed -n -e 's/#.*$//' -e 's/[^$]*${\([^-:}]*\)[-:}][^$]*/\1/p' docker-compose.yml | LC_ALL=C sort -u)  <(sed -n -e '/^# TTN_[A-Z_0-9]*$/s/^# //p' docker-compose.yml | LC_ALL=C sort -u )
 #
+#+++
 # TTN_DASHBOARD_APACHE_FQDN
 #	The fully-qualified domain name to be served by Apache.
 #
@@ -107,7 +110,7 @@
 # TTN_DASHBOARD_PORT_HTTPS
 #	The port to listen to for HTTPS. Primarily for test purposes. Defaults to
 #	443.
-#
+#---
 
 # Also see apache/setup.sh, which uses some additional test variables when
 # debugging.

@@ -3,7 +3,7 @@
 #
 
 # build the node red image using the offical node red distribution
-FROM nodered/node-red-docker:0.16.2
+FROM nodered/node-red-docker:latest
 
 # To avoid SSL certification issue
 ENV NODE_TLS_REJECT_UNAUTHORIZED=0
@@ -13,7 +13,7 @@ RUN npm install node-red-contrib-influxdb
 
 # add The Things Network connector
 #RUN npm install node-red-contrib-ttn
-RUN npm install node-red-contrib-ttn@2.0.1
+RUN npm install node-red-contrib-ttn
 
 
 # copy the settings file

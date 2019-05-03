@@ -288,6 +288,9 @@ TTN_DASHBOARD_MAIL_HOST_NAME=dashboard.example.com
 # TTN_DASHBOARD_PORT_HTTPS=
 #       The port to listen to for HTTPS. Primarily for test purposes. Defaults to
 #       443.
+#
+# TTN_DASHBOARD_TIMEZONE=
+#       The timezone to use. Defaults to GMT.
 ```
 
 ### Set up the Node-RED and InfluxDB API logins

@@ -205,6 +205,9 @@ The following instructions are essentially indenpendent of the cloud provider an
    10. `TTN_DASHBOARD_MAIL_DOMAIN=example.com`
    This sets the domain name of your mail server. Used by Postfix.
 
+   11. `TTN_DASHBOARD_TIMEZONE=Europe/Paris`
+   If not defined, the default timezone will be GMT.
+
 Your `.env` file should look like this:
 
 ```sh

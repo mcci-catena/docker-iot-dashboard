@@ -148,7 +148,7 @@ _Last Update: 2019-04-30_
 
 ## After server is set up
 
-The following instructions are essentially indenpendent of the cloud provider and the underlying distribution. But we've only tested on Ubuntu and (in 2017) on CentOS.
+The following instructions are essentially independent of the cloud provider and the underlying distribution. But we've only tested on Ubuntu and (in 2017) on CentOS.
 
 1. Clone this repo.
 
@@ -204,6 +204,9 @@ The following instructions are essentially indenpendent of the cloud provider an
 
    10. `TTN_DASHBOARD_MAIL_DOMAIN=example.com`
    This sets the domain name of your mail server. Used by Postfix.
+
+   11. `TTN_DASHBOARD_TIMEZONE=Europe/Paris`
+   If not defined, the default timezone will be GMT.
 
 Your `.env` file should look like this:
 
@@ -285,6 +288,9 @@ TTN_DASHBOARD_MAIL_HOST_NAME=dashboard.example.com
 # TTN_DASHBOARD_PORT_HTTPS=
 #       The port to listen to for HTTPS. Primarily for test purposes. Defaults to
 #       443.
+#
+# TTN_DASHBOARD_TIMEZONE=
+#       The timezone to use. Defaults to GMT.
 ```
 
 ### Set up the Node-RED and InfluxDB API logins

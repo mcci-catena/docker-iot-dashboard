@@ -50,6 +50,7 @@ This can be visualized as below:
 
 * Your host system must have docker-compose 1.9 or later (for which see https://github.com/docker-compose -- be aware that apt-get normally doesn't grab this; if configured at all, it frequently gets an out-of-date version).
 * The environment variable `TTN_DASHBOARD_DATA`, if set, points to the common directory for your data. If not set, docker-compose will quit at startup. (This is by design!)
+
    * `${TTN_DASHBOARD_DATA}node-red` will have your local Node-RED data.
    * `${TTN_DASHBOARD_DATA}influxdb` will have your local influxdb data (this is what you should back up)
    * `${TTN_DASHBOARD_DATA}grafana` will have your dashboards
@@ -80,11 +81,16 @@ Node-RED | `${TTN_DASHBOARD_DATA}node-red` | `/data`
 InfluxDB | `${TTN_DASHBOARD_DATA}influxdb`| `/data`
 Grafana | `${TTN_DASHBOARD_DATA}grafana`| `/var/lib/grafana`
 
-As shown, you can easily change locations on the **host** (e.g. for testing). You do this by setting the environment variable `TTN_DASHBOARD_DATA` to the **absolute path** to the containing directory prior to calling `docker-compose up`. The above paths are appended to the value of `TTN_DASHBOARD_DATA`. Directories are created as needed. Consider the following example:
+As shown, you can easily change locations on the **host** (e.g. for testing). You do this by setting the environment variable `TTN_DASHBOARD_DATA` to the **absolute path** (with trailing slash) to the containing directory prior to calling `docker-compose up`. The above paths are appended to the value of `TTN_DASHBOARD_DATA`. Directories are created as needed.
+
+Normally, this is done by an appropriate setting in the `.env` file.
+
+Consider the following example:
 
 ```bash
-% export TTN_DASHBOARD_DATA=/dashboard-data/
-% docker-compose up -d
+$ grep TTN_DASHBOARD_DATA .env
+TTN_DASHBOARD_DATA=/dashboard-data/
+$ docker-compose up -d
 ```
 
 In this case, the data files are created in the following locations:
@@ -102,9 +108,10 @@ Since data files on the host are not removed between runs, as long as you don't 
 Sometimes this is inconvienient, and you'll want to remove some or all of the data. For a variety of reasons, the data files and directories are created owned by root, so you must use the `sudo` command to remove the data files. Here's an example of how to do it:
 
 ```bash
-$ sudo rm -rf ${TTN_DASHBOARD_DATA}node-red
-$ sudo rm -rf ${TTN_DASHBOARD_DATA}influxdb
-$ sudo rm -rf ${TTN_DASHBOARD_DATA}grafana
+source .env
+sudo rm -rf ${TTN_DASHBOARD_DATA}node-red
+sudo rm -rf ${TTN_DASHBOARD_DATA}influxdb
+sudo rm -rf ${TTN_DASHBOARD_DATA}grafana
 ```
 
 ## Node-RED and Grafana Examples

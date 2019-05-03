@@ -148,7 +148,7 @@ _Last Update: 2019-04-30_
 
 ## After server is set up
 
-The following instructions are essentially indenpendent of the cloud provider and the underlying distribution. But we've only tested on Ubuntu and (in 2017) on CentOS.
+The following instructions are essentially independent of the cloud provider and the underlying distribution. But we've only tested on Ubuntu and (in 2017) on CentOS.
 
 1. Clone this repo.
 

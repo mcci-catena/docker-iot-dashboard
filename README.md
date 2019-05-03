@@ -50,6 +50,7 @@ This can be visualized as below:
 
 * Your host system must have docker-compose 1.9 or later (for which see https://github.com/docker-compose -- be aware that apt-get normally doesn't grab this; if configured at all, it frequently gets an out-of-date version).
 * The environment variable `TTN_DASHBOARD_DATA`, if set, points to the common directory for your data. If not set, docker-compose will quit at startup. (This is by design!)
+
    * `${TTN_DASHBOARD_DATA}node-red` will have your local Node-RED data.
    * `${TTN_DASHBOARD_DATA}influxdb` will have your local influxdb data (this is what you should back up)
    * `${TTN_DASHBOARD_DATA}grafana` will have your dashboards

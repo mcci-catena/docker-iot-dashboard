@@ -162,7 +162,7 @@ services:
       - influxdb
       - postfix
     environment:
-      - TZ: "${TTN_DASHBOARD_TIMEZONE:-GMT}"
+      TZ: "${TTN_DASHBOARD_TIMEZONE:-GMT}"
 
   influxdb:
     restart: unless-stopped

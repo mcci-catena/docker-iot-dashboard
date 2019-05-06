@@ -264,6 +264,9 @@ TTN_DASHBOARD_GRAFANA_SMTP_ENABLED=true
 TTN_DASHBOARD_GRAFANA_SMTP_FROM_ADDRESS=grafana-admin@dashboard.example.com
 # The "from" address for Grafana emails.
 #
+# TTN_DASHBOARD_GRAFANA_USERS_ALLOW_SIGN_UP=
+#	Set to true to allow users to sign-up to get access to the dashboard.
+#
 TTN_DASHBOARD_INFLUXDB_ADMIN_PASSWORD=jadb4a4WH5za7wvp
 #       The password to be used for the admin user by influxdb. Again, this is
 #       ignored after the influxdb database has been built.

@@ -86,6 +86,9 @@
 # TTN_DASHBOARD_GRAFANA_SMTP_FROM_ADDRESS
 # The "from" address for Grafana emails.
 #
+# TTN_DASHBOARD_GRAFANA_USERS_ALLOW_SIGN_UP
+#	Set to true to allow users to sign up.
+#
 # TTN_DASHBOARD_INFLUXDB_ADMIN_PASSWORD
 #	The password to be used for the admin user by influxdb. Again, this is
 #	ignored after the influxdb database has been built.
@@ -218,6 +221,7 @@ services:
       GF_LOG_MODE: "${TTN_DASHBOARD_GRAFANA_LOG_MODE:-console,file}"
       GF_LOG_LEVEL: "${TTN_DASHBOARD_GRAFANA_LOG_LEVEL:-info}"
       GF_INSTALL_PLUGINS: "${TTN_DASHBOARD_GRAFANA_INSTALL_PLUGINS:-}"
+      GF_USERS_ALLOW_SIGN_UP: "${TTN_DASHBOARD_GRAFANA_USERS_ALLOW_SIGN_UP:-false}"
     # grafana opens ports on influxdb and postfix, so it needs to be able to talk to it.
     links:
       - influxdb

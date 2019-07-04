@@ -100,6 +100,26 @@
 # TTN_DASHBOARD_MAIL_HOST_NAME
 # 	The mail hostname.
 #
+# TTN_MAIL_RELAY_NETWORKS
+#	The relay networks. MUST start with ":"
+#	e.g :192.168.0.0/24 or :192.168.0.0/24:10.0.0.0/16.
+#
+# TTN_SMARTHOST_ADDRESS
+#	The smarthost address.
+#
+# TTN_SMARTHOST_PORT
+#	The smarthost port.
+#
+# TTN_SMARTHOST_USER
+#	The smarthost username.
+#
+# TTN_SMARTHOST_PASSWORD
+#	The smarthost user password.
+#
+# TTN_SMARTHOST_ALIASES
+#	 A list of aliases to puth auth data for authentication, semicolon separated.
+# 	 e.g. TTN_SMARTHOST_ALIASES=*.mysmtp.com
+#
 # TTN_DASHBOARD_PORT_HTTP
 #	The port to listen to for HTTP. Primarily for test purposes. Defaults to
 #	80.
@@ -187,10 +207,17 @@ services:
 
   smtp:
     restart: unless-stopped
-    # https://hub.docker.com/r/namshi/smtp
+    # Documentation: https://hub.docker.com/r/namshi/smtp
     image: namshi/smtp
     environment:
+      TZ: "${TTN_DASHBOARD_TIMEZONE:-GMT}"
       MAILNAME: "${TTN_DASHBOARD_MAIL_HOST_NAME:-.}"
+      RELAY_NETWORKS: "${TTN_MAIL_RELAY_NETWORKS}"
+      SMARTHOST_ADDRESS: "${TTN_SMARTHOST_ADDRESS}"
+      SMARTHOST_PORT: "${TTN_SMARTHOST_PORT}"
+      SMARTHOST_USER: "${TTN_SMARTHOST_USER}"
+      SMARTHOST_PASSWORD: "${TTN_SMARTHOST_PASSWORD}"
+      SMARTHOST_ALIASES: "${TTN_SMARTHOST_ALIASES}"
 
   grafana:
     restart: unless-stopped

@@ -1,0 +1,19 @@
+        Redirect 301 /influxdb https://@{FQDN}/influxdb/
+        <Location "/influxdb/" >
+		AuthType Basic
+		AuthName "InfluxDB admin"
+		AuthUserFile /etc/apache2/authdata/.htpasswd
+		AuthGroupFile /etc/apache2/authdata/.htgroup
+		Require group admin
+                ProxyPass http://influxdb:8083/
+                ProxyPassReverse http://influxdb:8083/
+        </Location>
+	<Location "/influxdb:8086/">
+		AuthType Basic
+		AuthName "InfluxDB queries"
+		AuthUserFile /etc/apache2/authdata/.htpasswd
+		AuthGroupFile /etc/apache2/authdata/.htgroup
+		Require group query
+                ProxyPass http://influxdb:8086/
+                ProxyPassReverse http://influxdb:8086/
+	</Location>

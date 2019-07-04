@@ -5,7 +5,7 @@ cd /root
 crontab -l > mycron
 
 #echo new cron into cron file
-echo "15 3 * * * /usr/bin/certbot renew --preferred-challenges http-01,dns-01" >> mycron
+echo "15 3 * * * /usr/bin/certbot renew" >> mycron
 
 #install new cron file
 crontab mycron

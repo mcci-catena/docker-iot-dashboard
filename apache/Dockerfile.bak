@@ -18,7 +18,7 @@ RUN /usr/sbin/a2enmod proxy && \
     /usr/sbin/a2enmod proxy_http && \
     echo "ServerName localhost" > /etc/apache2/conf-available/fqdn.conf && \
     /usr/sbin/a2enconf fqdn.conf && \
-    /usr/sbin/a2enmod authz_user authz_groupfile proxy_wstunnel headers
+    /usr/sbin/a2enmod authz_user authz_groupfile proxy_wstunnel
 
 # RUN mkdir -p /root
 COPY setup.sh proxy-*.conf /root/

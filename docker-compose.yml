@@ -116,6 +116,15 @@
 # TTN_SMARTHOST_PASSWORD
 #	The smarthost user password.
 #
+# TTN_GMAIL_USER
+#	[SMTP relay] The Google Mail username.
+#
+# TTN_GMAIL_PASSWORD
+#	[SMTP relay] The Google Mail user password.
+#
+# TTN_SMARTHOST_PASSWORD
+#	The smarthost user password.
+#
 # TTN_SMARTHOST_ALIASES
 #	 A list of aliases to puth auth data for authentication, semicolon separated.
 # 	 e.g. TTN_SMARTHOST_ALIASES=*.mysmtp.com
@@ -218,6 +227,8 @@ services:
       SMARTHOST_USER: "${TTN_SMARTHOST_USER}"
       SMARTHOST_PASSWORD: "${TTN_SMARTHOST_PASSWORD}"
       SMARTHOST_ALIASES: "${TTN_SMARTHOST_ALIASES}"
+      GMAIL_USER: "${TTN_GMAIL_USER}"
+      GMAIL_PASSWORD: "${TTN_GMAIL_PASSWORD}"
 
   grafana:
     restart: unless-stopped

@@ -1,5 +1,7 @@
 # Set-by-step Setup Instructions
-
+<!-- markdownlint-disable MD034 -->
+<!-- markdownlint-capture -->
+<!-- markdownlint-disable -->
 <!-- TOC depthFrom:2 updateOnSave:true -->
 
 - [Notes](#notes)
@@ -16,8 +18,11 @@
 		- [Set up first data source](#set-up-first-data-source)
 	- [Test Node-RED](#test-node-red)
 	- [Creating an InfluxDB database](#creating-an-influxdb-database)
+- [Add Apache log in for NodeRed or query after the fact](#add-apache-log-in-for-nodered-or-query-after-the-fact)
 
 <!-- /TOC -->
+<!-- markdownlint-restore -->
+<!-- Due to a bug in Markdown TOC, the table is formatted incorrectly if tab indentation is set other than 4. Due to another bug, this comment must be *after* the TOC entry. -->
 
 ## Notes
 
@@ -35,7 +40,7 @@ First you have to choose a cloud provider and install Docker and Docker-Compose.
 
 ### On Digital Ocean
 
-_Last Update: 2019-04-30_
+_Last Update: 2019-07-31_
 
 #### Create droplet
 
@@ -45,7 +50,7 @@ _Last Update: 2019-04-30_
 
 3. Discover > Marketplace, search for `Docker`
 
-4. You shoud come to this page: https://cloud.digitalocean.com/marketplace/5ba19751fc53b8179c7a0071?i=ec3581
+4. You should come to this page: https://cloud.digitalocean.com/marketplace/5ba19751fc53b8179c7a0071?i=ec3581
 
 5. Press "Create"
 
@@ -69,11 +74,11 @@ _Last Update: 2019-04-30_
 
 2. `ssh root@{ipaddress}`
 
-3. Remove the motd.
+3. Remove the motd (message of the day).
 
 4. Add user:
 
-   ```sh
+   ```bash
    adduser username
    adduser username admin
    adduser username docker
@@ -85,7 +90,7 @@ _Last Update: 2019-04-30_
 
 6. Optional: enable `username` to sudo without password.
 
-   ```sh
+   ```bash
    sudo VISUAL=vi visudo
    ```
 
@@ -104,7 +109,7 @@ _Last Update: 2019-04-30_
 
 8. Drop back to root, and then copy the authorized_keys file to `~username`:
 
-   ```sh
+   ```bash
    mkdir -m 700 ~username/.ssh
    cp -p .ssh/authorized_keys ~username/.ssh
    chown -R username.username ~username/.ssh/authorized_keys
@@ -112,16 +117,16 @@ _Last Update: 2019-04-30_
 
 9. See if you can ssh in.
 
-10. Optional: set up byobu by default:
+10. Optional: set up `byobu` by default:
 
-   ```sh
-   byobu
-   byobu-enable
-   ```
+    ```bash
+    byobu
+    byobu-enable
+    ```
 
 11. Set the host name.
 
-    ```sh
+    ```bash
     vi /etc/hosts
     ```
 
@@ -131,15 +136,15 @@ _Last Update: 2019-04-30_
 
 13. set up Git:
 
-   ```sh
-   sudo add-apt-repository ppa:git-core/ppa
-   sudo apt update
-   sudo apt install git
-   ```
+    ```bash
+    sudo add-apt-repository ppa:git-core/ppa
+    sudo apt update
+    sudo apt install git
+    ```
 
 14. We'll put the docker files at `/opt/docker/docker-ttn-dashboard`, setting up as follows:
 
-   ```sh
+   ```bash
    sudo mkdir /opt/docker
    cd /opt/docker
    sudo chgrp admin .
@@ -150,15 +155,15 @@ _Last Update: 2019-04-30_
 
 The following instructions are essentially independent of the cloud provider and the underlying distribution. But we've only tested on Ubuntu and (in 2017) on CentOS.
 
-1. Clone this repo.
+1. Clone this repository.
 
-   ```sh
+   ```bash
    git clone git@github.com:mcci-catena/docker-ttn-dashboard.git /opt/docker/dashboard.example.com
    ```
 
-2. move to that repo
+2. Move to the directory populated in step 1.
 
-   ```sh
+   ```bash
    cd /opt/docker/dashboard.example.com
    ```
 
@@ -168,7 +173,7 @@ The following instructions are essentially independent of the cloud provider and
 
 1. Create a `.env` file. To get a template:
 
-   ```sh
+   ```bash
    sed -ne '/^#+++/,/^#---/p' docker-compose.yml | sed -e '/^#[^ \t]/d' -e '/^# TTN/s/$/=/' > .env
    ```
 
@@ -181,11 +186,11 @@ The following instructions are essentially independent of the cloud provider and
    This should be the same as `TTN_DASHBOARD_APACHE_FQDN`.
 
    3. `TTN_DASHBOARD_CERTBOT_EMAIL=someone@example.com`
-   This sets the contact email for Let's Encyrypt. The script automatically accepts the Let's Encrypt terms of service, and this indicates who is doing the accepting.
+   This sets the contact email for Let's Encrypt. The script automatically accepts the Let's Encrypt terms of service, and this indicates who is doing the accepting.
 
    4. `TTN_DASHBOARD_DATA=/full/path/to/directory/`
    The trailing slash is required!
-   This will put all the data file for this instance as subdirectories of the specified path. If you leave this underfined, `docker-compose` will print error messages and quit.
+   This will put all the data file for this instance as subdirectories of the specified path. If you leave this undefined, `docker-compose` will print error messages and quit.
 
    5. `TTN_DASHBOARD_GRAFANA_ADMIN_PASSWORD=SomethingVerySecretIndeed`
    This sets the *initial* password for the Grafana `admin` login. You should change this via the Grafana UI after booting the server.
@@ -210,7 +215,7 @@ The following instructions are essentially independent of the cloud provider and
 
 Your `.env` file should look like this:
 
-```sh
+```bash
 ### env file for configuring dashboard.example.com
 TTN_DASHBOARD_APACHE_FQDN=dashboard.example.com
 #       The fully-qualified domain name to be served by Apache.
@@ -265,7 +270,7 @@ TTN_DASHBOARD_GRAFANA_SMTP_FROM_ADDRESS=grafana-admin@dashboard.example.com
 # The "from" address for Grafana emails.
 #
 # TTN_DASHBOARD_GRAFANA_USERS_ALLOW_SIGN_UP=
-#	Set to true to allow users to sign-up to get access to the dashboard.
+#       Set to true to allow users to sign-up to get access to the dashboard.
 #
 TTN_DASHBOARD_INFLUXDB_ADMIN_PASSWORD=jadb4a4WH5za7wvp
 #       The password to be used for the admin user by influxdb. Again, this is
@@ -300,7 +305,7 @@ TTN_DASHBOARD_MAIL_HOST_NAME=dashboard.example.com
 
 1. Prepare everything:
 
-    ```sh
+    ```bash
     docker-compose pull
     ````
 
@@ -308,31 +313,31 @@ TTN_DASHBOARD_MAIL_HOST_NAME=dashboard.example.com
 
 2. Use `docker-compose run apache /bin/bash` to launch a shell in the Apache context.
 
-   * If this fails with the message, `ERROR: Couldn't connect to Docker daemon at http+docker://localunixsocket - is it running?`, then probably your user ID is not in the `docker` group. To fix this, `sudo adduser MYUSER docker`, where "MYUSER" is your login ID. Then (**very important**) log out and log back in.
+   - If this fails with the message, `ERROR: Couldn't connect to Docker daemon at http+docker://localunixsocket - is it running?`, then probably your user ID is not in the `docker` group. To fix this, `sudo adduser MYUSER docker`, where "MYUSER" is your login ID. Then (**very important**) log out and log back in.
 
-3. Add Apache's `/etc/apache2/authdata` as user www-data
+3. Add Apache's `/etc/apache2/authdata` directory as user `www-data`.
 
-   ```sh
+   ```bash
    chown www-data /etc/apache2/authdata
    ```
 
 4. Add Apache's `/etc/apache2/authdata/.htpasswd`.
 
-   ```sh
+   ```bash
    touch /etc/apache2/authdata/.htpasswd
    chown www-data /etc/apache2/authdata/.htpasswd
    ```
 
 5. Add user logins for node-red and influxdb queries. Make `USERS` be a list of login IDs.
 
-   ```sh
+   ```bash
    export USERS="tmm amy josh"
    for USER in $USERS; do echo "Set password for "$USER; htpasswd /etc/apache2/authdata/.htpasswd $USER; done
    ```
 
 6. Add Apache's `/etc/apache2/authdata/.htgroup`.
 
-   ```sh
+   ```bash
    # this assumes USERS is still set from previous step.
    touch /etc/apache2/authdata/.htgroup
    chown www-data /etc/apache2/authdata/.htgroup
@@ -340,13 +345,13 @@ TTN_DASHBOARD_MAIL_HOST_NAME=dashboard.example.com
    echo "query: ${USERS}" >>/etc/apache2/authdata/.htgroup
    ```
 
-7. Exit Apache's container with Ctrl-D.
+7. Exit Apache's container with Control+D.
 
 ## Start the server
 
 1. We recommend you first start things up in "interactive mode".
 
-    ```sh
+    ```bash
     docker-compose up
     ```
 
@@ -358,7 +363,7 @@ TTN_DASHBOARD_MAIL_HOST_NAME=dashboard.example.com
 
 Once the servers are coming up interactively, use ^C to shut them down, then restart in daemon mode.
 
-```sh
+```bash
 docker-compose up -d
 ```
 
@@ -372,13 +377,13 @@ docker-compose up -d
 
 Use the Grafana UI -- either click on "add first data source" or use "Configure>Add Data Source", and add an InfluxDB data source.
 
-- Set the URL (under Http Settings) to `http://influxdb:8086`.
+- Set the URL (under HTTP Settings) to `http://influxdb:8086`.
 
-- Select the database.  If InfluxDB properly initialized a database, you should also be able to connect to it as a Grafana datasource. If not, you'll first need to [create an InfluxDB database](#creating-an-influxdb-database).
+- Select the database.  If InfluxDB properly initialized a database, you should also be able to connect to it as a Grafana data source. If not, you'll first need to [create an InfluxDB database](#creating-an-influxdb-database).
 
-* Leave user and password blank.
+- Leave user and password blank.
 
-* Click "Save & Test".
+- Click "Save & Test".
 
 ### Test Node-RED
 
@@ -410,3 +415,51 @@ my-new-database
 # ^D
 $
 ```
+
+## Add Apache log in for NodeRed or query after the fact
+
+To add a user with Node-RED access or query access, follow this procedure.
+
+1. Log into the host machine
+
+2. cd to `/opt/docker/dashboard.example.com`.
+
+3. log into the apache docker container.
+
+    ```console
+    $ docker-compose exec apache /bin/bash
+    #
+    ```
+
+4. In the container, move to the `authdata` directory.
+
+    ```console
+    # cd /etc/apache2/authdata
+    #
+    ```
+
+5. Add the user.
+
+    ```console
+    # htpasswd .htpasswd {newuserid}
+    New password:
+    Re-type new password:
+    Adding password for user {newuserid}
+    #
+    ```
+
+6. Grant permissions to the user by updating `.htgroup` in the same directory.
+
+    ```console
+    # vi .htgroup
+    ```
+
+   There are at least two groups, `node-red` and `query`.
+
+   - Add `{newuserid}` to group `node-red` if you want to grant access to Node-READ.
+
+   - Add `{newuserid}` to group `query` if you want to grant access for InfluxDB queries.
+
+7. Write and save the file, then use `cat` to display it.
+
+8. Close the connection to apache (control+D).

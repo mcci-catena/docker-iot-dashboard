@@ -23,7 +23,7 @@ To make things more specific, most of the description here assumes use of Micros
 * The **host system** is the system running Docker and Docker-compose.
 * A **container** is one of the virtual systems running under Docker on the host system.
 * A **file on the host** is a file on the host system (typically not visible from within the container(s).
-* A **file in container *X*** (or a **file in the *X* container**) is a file in a filesystem associated with containser *X* (and typically not visible from the host system).
+* A **file in container *X*** (or a **file in the *X* container**) is a file in a file-system associated with container *X* (and typically not visible from the host system).
 
 ## Security
 
@@ -31,7 +31,7 @@ All communication with the Apache server are encrypted using SSL with auto-provi
 
 Access to Node-RED and InfluxDB is via special URLs (__base__/node-red/ and __base__/influxdb/, where __base__ is the URL served by the Apache container). These URLs are protected via Apache `htpasswd` and `htgroup` file entries. These entries are files in the Apache container, and must be manually edited by an administrator.
 
-The initial administrator's login password for grafana must be initialized prior to starting the very first; it's stored in `grafana/.env`. (When you start the grafana container the first time, it creates `grafana.db` in the grafana container, and stores the password at that time. If `grafana.db` already exists, the password in `grafana/.env` is ignored.)
+The initial administrator's login password for Grafana must be initialized prior to starting the very first; it's stored in `grafana/.env`. (When you start the Grafana container the first time, it creates `grafana.db` in the Grafana container, and stores the password at that time. If `grafana.db` already exists, the password in `grafana/.env` is ignored.)
 
 Microsoft Azure, by default, will not open any of the ports to the outside world, so you will need to open port 443 for SSL access to Apache.
 
@@ -49,11 +49,12 @@ This can be visualized as below:
 ## Assumptions
 
 * Your host system must have docker-compose 1.9 or later (for which see https://github.com/docker-compose -- be aware that apt-get normally doesn't grab this; if configured at all, it frequently gets an out-of-date version).
+
 * The environment variable `TTN_DASHBOARD_DATA`, if set, points to the common directory for your data. If not set, docker-compose will quit at startup. (This is by design!)
 
-   * `${TTN_DASHBOARD_DATA}node-red` will have your local Node-RED data.
-   * `${TTN_DASHBOARD_DATA}influxdb` will have your local influxdb data (this is what you should back up)
-   * `${TTN_DASHBOARD_DATA}grafana` will have your dashboards
+   - `${TTN_DASHBOARD_DATA}node-red` will have your local Node-RED data.
+   - `${TTN_DASHBOARD_DATA}influxdb` will have your local influxdb data (this is what you should back up)
+   -  `${TTN_DASHBOARD_DATA}grafana` will have your dashboards
 
 ## Composition and External Ports
 
@@ -61,9 +62,9 @@ Within their containers, the individual programs use their usual ports, but thes
 
 In `docker-compose.yml`, the following ports on the docker host are connected to the individual programs.
 
-* Apache runs on 80 and 443.  (All connections to port 80 are redirected to 443 using ssl).
+* Apache runs on 80 and 443.  (All connections to port 80 are redirected to 443 using SSL).
 
-Remember, if your server is running on a cloud platform like Microsoft Azure or AWS, you need to check the firewall and confirm that the ports are open to the oustide world.
+Remember, if your server is running on a cloud platform like Microsoft Azure or AWS, you need to check the firewall and confirm that the ports are open to the outside world.
 
 ## Installation
 
@@ -71,7 +72,7 @@ Please refer to [`SETUP.md`](./SETUP.md) for detailed set-up instructions.
 
 ## Data Files
 
-When designing this collection of services, we had to decide where to store the data files. We had two choices: keep them inside the docker containers, or keep them in locations on the host system. The advantage of the the former is that everything is reset when you rebuild the docker images. The disavantage of the former is that you lose all your data when you rebuild. On the other hand, there's another level of indirection when keeping things on the host, as the files reside in different locations on the host and in the docker containers.
+When designing this collection of services, we had to decide where to store the data files. We had two choices: keep them inside the docker containers, or keep them in locations on the host system. The advantage of the the former is that everything is reset when you rebuild the docker images. The disadvantage of the former is that you lose all your data when you rebuild. On the other hand, there's another level of indirection when keeping things on the host, as the files reside in different locations on the host and in the docker containers.
 
 Data files are kept in the following locations by default.
 
@@ -105,7 +106,7 @@ Grafana | `/dashboard-data/grafana`
 
 Since data files on the host are not removed between runs, as long as you don't remove the files between runs, your data will preserved.
 
-Sometimes this is inconvienient, and you'll want to remove some or all of the data. For a variety of reasons, the data files and directories are created owned by root, so you must use the `sudo` command to remove the data files. Here's an example of how to do it:
+Sometimes this is inconvenient, and you'll want to remove some or all of the data. For a variety of reasons, the data files and directories are created owned by root, so you must use the `sudo` command to remove the data files. Here's an example of how to do it:
 
 ```bash
 source .env
@@ -116,19 +117,19 @@ sudo rm -rf ${TTN_DASHBOARD_DATA}grafana
 
 ## Node-RED and Grafana Examples
 
-This version requires that you set up Node-RED, the database and the grafana dashboards manually, but we hope to add a reasonable set of initial files in a future release.
+This version requires that you set up Node-RED, the database and the Grafana dashboards manually, but we hope to add a reasonable set of initial files in a future release.
 
 ## Connecting to InfluxDB from Node-RED and Grafana
 
-There is one point that is somewhat confusing about the connections from Node-RED and Grafana to InfluxDB. Even though InfluxDB is running on the same host, it is logically running on its own virtual machine (created by docker). Because of this, Node-RED and Grafana cannot use **localhost** when connecting to Grafana. A special name is provided by docker: **influxdb**.  Note that there's no DNS suffix.  If you don't use **influxdb**, Node-RED and Grafana will not be able to connect.
+There is one point that is somewhat confusing about the connections from Node-RED and Grafana to InfluxDB. Even though InfluxDB is running on the same host, it is logically running on its own virtual machine (created by docker). Because of this, Node-RED and Grafana cannot use **`localhost`** when connecting to Grafana. A special name is provided by docker: **`influxdb`**.  Note that there's no DNS suffix.  If you don't use **`influxdb`**, Node-RED and Grafana will not be able to connect.
 
 ## Logging in to Grafana
 
-* On the login screen, the user name is "admin". The initial password is given by the value of the variable `GF_SECURITY_ADMIN_PASSWORD` in `grafana/.env`. Note that if you change the password in `grafana/.env` after the first time you launch the grafana containder, the admin password does not change. If you somehow lose the previous value of the admin password, and you don't have another admin login, it's very hard to recover; easiest is to remove `grafana.db` and start over.
+* On the login screen, the user name is "`admin`". The initial password is given by the value of the variable `GF_SECURITY_ADMIN_PASSWORD` in `grafana/.env`. Note that if you change the password in `grafana/.env` after the first time you launch the grafana containder, the admin password does not change. If you somehow lose the previous value of the admin password, and you don't have another admin login, it's very hard to recover; easiest is to remove `grafana.db` and start over.
 
 ### Data source settings in Grafana
 
-* Set the URL (under Http Settings) to `http://influxdb:8086`.
+* Set the URL (under HTTP Settings) to `http://influxdb:8086`.
 
 * Select the database.
 
@@ -140,12 +141,12 @@ There is one point that is somewhat confusing about the connections from Node-RE
 
 Although the dashboard is already very useful, it's incomplete.  Please refer to `TODO.md`, and also note that we're considering the following. Check in for updates!
 
-1. Add a script to setup the passwords initially for grafana and for access to node-red and influxdb.
-2. Admin script to show roles and maintain the htpasswd
+1. Add a script to setup the passwords initially for Grafana and for access to node-red and Influxdb.
+2. Admin script to show roles and maintain the `.htpasswd` and `.htgroup` files.
 3. Add the auto-update cron script -- right now you have to restart in order to get the SSL certs updated. Not a big deal, as the patches-requiring-reboot interval is shorter than the life of the certs, but still, this should be fixed.
-4. Switch to [phusion](https://github.com/phusion/baseimage-docker) for the base image, instead of ubuntu.
-5. Provide suitable intial files for Grafana and NodeRed, assuming MCCI sensor nodes.
-6. The intial script should prompt for the data base name.
+4. Switch to [phusion](https://github.com/phusion/baseimage-docker) for the base image, instead of Ubuntu.
+5. Provide suitable initial files for Grafana and Node-RED, assuming MCCI sensor nodes.
+6. The initial script should prompt for the data base name.
 
 ## Acknowledgements
 

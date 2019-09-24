@@ -156,7 +156,6 @@ services:
 
   node-red:
     restart: unless-stopped
-    build: node-red
     user: "root"
     volumes:
       - "${TTN_DASHBOARD_DATA}node-red:/data"
@@ -166,7 +165,10 @@ services:
       - postfix
     environment:
       TZ: "${TTN_DASHBOARD_TIMEZONE:-GMT}"
-      NODEDRED_INSTALL_PLUGINS: "${TTN_DASHBOARD_NODERED_INSTALL_PLUGINS:-}"
+    build:
+     context: ./node-red
+     args:
+      NODERED_INSTALL_PLUGINS: "${TTN_DASHBOARD_NODERED_INSTALL_PLUGINS:-}"
 
   influxdb:
     restart: unless-stopped

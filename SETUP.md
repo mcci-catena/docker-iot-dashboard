@@ -210,6 +210,9 @@ The following instructions are essentially independent of the cloud provider and
    10. `TTN_DASHBOARD_MAIL_DOMAIN=example.com`
    This sets the domain name of your mail server. Used by Postfix.
 
+   11. `TTN_DASHBOARD_NODERED_INSTALL_PLUGINS=node-red-node-example1 node-red-node-example2`
+   This installs one or more Node-RED plug-ins.
+
    11. `TTN_DASHBOARD_TIMEZONE=Europe/Paris`
    If not defined, the default timezone will be GMT.
 
@@ -289,6 +292,9 @@ TTN_DASHBOARD_MAIL_HOST_NAME=dashboard.example.com
 # TTN_DASHBOARD_MAIL_RELAY_IP=
 # the mail relay machine, assuming that the real mailer is upstream from us.
 #
+TTN_DASHBOARD_NODERED_INSTALL_PLUGINS=node-red-node-example1 nodered-node-example2
+#	Additional plugins to be installed for Node-RED.
+#
 # TTN_DASHBOARD_PORT_HTTP=
 #       The port to listen to for HTTP. Primarily for test purposes. Defaults to
 #       80.
@@ -307,9 +313,10 @@ TTN_DASHBOARD_MAIL_HOST_NAME=dashboard.example.com
 
     ```bash
     docker-compose pull
+    docker-compose build
     ````
 
-   If there are any errors, fix them before
+   If there are any errors, fix them before going on.
 
 2. Use `docker-compose run apache /bin/bash` to launch a shell in the Apache context.
 

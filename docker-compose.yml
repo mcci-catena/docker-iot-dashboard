@@ -106,6 +106,9 @@
 # TTN_DASHBOARD_MAIL_RELAY_IP
 # the mail relay machine, assuming that the real mailer is upstream from us.
 #
+# TTN_DASHBOARD_NODERED_INSTALL_PLUGINS
+#	A list of additional modules to be intalled.
+#
 # TTN_DASHBOARD_PORT_HTTP
 #	The port to listen to for HTTP. Primarily for test purposes. Defaults to
 #	80.
@@ -163,6 +166,7 @@ services:
       - postfix
     environment:
       TZ: "${TTN_DASHBOARD_TIMEZONE:-GMT}"
+      NODEDRED_INSTALL_PLUGINS: "${TTN_DASHBOARD_NODERED_INSTALL_PLUGINS:-}"
 
   influxdb:
     restart: unless-stopped

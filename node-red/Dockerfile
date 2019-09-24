@@ -12,9 +12,10 @@ ENV NODE_TLS_REJECT_UNAUTHORIZED=0
 RUN npm install node-red-contrib-influxdb
 
 # add The Things Network connector
-#RUN npm install node-red-contrib-ttn
 RUN npm install node-red-contrib-ttn
 
+# add any other things that need to be added
+RUN /bin/bash -c 'for iPkg in "$@" ; do npm install "$iPkg" || { echo "couldn't install: $iPkg" ; exit 1 ; } ; done' -- ${NODERED_INSTALL_PLUGINS}
 
 # copy the settings file
 USER node-red

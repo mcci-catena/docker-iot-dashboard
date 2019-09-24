@@ -315,7 +315,7 @@ TTN_DASHBOARD_MAIL_HOST_NAME=dashboard.example.com
 
    - If this fails with the message, `ERROR: Couldn't connect to Docker daemon at http+docker://localunixsocket - is it running?`, then probably your user ID is not in the `docker` group. To fix this, `sudo adduser MYUSER docker`, where "MYUSER" is your login ID. Then (**very important**) log out and log back in.
 
-3. Add Apache's `/etc/apache2/authdata` directory as user `www-data`.
+3. Change ownership of Apache's `/etc/apache2/authdata` to user `www-data`.
 
    ```bash
    chown www-data /etc/apache2/authdata

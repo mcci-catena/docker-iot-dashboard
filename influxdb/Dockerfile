@@ -19,7 +19,9 @@ RUN apt-get update && apt-get install -y python-pip
 RUN pip install awscli --upgrade  
 
 # Backup script
+COPY showdb.sh /bin/showdb.sh
 COPY backup.sh /bin/backup.sh
+RUN chmod +x /bin/showdb.sh
 RUN chmod +x /bin/backup.sh
 
 # end of file

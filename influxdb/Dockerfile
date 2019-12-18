@@ -1,10 +1,13 @@
 #
-# Dockerfile for building the influxdb instance with backup setup
+# Dockerfile for building the influxdb instance with S3-backup and Mail alert setup
 #
 
-##FROM influxdb:${version}
 FROM phusion/baseimage
 
+# Default InfluxDB host
+ENV INFLUX_HOST=influxdb
+
+# Install Influxdb stable release
 RUN apt-get update && apt-get install -y  wget
 ARG distrib_id
 ARG distrib_codename
@@ -45,10 +48,6 @@ run postmap /etc/postfix/generic
 
 # mail command would be used for sending mails
 run apt-get install -y mailutils
-
-
-# Default InfluxDB host
-ENV INFLUX_HOST=influxdb
 
 # Change workdir
 RUN mkdir -p /opt/influxdb-backup

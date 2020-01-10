@@ -47,7 +47,7 @@ fi
 
 # now, add the fields to the virtual host section for https.
 set -- proxy-*.conf
-if [ "$1" != "prox-*.conf" ] ; then
+if [ "$1" != "proxy-*.conf" ] ; then
 	echo "add proxy-specs to configuration from:" "$@"
 	sed -e "s/@{FQDN}/${NGINX_FQDN}/g" "$@" > /tmp/proxyspecs.conf || exit 5
 	sed -e '/listen 443 ssl;/r/tmp/proxyspecs.conf' /etc/nginx/sites-available/default  > /tmp/000-default-le-ssl-local.conf || exit 6

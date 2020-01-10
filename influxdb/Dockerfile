@@ -63,8 +63,8 @@ RUN chmod +x /bin/backup.sh
 COPY influxdb.conf /etc/influxdb/influxdb.conf
 
 # Enable influxdb database automatic backup crontab
-COPY influxdb_cron.sh /etc/my_init.d/certbot_cron.sh
-RUN chmod +x /etc/my_init.d/certbot_cron.sh
+COPY influxdb_cron.sh /etc/my_init.d/influxdb_cron.sh
+RUN chmod +x /etc/my_init.d/influxdb_cron.sh
 
 # Start the postfix daemon during container startup
 RUN mkdir -p /etc/my_init.d

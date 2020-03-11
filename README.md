@@ -1,6 +1,6 @@
-# Dashboard example for The Things Network
+# Docker IoT Dashboard
 
-This repository contains a complete example that grabs device data from The Things Network, stores it in a database, and then displays the data using a web-based dashboard.
+This repository provides a complete, secure server system that receives device data from LoRaWAN networks like The Things Network, stores it in a database, and then displays the data using a web-based dashboard.
 
 You can set this up on a "Ubuntu + Docker" VM from the Microsoft Azure store (or on a Ubuntu VM from [DreamCompute](https://www.dreamhost.com/cloud/computing/), or on a Docker droplet from [Digital Ocean](https://www.digitalocean.com/)) with minimal effort. You should set up this service to run all the time so as to capture the data from your devices; you then access the data at your convenience using a web browser.
 
@@ -50,11 +50,11 @@ This can be visualized as below:
 
 * Your host system must have docker-compose 1.9 or later (for which see https://github.com/docker-compose -- be aware that apt-get normally doesn't grab this; if configured at all, it frequently gets an out-of-date version).
 
-* The environment variable `TTN_DASHBOARD_DATA`, if set, points to the common directory for your data. If not set, docker-compose will quit at startup. (This is by design!)
+* The environment variable `DOCKER_IOT_DASHBOARD_DATA`, if set, points to the common directory for your data. If not set, docker-compose will quit at startup. (This is by design!)
 
-   - `${TTN_DASHBOARD_DATA}node-red` will have your local Node-RED data.
-   - `${TTN_DASHBOARD_DATA}influxdb` will have your local influxdb data (this is what you should back up)
-   -  `${TTN_DASHBOARD_DATA}grafana` will have your dashboards
+   - `${DOCKER_IOT_DASHBOARD_DATA}node-red` will have your local Node-RED data.
+   - `${DOCKER_IOT_DASHBOARD_DATA}influxdb` will have your local influxdb data (this is what you should back up)
+   - `${DOCKER_IOT_DASHBOARD_DATA}grafana` will have your dashboards
 
 ## Composition and External Ports
 
@@ -78,19 +78,19 @@ Data files are kept in the following locations by default.
 
 Component | Data file location on host | Location in container
 ----------|----------------------------|----------------------
-Node-RED | `${TTN_DASHBOARD_DATA}node-red` | `/data`
-InfluxDB | `${TTN_DASHBOARD_DATA}influxdb`| `/data`
-Grafana | `${TTN_DASHBOARD_DATA}grafana`| `/var/lib/grafana`
+Node-RED | `${DOCKER_IOT_DASHBOARD_DATA}node-red` | `/data`
+InfluxDB | `${DOCKER_IOT_DASHBOARD_DATA}influxdb`| `/data`
+Grafana | `${DOCKER_IOT_DASHBOARD_DATA}grafana`| `/var/lib/grafana`
 
-As shown, you can easily change locations on the **host** (e.g. for testing). You do this by setting the environment variable `TTN_DASHBOARD_DATA` to the **absolute path** (with trailing slash) to the containing directory prior to calling `docker-compose up`. The above paths are appended to the value of `TTN_DASHBOARD_DATA`. Directories are created as needed.
+As shown, you can easily change locations on the **host** (e.g. for testing). You do this by setting the environment variable `DOCKER_IOT_DASHBOARD_DATA` to the **absolute path** (with trailing slash) to the containing directory prior to calling `docker-compose up`. The above paths are appended to the value of `DOCKER_IOT_DASHBOARD_DATA`. Directories are created as needed.
 
 Normally, this is done by an appropriate setting in the `.env` file.
 
 Consider the following example:
 
 ```bash
-$ grep TTN_DASHBOARD_DATA .env
-TTN_DASHBOARD_DATA=/dashboard-data/
+$ grep DOCKER_IOT_DASHBOARD_DATA .env
+DOCKER_IOT_DASHBOARD_DATA=/dashboard-data/
 $ docker-compose up -d
 ```
 
@@ -110,9 +110,9 @@ Sometimes this is inconvenient, and you'll want to remove some or all of the dat
 
 ```bash
 source .env
-sudo rm -rf ${TTN_DASHBOARD_DATA}node-red
-sudo rm -rf ${TTN_DASHBOARD_DATA}influxdb
-sudo rm -rf ${TTN_DASHBOARD_DATA}grafana
+sudo rm -rf ${DOCKER_IOT_DASHBOARD_DATA}node-red
+sudo rm -rf ${DOCKER_IOT_DASHBOARD_DATA}influxdb
+sudo rm -rf ${DOCKER_IOT_DASHBOARD_DATA}grafana
 ```
 
 ## Node-RED and Grafana Examples

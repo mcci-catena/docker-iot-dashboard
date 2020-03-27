@@ -3,13 +3,22 @@
 #
 
 # build the node red image using the offical node red distribution
-FROM nodered/node-red-docker:0.16.2
+FROM nodered/node-red:latest
+
+# To avoid SSL certification issue
+ENV NODE_TLS_REJECT_UNAUTHORIZED=0
 
 # add the influxDB connector
 RUN npm install node-red-contrib-influxdb
 
 # add The Things Network connector
 RUN npm install node-red-contrib-ttn
+
+# add any other things that need to be added
+ARG NODERED_INSTALL_PLUGINS
+RUN /bin/bash -c 'for iPkg in "$@" ; do echo "npm install $iPkg" ; npm install "$iPkg" || { echo "couldnt install: $iPkg" ; exit 1 ; } ; done' -- ${NODERED_INSTALL_PLUGINS}
+
+RUN npm audit fix
 
 # copy the settings file
 USER node-red

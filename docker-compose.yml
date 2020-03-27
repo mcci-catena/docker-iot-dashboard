@@ -6,7 +6,7 @@
 # 	Configure the docker-ttn-dashboard collection of docker containers.
 #
 # Copyright:
-#	This file copyright (c) 2017 by
+#	This file copyright (c) 2017-2019 by
 #
 #		MCCI Corporation
 #		3520 Krums Corners Road
@@ -16,7 +16,7 @@
 #	collection.
 #
 # Author:
-#	Terry Moore, MCCI Corporation 
+#	Terry Moore, MCCI Corporation
 #	Based on work by Johan Stocking, The Things Network
 #
 ##############################################################################
@@ -27,10 +27,28 @@
 # for these apps. If you use dashboard-ctl, this will be done for you.
 #
 # To get a list of all variables used in this file, use the following command:
-# sed -n -e 's/[^$]*${\([^:-}]*\)[:-}][^$]*/\1\n/gp' docker-compose.yml | sort -u
+# sed -n -e 's/#.*$//'  -e 's/[^$]*${\([^-:}]*\)[-:}][^$]*/\1/p' docker-compose.yml | LC_ALL=C sort -u
 #
+# To get a list of undocumented variables, use the following command,
+# then look in the left hand column:
+#
+# comm <(sed -n -e 's/#.*$//' -e 's/[^$]*${\([^-:}]*\)[-:}][^$]*/\1/p' docker-compose.yml | LC_ALL=C sort -u)  <(sed -n -e '/^# TTN_[A-Z_0-9]*$/s/^# //p' docker-compose.yml | LC_ALL=C sort -u )
+#
+#+++
 # TTN_DASHBOARD_APACHE_FQDN
 #	The fully-qualified domain name to be served by Apache.
+#
+# TTN_DASHBOARD_AWS_ACCESS_KEY_ID
+# The access key for AWS for backups.
+#
+# TTN_DASHBOARD_AWS_DEFAULT_REGION
+# The AWS default region.
+#
+# TTN_DASHBOARD_AWS_S3_BUCKET_INFLUXDB
+# The S3 bucket to use for uploading the influxdb backup data.
+#
+# TTN_DASHBOARD_AWS_SECRET_ACCESS_KEY
+# The AWS API secret key for backing up influxdb data.
 #
 # TTN_DASHBOARD_CERTBOT_EMAIL
 #	The email address to be used for registering with Let's Encrypt.
@@ -58,31 +76,56 @@
 # TTN_DASHBOARD_GRAFANA_SMTP_ENABLED
 #	Set to true to enable SMTP.
 #
-# TTN_DASHBOARD_GRAFANA_SMTP_HOST_FQDN
-#	The FQDN of the smtp host to be used for sending mail.
-#	Defaults to localhost.
+# TTN_DASHBOARD_GRAFANA_SMTP_SKIP_VERIFY
+#	Set to true to disable SSL verification.
+#	Defaults to false.
+#
+# TTN_DASHBOARD_GRAFANA_INSTALL_PLUGINS
+#	A list of grafana plugins to install.
+#
+# TTN_DASHBOARD_GRAFANA_SMTP_FROM_ADDRESS
+# The "from" address for Grafana emails.
+#
+# TTN_DASHBOARD_GRAFANA_USERS_ALLOW_SIGN_UP
+#	Set to true to allow users to sign up.
 #
 # TTN_DASHBOARD_INFLUXDB_ADMIN_PASSWORD
-#	The password to be used for the admin user by influxdb. Again, this is 
+#	The password to be used for the admin user by influxdb. Again, this is
 #	ignored after the influxdb database has been built.
 #
 # TTN_DASHBOARD_INFLUXDB_INITIAL_DATABASE_NAME
 #	The inital database to be created on first launch of influxdb. Ignored
 #	after influxdb has been launched.
 #
+# TTN_DASHBOARD_MAIL_DOMAIN
+# the postfix mail domain.
+#
+# TTN_DASHBOARD_MAIL_HOST_NAME
+# the external FQDN for the mail host.
+#
+# TTN_DASHBOARD_MAIL_RELAY_IP
+# the mail relay machine, assuming that the real mailer is upstream from us.
+#
+# TTN_DASHBOARD_NODERED_INSTALL_PLUGINS
+#	A list of additional modules to be intalled.
+#
 # TTN_DASHBOARD_PORT_HTTP
-#	The port to listen to for HTTP. Primarily for test purposes. Defaults to 
+#	The port to listen to for HTTP. Primarily for test purposes. Defaults to
 #	80.
 #
 # TTN_DASHBOARD_PORT_HTTPS
-#	The port to listen to for HTTPS. Primarily for test purposes. Defaults to 
+#	The port to listen to for HTTPS. Primarily for test purposes. Defaults to
 #	443.
 #
+# TTN_DASHBOARD_TIMEZONE
+#	The timezone to use. Defaults to GMT.
+#---
+
 # Also see apache/setup.sh, which uses some additional test variables when
 # debugging.
 #
 
-version: '2.1'
+version: '3.7'
 services:
   # the apache server connects us to the outside world
   apache:
@@ -113,41 +156,81 @@ services:
 
   node-red:
     restart: unless-stopped
-    build: node-red
     user: "root"
     volumes:
       - "${TTN_DASHBOARD_DATA}node-red:/data"
     # nodered opens ports on influxdb so it needs to be able to talk to it.
     links:
       - influxdb
+      - postfix
+    environment:
+      TZ: "${TTN_DASHBOARD_TIMEZONE:-GMT}"
+    build:
+     context: ./node-red
+     args:
+      NODERED_INSTALL_PLUGINS: "${TTN_DASHBOARD_NODERED_INSTALL_PLUGINS:-}"
 
   influxdb:
     restart: unless-stopped
-    image: influxdb:1.2.4
+    image: influxdb:latest
     volumes:
       - "${TTN_DASHBOARD_DATA}influxdb:/var/lib/influxdb"
     environment:
+      INFLUXDB_DB: "${TTN_DASHBOARD_INFLUXDB_INITIAL_DATABASE_NAME:-demo}"
       INFLUXDB_INIT_PWD: "${TTN_DASHBOARD_INFLUXDB_ADMIN_PASSWORD:-!notset}"
-      PRE_CREATE_DB: "${TTN_DASHBOARD_INFLUXDB_INITIAL_DATABASE_NAME:-demo}"
+      INFLUXDB_BIND_ADDRESS: "influxdb:8088"
+
+  influxdb-backup:
+    restart: unless-stopped
+    build: influxdb-backup
+    volumes:
+     # Dircectory for database backup inside "./data"
+      - "${TTN_DASHBOARD_DATA}influx-backup:/var/lib/influxdb-backup"
+     # Connecting influxdb data directory to extra instances
+      - "${TTN_DASHBOARD_DATA}influxdb:/var/lib/influxdb"
+    environment:
+      INFLUX_HOST: influxdb
+      S3_BUCKET_INFLUXDB: "${TTN_DASHBOARD_AWS_S3_BUCKET_INFLUXDB:-.}"
+      AWS_ACCESS_KEY_ID: "${TTN_DASHBOARD_AWS_ACCESS_KEY_ID:-.}"
+      AWS_SECRET_ACCESS_KEY: "${TTN_DASHBOARD_AWS_SECRET_ACCESS_KEY:-.}"
+      AWS_DEFAULT_REGION: "${TTN_DASHBOARD_AWS_DEFAULT_REGION:-.}"
+    links:
+      - influxdb
+
+
+  postfix:
+    restart: unless-stopped
+    build:
+      context: ./postfix
+      dockerfile: Dockerfile
+      args:
+        relay_ip: "${TTN_DASHBOARD_MAIL_RELAY_IP:-}"
+        host_name: "${TTN_DASHBOARD_MAIL_HOST_NAME:-.}"
+        domain: "${TTN_DASHBOARD_MAIL_DOMAIN:-.}"
+
 
   grafana:
     restart: unless-stopped
-    image: grafana/grafana:4.3.2
+    image: grafana/grafana:latest
+    user: "root"
     volumes:
       - "${TTN_DASHBOARD_DATA}grafana:/var/lib/grafana"
     environment:
       GF_SECURITY_ADMIN_PASSWORD: "${TTN_DASHBOARD_GRAFANA_ADMIN_PASSWORD:-!notset}"
-      GF_SERVER_DOMAIN: ${TTN_DASHBOARD_APACHE_FQDN}
-      GF_SERVER_ROOT_URL: 'https://%(domain)s/grafana/'
-      GF_SMTP_ENABLED: ${TTN_DASHBOARD_GRAFANA_SMTP_ENABLED:-false}
-      GF_SMTP_HOST: ${TTN_DASHBOARD_GRAFANA_SMTP_HOST_FQDN:-localhost}:25
-      GF_SMTP_FROM_ADDRESS: "grafana@${TTN_DASHBOARD_GRAFANA_SMTP_HOST_FQDN:-localhost}"
+      GF_SERVER_DOMAIN: "${TTN_DASHBOARD_APACHE_FQDN}"
+      GF_SERVER_ROOT_URL: "https://%(domain)s/grafana/"
+      GF_SMTP_ENABLED: "${TTN_DASHBOARD_GRAFANA_SMTP_ENABLED:-false}"
+      GF_SMTP_SKIP_VERIFY: "${TTN_DASHBOARD_GRAFANA_SMTP_SKIP_VERIFY:-false}"
+      GF_SMTP_HOST: "postfix:25"
+      GF_SMTP_FROM_ADDRESS: "${TTN_DASHBOARD_GRAFANA_SMTP_FROM_ADDRESS:-grafana@localhost}"
       GF_SMTP_FROM_NAME: "${TTN_DASHBOARD_GRAFANA_PROJECT_NAME:-Default} grafana admin"
-      GF_LOG_MODE: ${TTN_DASHBOARD_GRAFANA_LOG_MODE:-console,file}
-      GF_LOG_LEVEL: ${TTN_DASHBOARD_GRAFANA_LOG_LEVEL:-info}
-
-    # grafana opens ports on influxdb, so it needs to be able to talk to it.
+      GF_LOG_MODE: "${TTN_DASHBOARD_GRAFANA_LOG_MODE:-console,file}"
+      GF_LOG_LEVEL: "${TTN_DASHBOARD_GRAFANA_LOG_LEVEL:-info}"
+      GF_INSTALL_PLUGINS: "${TTN_DASHBOARD_GRAFANA_INSTALL_PLUGINS:-}"
+      GF_USERS_ALLOW_SIGN_UP: "${TTN_DASHBOARD_GRAFANA_USERS_ALLOW_SIGN_UP:-false}"
+    # grafana opens ports on influxdb and postfix, so it needs to be able to talk to it.
     links:
       - influxdb
+      - postfix
 
 ### end of file ###

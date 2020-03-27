@@ -1,11 +1,8 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # set up the environment; these might not be set.
 export HOME="/root"
 export PATH="${PATH}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
-
-# start cron as a daemon
-cron || exit 1
 
 # test that we have a proper setup.
 cd $HOME || exit 2
@@ -64,8 +61,3 @@ if [ "$1" != "proxy-*.conf" ] ; then
 	/usr/sbin/a2ensite 000-default-le-ssl-local.conf || exit 9
 fi
 
-# launch apache
-if [ "$APACHE_TEST" != "test" ]; then
-    echo "launch apache"
-    exec /usr/sbin/apache2ctl -DFOREGROUND
-fi

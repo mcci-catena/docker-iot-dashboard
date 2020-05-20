@@ -35,8 +35,8 @@
 # comm <(sed -n -e 's/#.*$//' -e 's/[^$]*${\([^-:}]*\)[-:}][^$]*/\1/p' docker-compose.yml | LC_ALL=C sort -u)  <(sed -n -e '/^# TTN_[A-Z_0-9]*$/s/^# //p' docker-compose.yml | LC_ALL=C sort -u )
 #
 #+++
-# TTN_DASHBOARD_APACHE_FQDN
-#	The fully-qualified domain name to be served by Apache.
+# TTN_DASHBOARD_NGINX_FQDN
+#	The fully-qualified domain name to be served by NGINX.
 #
 # TTN_DASHBOARD_AWS_ACCESS_KEY_ID
 # The access key for AWS for backups.
@@ -106,9 +106,6 @@
 # TTN_DASHBOARD_MAIL_RELAY_IP
 # the mail relay machine, assuming that the real mailer is upstream from us.
 #
-# TTN_DASHBOARD_NODERED_INSTALL_PLUGINS
-#	A list of additional modules to be intalled.
-#
 # TTN_DASHBOARD_PORT_HTTP
 #	The port to listen to for HTTP. Primarily for test purposes. Defaults to
 #	80.
@@ -121,31 +118,30 @@
 #	The timezone to use. Defaults to GMT.
 #---
 
-# Also see apache/setup.sh, which uses some additional test variables when
+# Also see nginx/setup.sh, which uses some additional test variables when
 # debugging.
 #
 
 version: '3.7'
 services:
-  # the apache server connects us to the outside world
-  apache:
+  # the nginx server connects us to the outside world
+  nginx:
     environment:
       CERTBOT_DOMAINS: "${TTN_DASHBOARD_CERTBOT_FQDN:-.}"
       CERTBOT_EMAIL: "${TTN_DASHBOARD_CERTBOT_EMAIL:-.}"
-      APACHE_FQDN: "${TTN_DASHBOARD_APACHE_FQDN:-.}"
+      NGINX_FQDN: "${TTN_DASHBOARD_NGINX_FQDN:-.}"
     restart: unless-stopped
-    build: apache
+    build: nginx
     ports:
       - "${TTN_DASHBOARD_PORT_HTTP:-80}:80"
       - "${TTN_DASHBOARD_PORT_HTTPS:-443}:443"
     volumes:
-      - "${TTN_DASHBOARD_DATA}docker-apache2/htdocs:/usr/local/apache2/htdocs"
-      - "${TTN_DASHBOARD_DATA}docker-apache2/letsencrypt:/etc/letsencrypt"
-      - "${TTN_DASHBOARD_DATA}docker-apache2/authdata:/etc/apache2/authdata"
+      - "${TTN_DASHBOARD_DATA}docker-nginx/htdocs:/usr/local/nginx/htdocs"
+      - "${TTN_DASHBOARD_DATA}docker-nginx/letsencrypt:/etc/letsencrypt"
+      - "${TTN_DASHBOARD_DATA}docker-nginx/authdata:/etc/nginx/authdata"
 
-    #
-    # apache proxies for all of the below, so it needs to have links to them.
-    # Examine apache/proxy-*.conf to see how the links are set up. Also bear
+    # nginx proxies for all of the below, so it needs to have links to them.
+    # Examine nginx/proxy-*.conf to see how the links are set up. Also bear
     # in mind that the individual servers (e.g. grafana) may need to be
     # informed about the nature of the redirections.
     #
@@ -153,50 +149,97 @@ services:
       - grafana
       - node-red
       - influxdb
+      - mqtts
 
   node-red:
     restart: unless-stopped
+    build: 
+      context: ./node-red
+      dockerfile: Dockerfile
+      args:
+        node_red_version: "${TTN_DASHBOARD_NODE_RED_VERSION:-latest}"
+        node_red_contrib_ttn_version: "${TTN_DASHBOARD_NODE_RED_CONTRIB_TTN_VERSION:-latest}"
+        node_red_install_modules: "${TTN_DASHBOARD_NODE_RED_INSTALL_MODULES:-}"
     user: "root"
     volumes:
       - "${TTN_DASHBOARD_DATA}node-red:/data"
-    # nodered opens ports on influxdb so it needs to be able to talk to it.
+    environment:
+      TZ: "${TTN_DASHBOARD_TIMEZONE:-GMT}"
+    # nodered opens ports on influxdb and postfix so it needs to be able to talk to it.
     links:
       - influxdb
       - postfix
-    environment:
-      TZ: "${TTN_DASHBOARD_TIMEZONE:-GMT}"
-    build:
-     context: ./node-red
-     args:
-      NODERED_INSTALL_PLUGINS: "${TTN_DASHBOARD_NODERED_INSTALL_PLUGINS:-}"
+  
+  mqtts:
+    restart: unless-stopped
+    build:   
+      context: ./mqtts
+      dockerfile: Dockerfile
+      args:
+        ssl_cert: "${TTN_DASHBOARD_NGINX_FQDN:-.}"
+    ports:
+      - "${TTN_DASHBOARD_PORT_MQTT:-1883}:1883"
+      - "8883:8883"
+      - "8083:8083"
+    volumes:
+      - "${TTN_DASHBOARD_DATA}docker-nginx/letsencrypt:/etc/letsencrypt"
+      - "${TTN_DASHBOARD_DATA}mqtt/credentials:/etc/mosquitto/credentials"
+    hostname: "${TTN_DASHBOARD_MQTT_HOST_NAME:-mqtt}"
 
   influxdb:
     restart: unless-stopped
-    image: influxdb:latest
+    build:   
+      context: ./influxdb
+      dockerfile: Dockerfile
+      args:
+        distrib_id: "${TTN_DASHBOARD_OS_distrib_id:-ubuntu}"
+        distrib_codename: "${TTN_DASHBOARD_OS_distrib_id:-xenial}"
+        hostname: "${TTN_DASHBOARD_INFLUXDB_MAIL_HOST_NAME:-.}"
+        relay_ip: "${TTN_DASHBOARD_MAIL_RELAY_IP:-.}"
+        domain: "${TTN_DASHBOARD_MAIL_DOMAIN:-.}"
+    hostname: "${TTN_DASHBOARD_INFLUXDB_MAIL_HOST_NAME:-.}"
+    ports:
+      - "${TTN_DASHBOARD_PORT_INFLUXDB:-8086}:8086"
     volumes:
       - "${TTN_DASHBOARD_DATA}influxdb:/var/lib/influxdb"
-    environment:
-      INFLUXDB_DB: "${TTN_DASHBOARD_INFLUXDB_INITIAL_DATABASE_NAME:-demo}"
-      INFLUXDB_INIT_PWD: "${TTN_DASHBOARD_INFLUXDB_ADMIN_PASSWORD:-!notset}"
-      INFLUXDB_BIND_ADDRESS: "influxdb:8088"
-
-  influxdb-backup:
-    restart: unless-stopped
-    build: influxdb-backup
-    volumes:
-     # Dircectory for database backup inside "./data"
+     # Dircectory for influxdb metadata and database backup inside "./data" 
       - "${TTN_DASHBOARD_DATA}influx-backup:/var/lib/influxdb-backup"
-     # Connecting influxdb data directory to extra instances
-      - "${TTN_DASHBOARD_DATA}influxdb:/var/lib/influxdb"
+      - "${TTN_DASHBOARD_DATA}influxdb-S3-bucket:/var/lib/influxdb-S3-bucket"
     environment:
-      INFLUX_HOST: influxdb
+      INFLUXDB_INIT_PWD: "${TTN_DASHBOARD_INFLUXDB_ADMIN_PASSWORD:-!notset}"
+      PRE_CREATE_DB: "${TTN_DASHBOARD_INFLUXDB_INITIAL_DATABASE_NAME:-demo}"
+      INFLUXDB_BIND_ADDRESS: "influxdb:8088"
+      INFLUXDB_BACKUP_MAIL: "${TTN_DASHBOARD_INFLUXDB_BACKUP_EMAIL:-}"
+    # Backuping influxdb metadata and database to cloud
+      SOURCE_NAME: "${TTN_DASHBOARD_INFLUXDB_HOST_NAME:-influxdb}"    
       S3_BUCKET_INFLUXDB: "${TTN_DASHBOARD_AWS_S3_BUCKET_INFLUXDB:-.}"
       AWS_ACCESS_KEY_ID: "${TTN_DASHBOARD_AWS_ACCESS_KEY_ID:-.}"
       AWS_SECRET_ACCESS_KEY: "${TTN_DASHBOARD_AWS_SECRET_ACCESS_KEY:-.}"
       AWS_DEFAULT_REGION: "${TTN_DASHBOARD_AWS_DEFAULT_REGION:-.}"
+
+  grafana:
+    restart: unless-stopped
+    image: grafana/grafana:${TTN_DASHBOARD_GRAFANA_VERSION:-latest}
+    user: "root"
+    volumes:
+      - "${TTN_DASHBOARD_DATA}grafana:/var/lib/grafana"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: "${TTN_DASHBOARD_GRAFANA_ADMIN_PASSWORD:-!notset}"
+      GF_SERVER_DOMAIN: "${TTN_DASHBOARD_NGINX_FQDN}"
+      GF_SERVER_ROOT_URL: "https://%(domain)s/grafana/"
+      GF_SMTP_ENABLED: "${TTN_DASHBOARD_GRAFANA_SMTP_ENABLED:-false}"
+      GF_SMTP_SKIP_VERIFY: "${TTN_DASHBOARD_GRAFANA_SMTP_SKIP_VERIFY:-false}"
+      GF_SMTP_HOST: "${TTN_DASHBOARD_GRAFANA_SMTP_HOST:-localhost}:25"
+      GF_SMTP_FROM_ADDRESS: "${TTN_DASHBOARD_GRAFANA_SMTP_FROM_ADDRESS:-grafana@localhost}"
+      GF_SMTP_FROM_NAME: "${TTN_DASHBOARD_GRAFANA_PROJECT_NAME:-Default} grafana admin"
+      GF_LOG_MODE: "${TTN_DASHBOARD_GRAFANA_LOG_MODE:-console,file}"
+      GF_LOG_LEVEL: "${TTN_DASHBOARD_GRAFANA_LOG_LEVEL:-info}"
+      GF_INSTALL_PLUGINS: "${TTN_DASHBOARD_GRAFANA_INSTALL_PLUGINS:-grafana-worldmap-panel}"
+      GF_USERS_ALLOW_SIGN_UP: "${TTN_DASHBOARD_GRAFANA_USERS_ALLOW_SIGN_UP:-false}"
+    # grafana opens ports on influxdb and postfix, so it needs to be able to talk to it.
     links:
       - influxdb
-
+      - postfix
 
   postfix:
     restart: unless-stopped
@@ -204,33 +247,11 @@ services:
       context: ./postfix
       dockerfile: Dockerfile
       args:
-        relay_ip: "${TTN_DASHBOARD_MAIL_RELAY_IP:-}"
-        host_name: "${TTN_DASHBOARD_MAIL_HOST_NAME:-.}"
+        hostname: "${TTN_DASHBOARD_MAIL_HOST_NAME:-.}"
+        relay_ip: "${TTN_DASHBOARD_MAIL_RELAY_IP:-.}"
         domain: "${TTN_DASHBOARD_MAIL_DOMAIN:-.}"
-
-
-  grafana:
-    restart: unless-stopped
-    image: grafana/grafana:latest
-    user: "root"
-    volumes:
-      - "${TTN_DASHBOARD_DATA}grafana:/var/lib/grafana"
-    environment:
-      GF_SECURITY_ADMIN_PASSWORD: "${TTN_DASHBOARD_GRAFANA_ADMIN_PASSWORD:-!notset}"
-      GF_SERVER_DOMAIN: "${TTN_DASHBOARD_APACHE_FQDN}"
-      GF_SERVER_ROOT_URL: "https://%(domain)s/grafana/"
-      GF_SMTP_ENABLED: "${TTN_DASHBOARD_GRAFANA_SMTP_ENABLED:-false}"
-      GF_SMTP_SKIP_VERIFY: "${TTN_DASHBOARD_GRAFANA_SMTP_SKIP_VERIFY:-false}"
-      GF_SMTP_HOST: "postfix:25"
-      GF_SMTP_FROM_ADDRESS: "${TTN_DASHBOARD_GRAFANA_SMTP_FROM_ADDRESS:-grafana@localhost}"
-      GF_SMTP_FROM_NAME: "${TTN_DASHBOARD_GRAFANA_PROJECT_NAME:-Default} grafana admin"
-      GF_LOG_MODE: "${TTN_DASHBOARD_GRAFANA_LOG_MODE:-console,file}"
-      GF_LOG_LEVEL: "${TTN_DASHBOARD_GRAFANA_LOG_LEVEL:-info}"
-      GF_INSTALL_PLUGINS: "${TTN_DASHBOARD_GRAFANA_INSTALL_PLUGINS:-}"
-      GF_USERS_ALLOW_SIGN_UP: "${TTN_DASHBOARD_GRAFANA_USERS_ALLOW_SIGN_UP:-false}"
-    # grafana opens ports on influxdb and postfix, so it needs to be able to talk to it.
-    links:
-      - influxdb
-      - postfix
+    ports:
+      - "${TTN_DASHBOARD_PORT_POSTFIX:-25}:25"
+    hostname: "${TTN_DASHBOARD_MAIL_HOST_NAME:-.}"
 
 ### end of file ###

@@ -3,10 +3,10 @@
 # Name: docker-compose.yml
 #
 # Function:
-# 	Configure the docker-ttn-dashboard collection of docker containers.
+# 	Configure the docker-iot-dashboard collection of docker containers.
 #
 # Copyright:
-#	This file copyright (c) 2017-2019 by
+#	This file copyright (c) 2017-2020 by
 #
 #		MCCI Corporation
 #		3520 Krums Corners Road
@@ -23,7 +23,7 @@
 
 #
 # Note: if you are running this manually, you must set a number of variables,
-# not least TTN_DASHBOARD_DATA, which must be the path to the top data directory
+# not least IOT_DASHBOARD_DATA, which must be the path to the top data directory
 # for these apps. If you use dashboard-ctl, this will be done for you.
 #
 # To get a list of all variables used in this file, use the following command:
@@ -32,90 +32,112 @@
 # To get a list of undocumented variables, use the following command,
 # then look in the left hand column:
 #
-# comm <(sed -n -e 's/#.*$//' -e 's/[^$]*${\([^-:}]*\)[-:}][^$]*/\1/p' docker-compose.yml | LC_ALL=C sort -u)  <(sed -n -e '/^# TTN_[A-Z_0-9]*$/s/^# //p' docker-compose.yml | LC_ALL=C sort -u )
+# comm <(sed -n -e 's/#.*$//' -e 's/[^$]*${\([^-:}]*\)[-:}][^$]*/\1/p' docker-compose.yml | LC_ALL=C sort -u)  <(sed -n -e '/^# IOT_[A-Z_0-9]*$/s/^# //p' docker-compose.yml | LC_ALL=C sort -u )
 #
 #+++
-# TTN_DASHBOARD_NGINX_FQDN
+# IOT_DASHBOARD_NGINX_FQDN
 #	The fully-qualified domain name to be served by NGINX.
 #
-# TTN_DASHBOARD_AWS_ACCESS_KEY_ID
-# The access key for AWS for backups.
+# IOT_DASHBOARD_AWS_ACCESS_KEY_ID
+#       The access key for AWS for backups.
 #
-# TTN_DASHBOARD_AWS_DEFAULT_REGION
-# The AWS default region.
+# IOT_DASHBOARD_AWS_DEFAULT_REGION
+#       The AWS default region.
 #
-# TTN_DASHBOARD_AWS_S3_BUCKET_INFLUXDB
-# The S3 bucket to use for uploading the influxdb backup data.
+# IOT_DASHBOARD_AWS_S3_BUCKET_INFLUXDB
+#       The S3 bucket to use for uploading the influxdb backup data.
 #
-# TTN_DASHBOARD_AWS_SECRET_ACCESS_KEY
-# The AWS API secret key for backing up influxdb data.
+# IOT_DASHBOARD_AWS_SECRET_ACCESS_KEY
+#       The AWS API secret key for backing up influxdb data.
 #
-# TTN_DASHBOARD_CERTBOT_EMAIL
+# IOT_DASHBOARD_CERTBOT_EMAIL
 #	The email address to be used for registering with Let's Encrypt.
 #
-# TTN_DASHBOARD_CERTBOT_FQDN
+# IOT_DASHBOARD_CERTBOT_FQDN
 #	The domain(s) to be used by certbot when registering with Let's Encrypt.
 #
-# TTN_DASHBOARD_DATA
+# IOT_DASHBOARD_DATA
 #	The path to the data directory. This must end with a '/', and must either
 #	be absolute or must begin with './'. (If not, you'll get parse errors.)
 #
-# TTN_DASHBOARD_GRAFANA_ADMIN_PASSWORD
+# IOT_DASHBOARD_GRAFANA_ADMIN_PASSWORD
 #	The password to be used for the admin user on first login. This is ignored
 #	after the Grafana database has been built.
 #
-# TTN_DASHBOARD_GRAFANA_PROJECT_NAME
+# IOT_DASHBOARD_GRAFANA_PROJECT_NAME
 #	The project name to be used for the emails from the administrator.
 #
-# TTN_DASHBOARD_GRAFANA_LOG_MODE
+# IOT_DASHBOARD_GRAFANA_LOG_MODE
 #	Set the grafana log mode.
 #
-# TTN_DASHBOARD_GRAFANA_LOG_LEVEL
+# IOT_DASHBOARD_GRAFANA_LOG_LEVEL
 #	Set the grafana log level (e.g. debug)
 #
-# TTN_DASHBOARD_GRAFANA_SMTP_ENABLED
+# IOT_DASHBOARD_GRAFANA_SMTP_ENABLED
 #	Set to true to enable SMTP.
 #
-# TTN_DASHBOARD_GRAFANA_SMTP_SKIP_VERIFY
+# IOT_DASHBOARD_GRAFANA_SMTP_SKIP_VERIFY
 #	Set to true to disable SSL verification.
 #	Defaults to false.
 #
-# TTN_DASHBOARD_GRAFANA_INSTALL_PLUGINS
-#	A list of grafana plugins to install.
+# IOT_DASHBOARD_GRAFANA_INSTALL_PLUGINS
+#	A list of grafana plugins to install. Use (comma and space) ", " to delimit plugins.
 #
-# TTN_DASHBOARD_GRAFANA_SMTP_FROM_ADDRESS
-# The "from" address for Grafana emails.
+# IOT_DASHBOARD_GRAFANA_SMTP_FROM_ADDRESS
+#       The "from" address for Grafana emails.
 #
-# TTN_DASHBOARD_GRAFANA_USERS_ALLOW_SIGN_UP
+# IOT_DASHBOARD_GRAFANA_USERS_ALLOW_SIGN_UP
 #	Set to true to allow users to sign up.
 #
-# TTN_DASHBOARD_INFLUXDB_ADMIN_PASSWORD
+# IOT_DASHBOARD_INFLUXDB_ADMIN_PASSWORD
 #	The password to be used for the admin user by influxdb. Again, this is
 #	ignored after the influxdb database has been built.
 #
-# TTN_DASHBOARD_INFLUXDB_INITIAL_DATABASE_NAME
+# IOT_DASHBOARD_INFLUXDB_INITIAL_DATABASE_NAME
 #	The inital database to be created on first launch of influxdb. Ignored
 #	after influxdb has been launched.
 #
-# TTN_DASHBOARD_MAIL_DOMAIN
-# the postfix mail domain.
+# IOT_DASHBOARD_MAIL_DOMAIN
+#       the postfix mail domain.
 #
-# TTN_DASHBOARD_MAIL_HOST_NAME
-# the external FQDN for the mail host.
+# IOT_DASHBOARD_MAIL_HOST_NAME
+#       the external FQDN for the mail host.
 #
-# TTN_DASHBOARD_MAIL_RELAY_IP
-# the mail relay machine, assuming that the real mailer is upstream from us.
+# IOT_DASHBOARD_MAIL_RELAY_IP
+#       the mail relay machine, assuming that the real mailer is upstream from us.
 #
-# TTN_DASHBOARD_PORT_HTTP
+# IOT_DASHBOARD_PORT_HTTP
 #	The port to listen to for HTTP. Primarily for test purposes. Defaults to
 #	80.
 #
-# TTN_DASHBOARD_PORT_HTTPS
+# IOT_DASHBOARD_PORT_HTTPS
 #	The port to listen to for HTTPS. Primarily for test purposes. Defaults to
 #	443.
 #
-# TTN_DASHBOARD_TIMEZONE
+# IOT_DASHBOARD_TIMEZONE
 #	The timezone to use. Defaults to GMT.
+#
+# IOT_DASHBOARD_NODE_RED_VERSION 
+#       To Install specific version of node-red version. Defaults to latest.
+#
+# IOT_DASHBOARD_NODE_RED_INSTALL_MODULES
+#       Install the required node-red modules. use "space" to delimit the modules.
+#
+# IOT_DASHBOARD_PORT_MQTT_TCP
+#       Accessing mqtt channel over TCP. Defaults to 1883.
+#
+# IOT_DASHBOARD_PORT_MQTT_SSL
+#       Accessing mqtt channel over TLS/SSL. Defaults to 8883.
+#
+# IOT_DASHBOARD_PORT_MQTT_WSS 
+#        Accessing mqtt channel over WSS. Defaults to 8083.
+#
+# IOT_DASHBOARD_INFLUXDB_MAIL_HOST_NAME
+#       the external FQDN for the influxdb host
+#
+# IOT_DASHBOARD_INFLUXDB_BACKUP_EMAIL
+#       Backup mail will be sent to the mentioned MAIL IDs. Use "space" to delimit the MAIL IDs.
+#
 #---
 
 # Also see nginx/setup.sh, which uses some additional test variables when
@@ -127,18 +149,18 @@ services:
   # the nginx server connects us to the outside world
   nginx:
     environment:
-      CERTBOT_DOMAINS: "${TTN_DASHBOARD_CERTBOT_FQDN:-.}"
-      CERTBOT_EMAIL: "${TTN_DASHBOARD_CERTBOT_EMAIL:-.}"
-      NGINX_FQDN: "${TTN_DASHBOARD_NGINX_FQDN:-.}"
+      CERTBOT_DOMAINS: "${IOT_DASHBOARD_CERTBOT_FQDN:-.}"
+      CERTBOT_EMAIL: "${IOT_DASHBOARD_CERTBOT_EMAIL:-.}"
+      NGINX_FQDN: "${IOT_DASHBOARD_NGINX_FQDN:-.}"
     restart: unless-stopped
     build: nginx
     ports:
-      - "${TTN_DASHBOARD_PORT_HTTP:-80}:80"
-      - "${TTN_DASHBOARD_PORT_HTTPS:-443}:443"
+      - "${IOT_DASHBOARD_PORT_HTTP:-80}:80"
+      - "${IOT_DASHBOARD_PORT_HTTPS:-443}:443"
     volumes:
-      - "${TTN_DASHBOARD_DATA}docker-nginx/htdocs:/usr/local/nginx/htdocs"
-      - "${TTN_DASHBOARD_DATA}docker-nginx/letsencrypt:/etc/letsencrypt"
-      - "${TTN_DASHBOARD_DATA}docker-nginx/authdata:/etc/nginx/authdata"
+      - "${IOT_DASHBOARD_DATA}docker-nginx/htdocs:/usr/local/nginx/htdocs"
+      - "${IOT_DASHBOARD_DATA}docker-nginx/letsencrypt:/etc/letsencrypt"
+      - "${IOT_DASHBOARD_DATA}docker-nginx/authdata:/etc/nginx/authdata"
 
     # nginx proxies for all of the below, so it needs to have links to them.
     # Examine nginx/proxy-*.conf to see how the links are set up. Also bear
@@ -157,14 +179,14 @@ services:
       context: ./node-red
       dockerfile: Dockerfile
       args:
-        node_red_version: "${TTN_DASHBOARD_NODE_RED_VERSION:-latest}"
-        node_red_contrib_ttn_version: "${TTN_DASHBOARD_NODE_RED_CONTRIB_TTN_VERSION:-latest}"
-        node_red_install_modules: "${TTN_DASHBOARD_NODE_RED_INSTALL_MODULES:-}"
+        node_red_version: "${IOT_DASHBOARD_NODE_RED_VERSION:-latest}"
+        node_red_contrib_ttn_version: "${IOT_DASHBOARD_NODE_RED_CONTRIB_TTN_VERSION:-latest}"
+        node_red_install_modules: "${IOT_DASHBOARD_NODE_RED_INSTALL_MODULES:-}"
     user: "root"
     volumes:
-      - "${TTN_DASHBOARD_DATA}node-red:/data"
+      - "${IOT_DASHBOARD_DATA}node-red:/data"
     environment:
-      TZ: "${TTN_DASHBOARD_TIMEZONE:-GMT}"
+      TZ: "${IOT_DASHBOARD_TIMEZONE:-GMT}"
     # nodered opens ports on influxdb and postfix so it needs to be able to talk to it.
     links:
       - influxdb
@@ -176,15 +198,15 @@ services:
       context: ./mqtts
       dockerfile: Dockerfile
       args:
-        ssl_cert: "${TTN_DASHBOARD_NGINX_FQDN:-.}"
+        ssl_cert: "${IOT_DASHBOARD_NGINX_FQDN:-.}"
     ports:
-      - "${TTN_DASHBOARD_PORT_MQTT:-1883}:1883"
-      - "8883:8883"
-      - "8083:8083"
+      - "${IOT_DASHBOARD_PORT_MQTT_TCP:-1883}:1883"
+      - "${IOT_DASHBOARD_PORT_MQTT_SSL:-8883}:8883"
+      - "${IOT_DASHBOARD_PORT_MQTT_WSS:-8083}:8083"
     volumes:
-      - "${TTN_DASHBOARD_DATA}docker-nginx/letsencrypt:/etc/letsencrypt"
-      - "${TTN_DASHBOARD_DATA}mqtt/credentials:/etc/mosquitto/credentials"
-    hostname: "${TTN_DASHBOARD_MQTT_HOST_NAME:-mqtt}"
+      - "${IOT_DASHBOARD_DATA}docker-nginx/letsencrypt:/etc/letsencrypt"
+      - "${IOT_DASHBOARD_DATA}mqtt/credentials:/etc/mosquitto/credentials"
+    hostname: "${IOT_DASHBOARD_MQTT_HOST_NAME:-mqtts}"
 
   influxdb:
     restart: unless-stopped
@@ -192,50 +214,50 @@ services:
       context: ./influxdb
       dockerfile: Dockerfile
       args:
-        distrib_id: "${TTN_DASHBOARD_OS_distrib_id:-ubuntu}"
-        distrib_codename: "${TTN_DASHBOARD_OS_distrib_id:-xenial}"
-        hostname: "${TTN_DASHBOARD_INFLUXDB_MAIL_HOST_NAME:-.}"
-        relay_ip: "${TTN_DASHBOARD_MAIL_RELAY_IP:-.}"
-        domain: "${TTN_DASHBOARD_MAIL_DOMAIN:-.}"
-    hostname: "${TTN_DASHBOARD_INFLUXDB_MAIL_HOST_NAME:-.}"
+        distrib_id: "${IOT_DASHBOARD_OS_DISTRIB_ID:-ubuntu}"
+        distrib_codename: "${IOT_DASHBOARD_OS_DISTRIB_CODENAME:-xenial}"
+        hostname: "${IOT_DASHBOARD_INFLUXDB_MAIL_HOST_NAME:-.}"
+        relay_ip: "${IOT_DASHBOARD_MAIL_RELAY_IP:-.}"
+        domain: "${IOT_DASHBOARD_MAIL_DOMAIN:-.}"
+    hostname: "${IOT_DASHBOARD_INFLUXDB_MAIL_HOST_NAME:-.}"
     ports:
-      - "${TTN_DASHBOARD_PORT_INFLUXDB:-8086}:8086"
+      - "8086"
     volumes:
-      - "${TTN_DASHBOARD_DATA}influxdb:/var/lib/influxdb"
+      - "${IOT_DASHBOARD_DATA}influxdb:/var/lib/influxdb"
      # Dircectory for influxdb metadata and database backup inside "./data" 
-      - "${TTN_DASHBOARD_DATA}influx-backup:/var/lib/influxdb-backup"
-      - "${TTN_DASHBOARD_DATA}influxdb-S3-bucket:/var/lib/influxdb-S3-bucket"
+      - "${IOT_DASHBOARD_DATA}influx-backup:/var/lib/influxdb-backup"
+      - "${IOT_DASHBOARD_DATA}influxdb-S3-bucket:/var/lib/influxdb-S3-bucket"
     environment:
-      INFLUXDB_INIT_PWD: "${TTN_DASHBOARD_INFLUXDB_ADMIN_PASSWORD:-!notset}"
-      PRE_CREATE_DB: "${TTN_DASHBOARD_INFLUXDB_INITIAL_DATABASE_NAME:-demo}"
+      INFLUXDB_INIT_PWD: "${IOT_DASHBOARD_INFLUXDB_ADMIN_PASSWORD:-!notset}"
+      PRE_CREATE_DB: "${IOT_DASHBOARD_INFLUXDB_INITIAL_DATABASE_NAME:-demo}"
       INFLUXDB_BIND_ADDRESS: "influxdb:8088"
-      INFLUXDB_BACKUP_MAIL: "${TTN_DASHBOARD_INFLUXDB_BACKUP_EMAIL:-}"
+      INFLUXDB_BACKUP_MAIL: "${IOT_DASHBOARD_INFLUXDB_BACKUP_EMAIL:-}"
     # Backuping influxdb metadata and database to cloud
-      SOURCE_NAME: "${TTN_DASHBOARD_INFLUXDB_HOST_NAME:-influxdb}"    
-      S3_BUCKET_INFLUXDB: "${TTN_DASHBOARD_AWS_S3_BUCKET_INFLUXDB:-.}"
-      AWS_ACCESS_KEY_ID: "${TTN_DASHBOARD_AWS_ACCESS_KEY_ID:-.}"
-      AWS_SECRET_ACCESS_KEY: "${TTN_DASHBOARD_AWS_SECRET_ACCESS_KEY:-.}"
-      AWS_DEFAULT_REGION: "${TTN_DASHBOARD_AWS_DEFAULT_REGION:-.}"
+      SOURCE_NAME: "${IOT_DASHBOARD_CERTBOT_FQDN}"
+      S3_BUCKET_INFLUXDB: "${IOT_DASHBOARD_AWS_S3_BUCKET_INFLUXDB:-.}"
+      AWS_ACCESS_KEY_ID: "${IOT_DASHBOARD_AWS_ACCESS_KEY_ID:-.}"
+      AWS_SECRET_ACCESS_KEY: "${IOT_DASHBOARD_AWS_SECRET_ACCESS_KEY:-.}"
+      AWS_DEFAULT_REGION: "${IOT_DASHBOARD_AWS_DEFAULT_REGION:-.}"
 
   grafana:
     restart: unless-stopped
-    image: grafana/grafana:${TTN_DASHBOARD_GRAFANA_VERSION:-latest}
+    image: grafana/grafana:${IOT_DASHBOARD_GRAFANA_VERSION:-latest}
     user: "root"
     volumes:
-      - "${TTN_DASHBOARD_DATA}grafana:/var/lib/grafana"
+      - "${IOT_DASHBOARD_DATA}grafana:/var/lib/grafana"
     environment:
-      GF_SECURITY_ADMIN_PASSWORD: "${TTN_DASHBOARD_GRAFANA_ADMIN_PASSWORD:-!notset}"
-      GF_SERVER_DOMAIN: "${TTN_DASHBOARD_NGINX_FQDN}"
+      GF_SECURITY_ADMIN_PASSWORD: "${IOT_DASHBOARD_GRAFANA_ADMIN_PASSWORD:-!notset}"
+      GF_SERVER_DOMAIN: "${IOT_DASHBOARD_NGINX_FQDN}"
       GF_SERVER_ROOT_URL: "https://%(domain)s/grafana/"
-      GF_SMTP_ENABLED: "${TTN_DASHBOARD_GRAFANA_SMTP_ENABLED:-false}"
-      GF_SMTP_SKIP_VERIFY: "${TTN_DASHBOARD_GRAFANA_SMTP_SKIP_VERIFY:-false}"
-      GF_SMTP_HOST: "${TTN_DASHBOARD_GRAFANA_SMTP_HOST:-localhost}:25"
-      GF_SMTP_FROM_ADDRESS: "${TTN_DASHBOARD_GRAFANA_SMTP_FROM_ADDRESS:-grafana@localhost}"
-      GF_SMTP_FROM_NAME: "${TTN_DASHBOARD_GRAFANA_PROJECT_NAME:-Default} grafana admin"
-      GF_LOG_MODE: "${TTN_DASHBOARD_GRAFANA_LOG_MODE:-console,file}"
-      GF_LOG_LEVEL: "${TTN_DASHBOARD_GRAFANA_LOG_LEVEL:-info}"
-      GF_INSTALL_PLUGINS: "${TTN_DASHBOARD_GRAFANA_INSTALL_PLUGINS:-grafana-worldmap-panel}"
-      GF_USERS_ALLOW_SIGN_UP: "${TTN_DASHBOARD_GRAFANA_USERS_ALLOW_SIGN_UP:-false}"
+      GF_SMTP_ENABLED: "${IOT_DASHBOARD_GRAFANA_SMTP_ENABLED:-false}"
+      GF_SMTP_SKIP_VERIFY: "${IOT_DASHBOARD_GRAFANA_SMTP_SKIP_VERIFY:-false}"
+      GF_SMTP_HOST: "postfix:25"
+      GF_SMTP_FROM_ADDRESS: "${IOT_DASHBOARD_GRAFANA_SMTP_FROM_ADDRESS:-grafana@localhost}"
+      GF_SMTP_FROM_NAME: "${IOT_DASHBOARD_GRAFANA_PROJECT_NAME:-Default} grafana admin"
+      GF_LOG_MODE: "${IOT_DASHBOARD_GRAFANA_LOG_MODE:-console,file}"
+      GF_LOG_LEVEL: "${IOT_DASHBOARD_GRAFANA_LOG_LEVEL:-info}"
+      GF_INSTALL_PLUGINS: "${IOT_DASHBOARD_GRAFANA_INSTALL_PLUGINS:-grafana-worldmap-panel}"
+      GF_USERS_ALLOW_SIGN_UP: "${IOT_DASHBOARD_GRAFANA_USERS_ALLOW_SIGN_UP:-false}"
     # grafana opens ports on influxdb and postfix, so it needs to be able to talk to it.
     links:
       - influxdb
@@ -247,11 +269,11 @@ services:
       context: ./postfix
       dockerfile: Dockerfile
       args:
-        hostname: "${TTN_DASHBOARD_MAIL_HOST_NAME:-.}"
-        relay_ip: "${TTN_DASHBOARD_MAIL_RELAY_IP:-.}"
-        domain: "${TTN_DASHBOARD_MAIL_DOMAIN:-.}"
+        hostname: "${IOT_DASHBOARD_MAIL_HOST_NAME:-.}"
+        relay_ip: "${IOT_DASHBOARD_MAIL_RELAY_IP:-.}"
+        domain: "${IOT_DASHBOARD_MAIL_DOMAIN:-.}"
     ports:
-      - "${TTN_DASHBOARD_PORT_POSTFIX:-25}:25"
-    hostname: "${TTN_DASHBOARD_MAIL_HOST_NAME:-.}"
+      - "25"
+    hostname: "${IOT_DASHBOARD_MAIL_HOST_NAME:-.}"
 
 ### end of file ###

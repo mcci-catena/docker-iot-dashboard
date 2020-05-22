@@ -58,6 +58,7 @@ else
 fi
 
 # Remove the old backup data in local directory to avoid excessive storage use
-find /var/lib/influxdb-S3-bucket/ -type f -mtime +90 -exec rm {} \;
+find /var/lib/influxdb-S3-bucket/ -type f -exec rm {} \;
+find /var/lib/influxdb-backup/ -type f -exec rm {} \;
 
 cat /influxbackup.txt | mail -s "${SOURCE_NAME}: influxdb backup" ${INFLUXDB_BACKUP_MAIL} 

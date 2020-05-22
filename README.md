@@ -108,7 +108,7 @@ This can be visualized as shown in the figure below:
 
 Figure Docker connection and User Access
 
-![C:\\Users\\cmurugan\\Pictures\\Picture4.png](media/360b4dbc4a05763ea99e103a2f378d25.png)
+![Connection Architecture using SSH](assets/Connection-architecture.png)
 
 Assumptions
 -----------

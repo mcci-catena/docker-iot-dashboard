@@ -14,11 +14,14 @@ docker-iot-dashboard_mqtts_1      /sbin/my_init                    Up           
 docker-iot-dashboard_nginx_1      /sbin/my_init                    Up             0.0.0.0:443->443/tcp, 0.0.0.0:80->80/tcp
 docker-iot-dashboard_node-red_1   npm start -- --userDir /da ...   Up (healthy)   1880/tcp
 docker-iot-dashboard_postfix_1    /sbin/my_init                    Up             25/tcp
-
-
+```
+* Moving to `influxdb` container.
+```console 
 root@ithaca-power:/iot/testing/docker-iot-dashboard# docker-compose exec influxdb bash
+```
 
-
+* checking the databases available.
+```console
 root@influxdb:/opt/influxdb-backup# influx
 Connected to http://localhost:8086 version 1.8.0
 InfluxDB shell version: 1.8.0
@@ -92,7 +95,7 @@ upload: ../../var/lib/influxdb-S3-bucket/ithaca-power.mcci.com_data_directory_ba
 ```
 
 * Backup files will be uploaded in Amazon S3 bucket and it can be viewed using below command.
-```bash
+```console
 
 root@influxdb:/opt/influxdb-backup# aws s3 ls s3://${S3_BUCKET_INFLUXDB}/
 
@@ -126,7 +129,7 @@ _internal
 
 ```
 * Downloading Backed up Databases from Amazon S3 Bucket
-```bash
+```console
 root@influxdb:/opt/influxdb-backup# aws s3 cp s3://${S3_BUCKET_INFLUXDB}/ithaca-power.mcci.com_metdata_db_backup_2020-05-23.tar.gz .
 download: s3://mcci-influxdb-test/ithaca-power.mcci.com_metdata_db_backup_2020-05-23.tar.gz to ./ithaca-power.mcci.com_metdata_db_backup_2020-05-23.tar.gz
 root@influxdb:/opt/influxdb-backup# ls -al
@@ -136,7 +139,7 @@ drwxr-xr-x 1 root root  4096 May 18 05:46 ..
 -rw-r--r-- 1 root root 15447 May 23 15:29 ithaca-power.mcci.com_metdata_db_backup_2020-05-23.tar.gz
 ```
 * Extracting the backed up files
-```bash 
+```console 
 root@influxdb:/opt/influxdb-backup# tar xvf staging1-ithaca-power.mcci.com_metdata_db_backup_2020-05-23.tar.gz
 var/lib/influxdb-backup/
 var/lib/influxdb-backup/20200523T152940Z.meta
@@ -146,7 +149,7 @@ var/lib/influxdb-backup/20200523T152940Z.manifest
 
 ```
 * To restore all databases found within the backup directory
-```bash
+```console
 
 root@influxdb:/opt/influxdb-backup# influxd restore -portable -host $INFLUX_HOST:8088 var/lib/influxdb-backup/
 2020/05/23 15:45:23 Restoring shard 2 live from backup 20200523T152940Z.s2.tar.gz

@@ -1,31 +1,32 @@
 **Table of Contents**
 
-[1 Introduction](#introduction)
+[Introduction](#introduction)
 
-[2 Application Server Installation](#application-server-installation)
 
-* [2.1 Definitions](#definitions)
+[Definitions](#definitions)
 
-* [2.2 Security](#security)
+[Security](#security)
 
-* [2.3 Assumptions](#assumptions)
+[Assumptions](#assumptions)
 
-* [2.4 Composition and External Ports](#composition-and-external-ports)
+[Composition and External Ports](#composition-and-external-ports)
 
-* [2.5 Data Files](#data-files)
+[Data Files](#data-files)
 
-* [2.6 Reuse and removal of data files](#reuse-and-removal-of-data-files)
+[Reuse and removal of data files](#reuse-and-removal-of-data-files)
 
-* [2.7 Node-RED and Grafana Examples](#node-red-and-grafana-examples)
+[Node-RED and Grafana Examples](#node-red-and-grafana-examples)
 
-  + [2.7.1 Connecting to InfluxDB from Node-RED and
+[Connecting to InfluxDB from Node-RED and
 Grafana](#connecting-to-influxdb-from-node-red-and-grafana)
 
-  + [2.7.2 Logging in to Grafana](#logging-in-to-grafana)
+[Logging in to Grafana](#logging-in-to-grafana)
 
-  + [2.7.3 Data source settings in Grafana](#data-source-settings-in-grafana)
+[Data source settings in Grafana](#data-source-settings-in-grafana)
 
-* [2.8 MQTTS Examples:](#mqtts-examples)
+[MQTTS Examples:](#mqtts-examples)
+
+[Setup Instructions](#setup-instructions)
 
 
 
@@ -40,19 +41,19 @@ You can set this up on a "Ubuntu + Docker" VM from the Microsoft Azure store (or
 Introduction
 ============
 
-This `README.md` explains the Application Server Installation and its setup. [Docker](https://docs.docker.com/) and [Docker Compose](https://docs.docker.com/compose/) are used to make the installation and
+This [`SETUP.md`](./SETUP.md) explains the Application Server Installation and its setup. [Docker](https://docs.docker.com/) and [Docker Compose](https://docs.docker.com/compose/) are used to make the installation and
 setup easier.
 
  
 
 This dashboard uses [docker-compose](https://docs.docker.com/compose/overview/) to set up a group of five primary [docker containers](https://www.docker.com), backed by one auxiliary container:
 
-1.  An instance of [Nginx](https://www.nginx.com/), which proxies the other services handles access control, gets SSL certificates from [Let's Encrypt](https://letsencrypt.org/), and faces the outside world.
+1.  An instance of [Nginx](https://www.nginx.com/), which proxies the other services, handles access control, gets SSL certificates from [Let's Encrypt](https://letsencrypt.org/), and faces the outside world.
 
 2.  An instance of [Node-RED](http://nodered.org/), which processes the data
     from the individual nodes, and puts it into the database.
 
-3.  An instance of InfluxDB, which stores the data as time-series measurements with tags.
+3.  An instance of [InfluxDB](https://docs.influxdata.com/influxdb/), which stores the data as time-series measurements with tags.
 
 4.  An instance of [Grafana](http://grafana.org/), which gives a web-based dashboard interface to the data.
 
@@ -64,8 +65,6 @@ The auxiliary container is:
 
 To make things more specific, most of the description here assumes use of Microsoft Azure. However, this was tested on Ubuntu 16 with no issues (apart from the additional complexity of setting up `apt-get` to fetch docker, and the need for a manual install of `docker-compose`), on Dream Compute, and on Digital Ocean This will work on any Linux or Linux-like platform that supports docker, docker-compose, and Node-. Its likelihood of working with Raspberry Pi has not been tested as yet.
 
-Application Server Installation 
-================================
 
 Definitions
 -----------
@@ -84,11 +83,9 @@ Definitions
 Security
 --------
 
-All communication with the Nginx server is encrypted using SSL with auto-provisioned certificates from Let's Encrypt. Grafana is the primary point of access for most users, and Grafana's login is used for that purpose.
+All communication with the Nginx server is encrypted using SSL with auto-provisioned certificates from Let's Encrypt. Grafana is the primary point of access for most users, and Grafana's login is used for that purpose. Access to Node-RED and InfluxDB is via special URLs (**base**/node-red/ and **base**/influxdb:8086/, where **base** is the URL served by the Nginx container). These URLs are protected via Nginx `htpasswd` file entries. These entries are files in the Nginx container, and must be manually edited by an Administrator.
 
-Access to Node-RED and InfluxDB is via special URLs (**base**/node-red/ and **base**/influxdb:8086/, where **base** is the URL served by the Nginx container). These URLs are protected via Nginx `htpasswd` file entries. These entries are files in the Nginx container, and must be manually edited by an Administrator.
-
-The initial administrator's login password for Grafana must be initialized prior to starting; it's stored in `grafana/.env`. (When the Grafana container is started for the first time, it creates `grafana.db` in the Grafana container, and stores
+The initial administrator's login password for Grafana must be initialized prior to starting; it's stored in `.env`. (When the Grafana container is started for the first time, it creates `grafana.db` in the Grafana container, and stores
 the password at that time. If `grafana.db` already exists, the password in grafana/.env is ignored.)
 
 Microsoft Azure, by default, will not open any of the ports to the outside world, so the user will need to open port 443 for SSL access to Nginx.
@@ -122,6 +119,8 @@ Assumptions
     -   `${IOT_DASHBOARD_DATA}influxdb`  will have the local InfluxDB data (this should be backed-up)
 
     -   `${IOT_DASHBOARD_DATA}grafana` will have all the dashboards
+
+    -  `${IOT_DASHBOARD_DATA}docker-nginx` will have `.htpasswd` credentials folder `authdata` and Let's Encrypt certs folder `letsencrypt` 
 
     -   `${IOT_DASHBOARD_DATA}mqtt/credentials` will have the user credentials
 
@@ -158,6 +157,8 @@ Table Data Location
 | InfluxDB      |  `${IOT_DASHBOARD_DATA}influxdb` | /var/lib/influxdb 
 | Grafana       | `${IOT_DASHBOARD_DATA}grafana` | /var/lib/grafana|
 | Mqtt | `${IOT_DASHBOARD_DATA}mqtt/credentials` | /etc/mosquitto/credentials 
+|Nginx| `${IOT_DASHBOARD_DATA}docker-nginx/authdata`| /etc/nginx/authdata
+||`${IOT_DASHBOARD_DATA}docker-nginx/letsencrypt`|/etc/letsencrypt
 
 As shown, one can easily change locations on the **host** (e.g. for testing). This can be done by setting the environment variable `IOT_DASHBOARD_DATA` to the **absolute path** (with trailing slash) to the containing directory prior to
 calling `docker-compose up`. The above paths are appended to the value of `IOT_DASHBOARD_DATA`. Directories are created as needed.
@@ -180,6 +181,8 @@ Table Data Location Examples
 | InfluxDB      | /dashboard-data/influxdb          |
 | Grafana       | /dashboard-data/grafana           |
 | Mqtt          | /dashboard-data/ mqtt/credentials |
+| Nginx         | /dashboard-data/docker-nginx/authdata|
+||/dashboard-data/docker-nginx/letsencrypt
 
 Reuse and removal of data files
 -------------------------------
@@ -190,16 +193,16 @@ Sometimes this is inconvenient, and it is necessary to remove some or all of the
 
 ```bash
 source .env
-sudo rm -rf \${IOT_DASHBOARD_DATA}node-red
-sudo rm -rf \${IOT_DASHBOARD_DATA}influxdb
-sudo rm -rf \${IOT_DASHBOARD_DATA}Grafana
-sudo rm –rf \${IOT_DASHBOARD_DATA}mqtt/credentials
+sudo rm -rf ${IOT_DASHBOARD_DATA}node-red
+sudo rm -rf ${IOT_DASHBOARD_DATA}influxdb
+sudo rm -rf ${IOT_DASHBOARD_DATA}Grafana
+sudo rm –rf ${IOT_DASHBOARD_DATA}mqtt/credentials
 ```
 
 Node-RED and Grafana Examples
 -----------------------------
 
-This version requires that you set up Node-RED, the database and the Grafana dashboards manually, but we hope to add a reasonable set of initial files in a future release.
+This version requires that you set up Node-RED, the Influxdb database and the Grafana dashboards manually, but we hope to add a reasonable set of initial files in a future release.
 
 ### Connecting to InfluxDB from Node-RED and Grafana
 
@@ -207,7 +210,7 @@ This version requires that you set up Node-RED, the database and the Grafana das
 
 ### Logging in to Grafana
 
-* On the login screen, the user name is "`admin`". The initial password is given by the value of the variable `GF_SECURITY_ADMIN_PASSWORD` in `grafana/.env`. Note that if you change the password in `grafana/.env` after the first time you launch the grafana container, the admin password does not change. If you somehow lose the previous value of the admin password, and you don't have another admin login, it's very hard to recover; easiest is to remove `grafana.db` and start over.
+* On the login screen, the user name is "`admin`". The initial password is given by the value of the variable `GF_SECURITY_ADMIN_PASSWORD` in `.env`. Note that if you change the password in `.env` after the first time you launch the grafana container, the admin password does not change. If you somehow lose the previous value of the admin password, and you don't have another admin login, it's very hard to recover; easiest is to remove `grafana.db` and start over.
 
 ### Data source settings in Grafana
 

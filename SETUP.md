@@ -1,4 +1,4 @@
-# Set-by-step Setup Instructions
+# Step-by-step Setup Instructions
 * [Notes](#notes)
 * [1 Cloud-Provider Setup](#cloud-provider-setup)
 
@@ -28,7 +28,7 @@
 
   + [3.7 MQTT User Credentials setup](#mqtt-user-credentials-setup)
 
-  
+
 
 **Notes:**
 
@@ -202,7 +202,7 @@ The following instructions are essentially independent of the cloud provider and
 
     13. `IOT_DASHBOARD_INFLUXDB_MAIL_HOST_NAME=myhost.example.com` this sets the name of your mail server for backup mail. Used by Postfix.
 
-    14.  `IOT_DASHBOARD_INFLUXDB_BACKUP_EMAIL=a@example.com bexample.com` Backup mail will be sent to the mentioned MAIL IDs.
+    14.  `IOT_DASHBOARD_INFLUXDB_BACKUP_EMAIL=a@example.com b@example.com` Backup mail will be sent to the mentioned MAIL IDs.
 
 The `.env` file should look like this:
 

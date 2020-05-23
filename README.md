@@ -29,9 +29,9 @@ Grafana](#connecting-to-influxdb-from-node-red-and-grafana)
 
 
 
-# Dashboard example for The Things Network
+# Dashboard example for Internet of Things(IoT)
 
-This repository contains a complete example that grabs device data from The Things Network, stores it in a database, and then displays the data using a web-based dashboard.
+This repository contains a complete example that grabs device data from IoT-Network server, stores it in a database, and then displays the data using a web-based dashboard.
 
 You can set this up on a "Ubuntu + Docker" VM from the Microsoft Azure store (or on a Ubuntu VM from [DreamCompute](https://www.dreamhost.com/cloud/computing/), or on a Docker droplet from [Digital Ocean](https://www.digitalocean.com/)) with minimal effort. You should set up this service to run all the time so as to capture the data from your devices; you then access the data at your convenience using a web browser.
 
@@ -40,7 +40,7 @@ You can set this up on a "Ubuntu + Docker" VM from the Microsoft Azure store (or
 Introduction
 ============
 
-This document explains the Application Server Installation and its setup. [Docker](https://docs.docker.com/) and [Docker Compose](https://docs.docker.com/compose/) are used to make the installation and
+This `README.md` explains the Application Server Installation and its setup. [Docker](https://docs.docker.com/) and [Docker Compose](https://docs.docker.com/compose/) are used to make the installation and
 setup easier.
 
  
@@ -222,7 +222,7 @@ This version requires that you set up Node-RED, the database and the Grafana das
 MQTTS Examples
 --------------
 
-Mqtts has been configured to access in the below channel:
+Mqtts has been configured to access in the below channels:
 
 1.  MQTT over Nginx proxy:
 
@@ -249,8 +249,14 @@ Mqtts has been configured to access in the below channel:
 
         Username/Password directs to mosquitto’s configuration (password_file)
 
-To test the above channels, user needs [mosquitto
-client](https://mosquitto.org/download/) tool except the first one: “MQTT over
-Nginx proxy”. In order to test the “MQTT over Nginx proxy”, user needs to access
-[mqtt web portal](https://www.eclipse.org/paho/clients/js/utility/) tool.
+- To test the above channels, user needs [mosquitto
+client](https://mosquitto.org/download/) tool except the first one: “MQTT over Nginx proxy”. 
+
+- In order to test the “MQTT over Nginx proxy”, user needs to access [mqtt web portal](https://www.eclipse.org/paho/clients/js/utility/) tool.
+
+Setup Instructions
+==================
+
+Please refer to [`SETUP.md`](./SETUP.md) for detailed set-up instructions.
+
 

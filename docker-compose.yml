@@ -220,7 +220,7 @@ services:
         relay_ip: "${IOT_DASHBOARD_MAIL_RELAY_IP:-.}"
         domain: "${IOT_DASHBOARD_MAIL_DOMAIN:-.}"
     hostname: "${IOT_DASHBOARD_INFLUXDB_MAIL_HOST_NAME:-.}"
-    ports:
+    expose:
       - "8086"
     volumes:
       - "${IOT_DASHBOARD_DATA}influxdb:/var/lib/influxdb"
@@ -272,7 +272,7 @@ services:
         hostname: "${IOT_DASHBOARD_MAIL_HOST_NAME:-.}"
         relay_ip: "${IOT_DASHBOARD_MAIL_RELAY_IP:-.}"
         domain: "${IOT_DASHBOARD_MAIL_DOMAIN:-.}"
-    ports:
+    expose:
       - "25"
     hostname: "${IOT_DASHBOARD_MAIL_HOST_NAME:-.}"
 

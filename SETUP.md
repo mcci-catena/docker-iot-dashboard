@@ -1,5 +1,5 @@
-[Setup Instructions](#setup-instructions)
-
+# Set-by-step Setup Instructions
+* [Notes](#notes)
 * [1 Cloud-Provider Setup](#cloud-provider-setup)
 
   +  [1.1 On Digital Ocean](#on-digital-ocean)
@@ -27,10 +27,8 @@
   + [3.5 Creating an InfluxDB database](#creating-an-influxdb-database)
 
   + [3.7 MQTT User Credentials setup](#mqtt-user-credentials-setup)
-  
 
-Setup Instructions
-==================
+  
 
 **Notes:**
 

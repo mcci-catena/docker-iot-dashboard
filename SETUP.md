@@ -334,6 +334,19 @@ Once the servers are coming up interactively, use ^C to shut them down, and then
 ```bash
     docker-compose up -d
 ```
+Status of the containers can be seen as below
+```bash
+ docker-compose ps
+
+Name                             Command        State    Ports
+-----------------------------------------------------------------
+docker-iot-dashboard_grafana_1   /run.sh        Up       3000/tcp
+docker-iot-dashboard_influxdb_1  /sbin/my_init  Up       8086/tcp
+docker-iot-dashboard_mqtts_1     /sbin/my_init  Up       0.0.0.0:1883->1883/tcp, 0.0.0.0:8083->8083/tcp, 0.0.0.0:8883->8883/tcp
+docker-iot-dashboard_nginx_1     /sbin/my_init  Up       0.0.0.0:443->443/tcp, 0.0.0.0:80->80/tcp
+docker-iot-dashboard_node-red_1   npm start -- --userDir /da ...   Up (healthy)   1880/tcp
+docker-iot-dashboard_postfix_1    /sbin/my_init Up       25/tcp
+```
 ### Initial testing
 
 -   Open Grafana on [https://dashboard.example.com](https://dashboard.example.com/), and log in as admin.

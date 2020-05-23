@@ -28,6 +28,8 @@ Grafana](#connecting-to-influxdb-from-node-red-and-grafana)
 
 [Setup Instructions](#setup-instructions)
 
+[Influxdb Backup and Restore](#Influxdb-Backup-and-Restore)
+
 
 
 # Dashboard example for Internet of Things(IoT)
@@ -262,4 +264,7 @@ Setup Instructions
 
 Please refer to [`SETUP.md`](./SETUP.md) for detailed set-up instructions.
 
+Influxdb Backup and Restore
+===========================
+Please refer to [`README.md`](./influxdb/README.md).
 

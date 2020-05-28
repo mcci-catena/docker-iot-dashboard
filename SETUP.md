@@ -298,22 +298,32 @@ If there are any errors, they need to be fixed before going on.
 
 If this fails with the message, `ERROR: Couldn't connect to Docker daemon at http+docker://localunixsocket - is it running?`, then probably the user ID is not in the `docker` group. To fix this, `sudo adduser MYUSER docker`, where "MYUSER" is the login ID. Then (**very important**) log out and log back in.
 
-3.  Change ownership of Nginx's /etc/nginx/authdata to user `www-data`.
+3.  Create `.htpasswd` file for node-red and influxdb queries authentication.
 ```bash
-    chown www-data /etc/nginx/authdata
+    touch /etc/nginx/authdata/influxdb/.htpasswd
+    touch /etc/nginx/authdata/nodered/.htpasswd
+    chown www-data /etc/nginx/authdata/influxdb/.htpasswd
+    chown www-data /etc/nginx/authdata/nodered/.htpasswd
 ```
-4.  Add Nginx's /etc/nginx/authdata/.htpasswd.
-```bash
-    touch /etc/nginx/authdata/.htpasswd
-    chown www-data /etc/nginx/authdata/.htpasswd
-```
-5.  Add user logins for node-red and influxdb queries Make `USERS` be a list of login IDs.
+4.  Add user logins for node-red and influxdb queries Make `USERS` be a list of login IDs.
+
+- For Node-red authentication:
+
 ```bash
     export USERS="tmm amy josh"
     for USER in $USERS; do echo "Set password for "$USER; 
-    htpasswd /etc/nginx/authdata/.htpasswd $USER; done
+    htpasswd /etc/nginx/authdata/nodered/.htpasswd $USER; done
 ```
-6.  Exit Nginx's container with Control+D.
+- For Influxdb queries:
+
+```bash
+    export USERS="tmm amy josh"
+    for USER in $USERS; do echo "Set password for "$USER; 
+    htpasswd /etc/nginx/authdata/influxdb/.htpasswd $USER; done
+```
+
+
+5.  Exit Nginx's container with Control+D.
 
 Start the server
 ----------------

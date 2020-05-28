@@ -160,7 +160,8 @@ services:
     volumes:
       - "${IOT_DASHBOARD_DATA}docker-nginx/htdocs:/usr/local/nginx/htdocs"
       - "${IOT_DASHBOARD_DATA}docker-nginx/letsencrypt:/etc/letsencrypt"
-      - "${IOT_DASHBOARD_DATA}docker-nginx/authdata:/etc/nginx/authdata"
+      - "${IOT_DASHBOARD_DATA}docker-nginx/authdata/influxdb:/etc/nginx/authdata/influxdb"
+      - "${IOT_DASHBOARD_DATA}docker-nginx/authdata/nodered:/etc/nginx/authdata/nodered"
 
     # nginx proxies for all of the below, so it needs to have links to them.
     # Examine nginx/proxy-*.conf to see how the links are set up. Also bear

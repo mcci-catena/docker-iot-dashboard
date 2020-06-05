@@ -291,9 +291,28 @@ IOT_DASHBOARD_INFLUXDB_BACKUP_EMAIL=somebody1@example.com somebody2@example.com
 ```
 If there are any errors, they need to be fixed before going on.
 
+
+#### Migrating `htpasswd` from Apache to Nginx 
+---
+- Download the  [`htpasswd_migration.sh`](./htpasswd_migration.sh) into your local directory (on the host system) containing the docker files.
+- Run the script as below.
+```bash
+chmod +x htpasswd_migration.sh
+./htpasswd_migration.sh
+```
+- you will receive `htpasswd` for each controlled services and then copy them(`node-red_htpasswd`, `query_htpasswd`) in appropriate files as below.
+
+- For Node-red:
+    `${IOT_DASHBOARD_DATA}docker-nginx/authdata/nodered/.htpasswd`
+
+- For Infludb Queries:
+    `${IOT_DASHBOARD_DATA}docker-nginx/authdata/influxdb/.htpasswd`
+- If you copied the files, please avoid steps `[2-5]` to `htpasswd` below.
+---
+
 2.  log into the Nginx docker container.
 ```console
-    $ docker-compose exec nginx /bin/bash
+    $ docker-compose run nginx /bin/bash
 ```
 
 If this fails with the message, `ERROR: Couldn't connect to Docker daemon at http+docker://localunixsocket - is it running?`, then probably the user ID is not in the `docker` group. To fix this, `sudo adduser MYUSER docker`, where "MYUSER" is the login ID. Then (**very important**) log out and log back in.

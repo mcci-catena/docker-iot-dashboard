@@ -291,9 +291,9 @@ IOT_DASHBOARD_INFLUXDB_BACKUP_EMAIL=somebody1@example.com somebody2@example.com
 ```
 If there are any errors, they need to be fixed before going on.
 
-
-#### Migrating `htpasswd` from Apache to Nginx 
 ---
+#### Migrating `htpasswd` from Apache to Nginx 
+
 - Download the  [`htpasswd_migration.sh`](./htpasswd_migration.sh) into your local directory (on the host system) containing the docker files.
 - Run the script as below.
 ```bash

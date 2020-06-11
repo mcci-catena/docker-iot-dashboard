@@ -8,8 +8,8 @@ read -p "Please enter .env file location : " envi
    		exit
 	fi
 source $envi
-htgroup=${IOT_DASHBOARD_DATA}docker-apache2/authdata/.htgroup
-htpasswd=${IOT_DASHBOARD_DATA}docker-apache2/authdata/.htpasswd
+htgroup=${TTN_DASHBOARD_DATA}docker-apache2/authdata/.htgroup
+htpasswd=${TTN_DASHBOARD_DATA}docker-apache2/authdata/.htpasswd
 
 PS3="Please enter your choice on the number listed above, To exit press 'ctrl+d '  :  "
 select var in "creating htpasswd for each controlled service manually" "creating htpasswd for each controlled service automatically"
@@ -47,6 +47,13 @@ case $var in
 					;;
 			esac
 		done
+			echo " "
+			echo " "
+			echo " "
+			echo "It is done. Thanks!"
+			echo " "
+			echo " "
+                exit
     	;;
 
 	"creating htpasswd for each controlled service automatically")
@@ -58,6 +65,13 @@ case $var in
         	do
 				sed -n "/$k/p" $htpasswd >> ${file}_htpasswd
 	        done
+			echo " "
+			echo " "
+			echo " "
+			echo "It is done. Thanks!"
+			echo " "
+			echo " "
+			exit
 		done < "$htgroup"
 		;;
 

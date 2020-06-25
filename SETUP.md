@@ -107,7 +107,7 @@ As an initial step, a cloud provider is required and Docker and Docker-Compose m
 ```
 7.  Test that you can become `username`:
 ```console
-    # sudo -i username
+    # sudo su - username
     username@host-name:~$
 ```
 8.  Drop back to root, and then copy the authorized_keys file to   `~username`:

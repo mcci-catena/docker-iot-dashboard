@@ -2,7 +2,7 @@
 # Dockerfile for building the influxdb instance with S3-backup and Mail alert setup
 #
 
-FROM phusion/baseimage
+FROM phusion/baseimage:bionic-1.0.0
 
 # Default InfluxDB host
 ENV INFLUX_HOST=influxdb

@@ -2,9 +2,9 @@
 
 1. Prepare a script that queries the user during the setup and sets the `.env` file.
 
-2. The script should also get names and roles for access to Node-red and InfluxDB. It then will seed `.htaccess` and `.htgroup`.
+2. The script should also get names and roles for access to Node-red and InfluxDB. It then will seed `.htpasswd` files.
 
-3. Same script should be able to show user-by-user roles, and adjust them. (Right now the matrix is transposed; for each role you can look at `.htgroup` and find the members, but you can't easily see all the roles for a member.)
+3. Same script should be able to show user-by-user roles, and adjust them.
 
 4. Figure out what to do if the user changes `GRAFANA_ENV_ADMIN_PASSWORD` after the image has been launched once; at present, this is ignored. This might be a maintenance script and/or a makefile so that the system detects edits and does the right thing.
 
@@ -12,4 +12,4 @@
 
 6. Integrate the other things from `SETUP.md`.
 
-7. Add scripts to backup and restore the user's data directories. Backup should run off-line (unless there's a very good way to backup the datasets from all the servers while they're up). Restore must run off-line. Scripts should do the necessary to ensure that the servers are in fact stopped.  This is now partially done with the AWS changes, but more work needs to be done.
+7. Add documention on setting up backups.

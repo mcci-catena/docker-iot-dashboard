@@ -3,7 +3,7 @@
 #
 
 # Start from Phusion.
-FROM phusion/baseimage
+FROM phusion/baseimage:bionic-1.0.0
 
 RUN /usr/bin/apt-get update && /usr/bin/apt-get install software-properties-common -y
 RUN /usr/bin/add-apt-repository ppa:certbot/certbot && /usr/bin/apt-get update && /usr/bin/apt-get install nginx  apache2-utils -y

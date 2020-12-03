@@ -1,45 +1,43 @@
-# BUILD SETUP
+# Influxdb Backup
 
-```console 
+<!-- markdownlint-disable MD033 -->
+<!-- markdownlint-capture -->
+<!-- markdownlint-disable -->
+<!-- TOC depthFrom:2 updateOnSave:true -->
 
-cmurugan@iot:~/server/influx_api_version/docker-ttn-dashboard$ docker-compose up -d
+- [Status of docker container and databases](#status-of-docker-container-and-databases)
+- [Checking the databases available](#checking-the-databases-available)
+- [Backing up Databases](#backing-up-databases)
+- [Restoring Databases](#restoring-databases)
 
-dockerttndashboard_postfix_1 is up-to-date
-Recreating dockerttndashboard_influxdb_1 ...
-Recreating dockerttndashboard_influxdb_1 ... done
-Recreating dockerttndashboard_grafana_1 ...
-Recreating dockerttndashboard_grafana_1
-Recreating dockerttndashboard_node-red_1 ...
-Recreating dockerttndashboard_node-red_1 ... done
-Recreating dockerttndashboard_apache_1 ...
-Recreating dockerttndashboard_apache_1 ... done
+<!-- /TOC -->
+<!-- markdownlint-restore -->
+<!-- Due to a bug in Markdown TOC, the table is formatted incorrectly if tab indentation is set other than 4. Due to another bug, this comment must be *after* the TOC entry. -->
 
-```
-
-### status of docker container and databases
+## Status of docker container and databases
 
 ```console
+root@ithaca-power:/iot/testing/docker-iot-dashboard# docker-compose ps
+             Name                            Command                  State                                       Ports
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+docker-iot-dashboard_grafana_1    /run.sh                          Up             3000/tcp
+docker-iot-dashboard_influxdb_1   /sbin/my_init                    Up             8086/tcp
+docker-iot-dashboard_mqtts_1      /sbin/my_init                    Up             0.0.0.0:1883->1883/tcp, 0.0.0.0:8083->8083/tcp, 0.0.0.0:8883->8883/tcp
+docker-iot-dashboard_nginx_1      /sbin/my_init                    Up             0.0.0.0:443->443/tcp, 0.0.0.0:80->80/tcp
+docker-iot-dashboard_node-red_1   npm start -- --userDir /da ...   Up (healthy)   1880/tcp
+docker-iot-dashboard_postfix_1    /sbin/my_init                    Up             25/tcp
+```
 
-cmurugan@iot:~/server/influx_api_version/docker-ttn-dashboard$ docker-compose ps
+## Checking the databases available
 
-            Name                           Command               State                    Ports
------------------------------------------------------------------------------------------------------------------
-dockerttndashboard_apache_1     /sbin/my_init                    Up      0.0.0.0:443->443/tcp, 0.0.0.0:80->80/tcp
-dockerttndashboard_grafana_1    /run.sh                          Up      3000/tcp
-dockerttndashboard_influxdb_1   /entrypoint.sh influxd           Up      8086/tcp
-dockerttndashboard_node-red_1   npm start -- --userDir /da ...   Up      1880/tcp
-dockerttndashboard_postfix_1    /sbin/my_init                    Up      0.0.0.0:25->25/tcp
+Moving to `influxdb` container.
 
-cmurugan@iot:~/server/influx_api_version/docker-ttn-dashboard$ docker-compose exec influxdb bash
-
-root@a16175bb4ce0:/opt/influxdb-backup# influx
-Connected to http://localhost:8086 version 1.6.4
-InfluxDB shell version: 1.6.4
-> show databases
-name: databases
-name
-----
-_internal
+```console
+username@ithaca-power:/iot/testing/docker-iot-dashboard$ docker-compose exec influxdb bash
+root@influxdb# cd /opt/influxdb-backup
+root@influxdb:/opt/influxdb-backup# influx
+Connected to http://localhost:8086 version 1.8.0
+InfluxDB shell version: 1.8.0
 > create database testdb
 > show databases
 name: databases
@@ -54,86 +52,74 @@ Using database testdb
 name: cpu
 time                host    region  value
 ----                ----    ------  -----
-1523353042145216096 serverA us_west 0.64
+1590247547512536078 serverA us_west 0.64
 > exit
-
 ```
 
-## BACKUP DATABASE 
+## Backing up Databases
 
-### Backup can be taken through shell script and synced with Amazon S3 cloud
+Backup can be taken through shell script and synced with Amazon S3 cloud. When complete, mail notification will be sent for the backup.
 
+The backup shell script `backup.sh` wiil be configured in Crontab while building. (For testing, run `backup.sh` manually )
+
+The backup shell script `backup.sh` will back up everything.
 
 ```console
-
-root@a16175bb4ce0:/opt/influxdb-backup# backup.sh
+root@influxdb:/opt/influxdb-backup# backup.sh
 
 Backup Influx metadata
-2018/10/25 11:00:44 backing up metastore to /var/lib/influxdb-backup/meta.00
-2018/10/25 11:00:44 No database, retention policy or shard ID given. Full meta store backed up.
-2018/10/25 11:00:44 Backing up all databases in portable format
-2018/10/25 11:00:44 backing up db=
-2018/10/25 11:00:44 backing up db=_internal rp=monitor shard=1 to /var/lib/influxdb-backup/_internal.monitor.00001.00 since 0001-01-01T00:00:00Z
-2018/10/25 11:00:44 backing up db=_internal rp=monitor shard=6 to /var/lib/influxdb-backup/_internal.monitor.00006.00 since 0001-01-01T00:00:00Z
-2018/10/25 11:00:44 backing up db=testdb rp=autogen shard=7 to /var/lib/influxdb-backup/testdb.autogen.00007.00 since 0001-01-01T00:00:00Z
-2018/10/25 11:00:44 backup complete:
-2018/10/25 11:00:44     /var/lib/influxdb-backup/20181025T110044Z.meta
-2018/10/25 11:00:44     /var/lib/influxdb-backup/20181025T110044Z.s1.tar.gz
-2018/10/25 11:00:44     /var/lib/influxdb-backup/20181025T110044Z.s6.tar.gz
-2018/10/25 11:00:44     /var/lib/influxdb-backup/20181025T110044Z.s7.tar.gz
-2018/10/25 11:00:44     /var/lib/influxdb-backup/20181025T110044Z.manifest
+2020/05/23 15:29:40 backing up metastore to /var/lib/influxdb-backup/meta.00
+2020/05/23 15:29:40 No database, retention policy or shard ID given. Full meta store backed up.
+2020/05/23 15:29:40 Backing up all databases in portable format
+2020/05/23 15:29:40 backing up db=
+2020/05/23 15:29:40 backing up db=_internal rp=monitor shard=1 to /var/lib/influxdb-backup/_internal.monitor.00001.00 since 0001-01-01T00:00:00Z
+2020/05/23 15:29:40 backing up db=testdb rp=autogen shard=2 to /var/lib/influxdb-backup/testdb.autogen.00002.00 since 0001-01-01T00:00:00Z
+2020/05/23 15:29:40 backup complete:
+2020/05/23 15:29:40     /var/lib/influxdb-backup/20200523T152940Z.meta
+2020/05/23 15:29:40     /var/lib/influxdb-backup/20200523T152940Z.s1.tar.gz
+2020/05/23 15:29:40     /var/lib/influxdb-backup/20200523T152940Z.s2.tar.gz
+2020/05/23 15:29:40     /var/lib/influxdb-backup/20200523T152940Z.manifest
 Creating backup for _internal
-2018/10/25 11:00:44 backing up metastore to /var/lib/influxdb-backup/meta.00
-2018/10/25 11:00:44 backing up db=_internal
-2018/10/25 11:00:44 backing up db=_internal rp=monitor shard=1 to /var/lib/influxdb-backup/_internal.monitor.00001.00 since 0001-01-01T00:00:00Z
-2018/10/25 11:00:44 backing up db=_internal rp=monitor shard=6 to /var/lib/influxdb-backup/_internal.monitor.00006.00 since 0001-01-01T00:00:00Z
-2018/10/25 11:00:44 backup complete:
-2018/10/25 11:00:44     /var/lib/influxdb-backup/20181025T110044Z.meta
-2018/10/25 11:00:44     /var/lib/influxdb-backup/20181025T110044Z.s1.tar.gz
-2018/10/25 11:00:44     /var/lib/influxdb-backup/20181025T110044Z.s6.tar.gz
-2018/10/25 11:00:44     /var/lib/influxdb-backup/20181025T110044Z.manifest
+2020/05/23 15:29:40 backing up metastore to /var/lib/influxdb-backup/meta.00
+2020/05/23 15:29:40 backing up db=_internal
+2020/05/23 15:29:40 backing up db=_internal rp=monitor shard=1 to /var/lib/influxdb-backup/_internal.monitor.00001.00 since 0001-01-01T00:00:00Z
+2020/05/23 15:29:40 backup complete:
+2020/05/23 15:29:40     /var/lib/influxdb-backup/20200523T152940Z.meta
+2020/05/23 15:29:40     /var/lib/influxdb-backup/20200523T152940Z.s1.tar.gz
+2020/05/23 15:29:40     /var/lib/influxdb-backup/20200523T152940Z.manifest
 Creating backup for testdb
-2018/10/25 11:00:44 backing up metastore to /var/lib/influxdb-backup/meta.00
-2018/10/25 11:00:44 backing up db=testdb
-2018/10/25 11:00:44 backing up db=testdb rp=autogen shard=7 to /var/lib/influxdb-backup/testdb.autogen.00007.00 since 0001-01-01T00:00:00Z
-2018/10/25 11:00:44 backup complete:
-2018/10/25 11:00:44     /var/lib/influxdb-backup/20181025T110044Z.meta
-2018/10/25 11:00:44     /var/lib/influxdb-backup/20181025T110044Z.s7.tar.gz
-2018/10/25 11:00:44     /var/lib/influxdb-backup/20181025T110044Z.manifest
+2020/05/23 15:29:40 backing up metastore to /var/lib/influxdb-backup/meta.00
+2020/05/23 15:29:40 backing up db=testdb
+2020/05/23 15:29:40 backing up db=testdb rp=autogen shard=2 to /var/lib/influxdb-backup/testdb.autogen.00002.00 since 0001-01-01T00:00:00Z
+2020/05/23 15:29:40 backup complete:
+2020/05/23 15:29:40     /var/lib/influxdb-backup/20200523T152940Z.meta
+2020/05/23 15:29:40     /var/lib/influxdb-backup/20200523T152940Z.s2.tar.gz
+2020/05/23 15:29:40     /var/lib/influxdb-backup/20200523T152940Z.manifest
 tar: Removing leading `/' from member names
 tar: Removing leading `/' from member names
-upload: ../../var/lib/influxdb-S3-bucket/data_directory_backup_2018-10-25.tar.gz to s3://mcci-influxdb-test/data_directory_backup_2018-10-25.tar.gz
-upload: ../../var/lib/influxdb-S3-bucket/metdata_db_backup_2018-10-25.tar.gz to s3://mcci-influxdb-test/metdata_db_backup_2018-10-25.tar.gz
-
+tar: Removing leading `/' from hard link targets
+upload: ../../var/lib/influxdb-S3-bucket/ithaca-power.mcci.com_metdata_db_backup_2020-05-23.tar.gz to s3://mcci-influxdb-test/ithaca-power.mcci.com_metdata_db_backup_2020-05-23.tar.gz
+upload: ../../var/lib/influxdb-S3-bucket/ithaca-power.mcci.com_data_directory_backup_2020-05-23.tar.gz to s3://mcci-influxdb-test/ithaca-power.mcci.com_data_directory_backup_2020-05-23.tar.gz
 ```
 
-### Backup has been taken in the below folder
+* Backup files will be uploaded in Amazon S3 bucket. They can be viewed using below command.
 
 ```console
-
-root@a16175bb4ce0:/opt/influxdb-backup# ls /var/lib/influxdb-backup/
-
-20181024T142358Z.manifest   20181024T143005Z.s3.tar.gz  20181025T094917Z.s1.tar.gz  20181025T095242Z.s6.tar.gz  20181025T110044Z.meta
-20181024T142358Z.meta       20181024T160855Z.manifest   20181025T094917Z.s5.tar.gz  20181025T100801Z.manifest   20181025T110044Z.s1.tar.gz
-20181024T142358Z.s1.tar.gz  20181024T160855Z.meta       20181025T094917Z.s6.tar.gz  20181025T100801Z.meta       20181025T110044Z.s6.tar.gz
-20181024T142358Z.s2.tar.gz  20181024T160855Z.s1.tar.gz  20181025T095242Z.manifest   20181025T100801Z.s1.tar.gz  20181025T110044Z.s7.tar.gz
-20181024T143005Z.manifest   20181024T160855Z.s5.tar.gz  20181025T095242Z.meta       20181025T100801Z.s5.tar.gz
-20181024T143005Z.meta       20181025T094917Z.manifest   20181025T095242Z.s1.tar.gz  20181025T100801Z.s6.tar.gz
-20181024T143005Z.s1.tar.gz  20181025T094917Z.meta       20181025T095242Z.s5.tar.gz  20181025T110044Z.manifest
-
-
+root@influxdb:/opt/influxdb-backup# aws s3 ls s3://${S3_BUCKET_INFLUXDB}/
+root@influxdb:/opt/influxdb-backup# aws s3 ls s3://${S3_BUCKET_INFLUXDB}/ithaca-power.mcci.com_metdata_db_backup_2020-05-23.tar.gz
+2020-05-23 15:29:43      15447 ithaca-power.mcci.com_metdata_db_backup_2020-05-23.tar.gz
 ```
 
-## RESTORE DATABASE 
+# Influxdb Restore
 
-### Drop the "testdb" database for checking purpose
+## Restoring Databases
+
+In this example, we drop the "`testdb`" database for checking purpose
 
 ```console
-
-root@a16175bb4ce0:/opt/influxdb-backup# influx
-
-Connected to http://localhost:8086 version 1.6.4
-InfluxDB shell version: 1.6.4
+root@influxdb:/opt/influxdb-backup# influx
+Connected to http://localhost:8086 version 1.8.0
+InfluxDB shell version: 1.8.0
 > show databases
 name: databases
 name
@@ -147,36 +133,44 @@ name
 ----
 _internal
 > exit
-
 ```
-### Restoring metadata and database 
+
+Next, we download the backed up databases from the Amazon S3 Bucket.
 
 ```console
-
-root@a16175bb4ce0:/opt/influxdb-backup# influxd restore -portable -host $INFLUX_HOST:8088 /var/lib/influxdb-backup
-
-2018/10/25 11:02:48 Restoring shard 7 live from backup 20181025T110044Z.s7.tar.gz
-2018/10/25 11:02:48 Meta info not found for shard 5 on database testdb. Skipping shard file 20181025T100801Z.s5.tar.gz
-2018/10/25 11:02:48 Meta info not found for shard 1 on database _internal. Skipping shard file 20181025T095242Z.s1.tar.gz
-2018/10/25 11:02:48 Meta info not found for shard 6 on database _internal. Skipping shard file 20181025T095242Z.s6.tar.gz
-2018/10/25 11:02:48 Meta info not found for shard 3 on database testdb. Skipping shard file 20181024T143005Z.s3.tar.gz
-2018/10/25 11:02:48 Meta info not found for shard 2 on database testdb. Skipping shard file 20181024T142358Z.s2.tar.gz
-
-root@a16175bb4ce0:/opt/influxdb-backup# influxd restore -portable -host $INFLUX_HOST:8088 -database testdb /var/lib/influxdb-backup
-
-2018/10/25 11:03:04 error updating meta: DB metadata not changed. database may already exist
-restore: DB metadata not changed. database may already exist
-
+root@influxdb:/opt/influxdb-backup# aws s3 cp s3://${S3_BUCKET_INFLUXDB}/ithaca-power.mcci.com_metdata_db_backup_2020-05-23.tar.gz .
+download: s3://mcci-influxdb-test/ithaca-power.mcci.com_metdata_db_backup_2020-05-23.tar.gz to ./ithaca-power.mcci.com_metdata_db_backup_2020-05-23.tar.gz
+root@influxdb:/opt/influxdb-backup# ls -al
+total 28
+drwxr-xr-x 1 root root  4096 May 23 15:37 .
+drwxr-xr-x 1 root root  4096 May 18 05:46 ..
+-rw-r--r-- 1 root root 15447 May 23 15:29 ithaca-power.mcci.com_metdata_db_backup_2020-05-23.tar.gz
 ```
 
-### Checking the Database has been restored
+We extract the backed up files.
 
-```console 
+```console
+root@influxdb:/opt/influxdb-backup# tar xvf staging1-ithaca-power.mcci.com_metdata_db_backup_2020-05-23.tar.gz
+var/lib/influxdb-backup/
+var/lib/influxdb-backup/20200523T152940Z.meta
+var/lib/influxdb-backup/20200523T152940Z.s1.tar.gz
+var/lib/influxdb-backup/20200523T152940Z.s2.tar.gz
+var/lib/influxdb-backup/20200523T152940Z.manifest
+```
 
-root@a16175bb4ce0:/opt/influxdb-backup# influx
+We restore all databases found within the backup directory.
 
-Connected to http://localhost:8086 version 1.6.4
-InfluxDB shell version: 1.6.4
+```console
+root@influxdb:/opt/influxdb-backup# influxd restore -portable -host $INFLUX_HOST:8088 var/lib/influxdb-backup/
+2020/05/23 15:45:23 Restoring shard 2 live from backup 20200523T152940Z.s2.tar.gz
+```
+
+Finally, we check that the database has been restored
+
+```console
+root@influxdb:/opt/influxdb-backup# influx
+Connected to http://localhost:8086 version 1.8.0
+InfluxDB shell version: 1.8.0
 > show databases
 name: databases
 name
@@ -189,7 +183,6 @@ Using database testdb
 name: cpu
 time                host    region  value
 ----                ----    ------  -----
-1540391379121807732 serverA us_west 0.64
+1590247547512536078 serverA us_west 0.64
 > exit
-
 ```

@@ -7,7 +7,7 @@ set -e
 cd /root
 
 #write out current crontab
-crontab -l > mycron
+crontab -l > mycron || echo "no crontab for root, going on"
 
 #echo new cron into cron file
 echo "35 6 * * * /bin/bash -l -c '/bin/backup.sh'" >> mycron

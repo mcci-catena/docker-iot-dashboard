@@ -507,7 +507,7 @@ $
       `Subscribing` mqtt channel on topic `test`
 
       ```bash
-      mosquitto_sub -h testing-in.mcci.com -t test -p 1883 -u user1 -P pwd123
+      mosquitto_sub -h dashboard.example.com -t test -p 1883 -u user1 -P pwd123
       
       hello
       ```
@@ -515,7 +515,7 @@ $
       `publishing` on mqtt channel with topic `test`
 
       ```bash
-      mosquitto_pub -h testing-in.mcci.com -m "hello" -t test -p 1883 -u user1 -P pwd123
+      mosquitto_pub -h dashboard.example.com -m "hello" -t test -p 1883 -u user1 -P pwd123
       ```
 
   - MQTT over TLS/SSL
@@ -523,7 +523,7 @@ $
       `Subscribing` mqtt channel on topic `test`
 
       ```bash
-      mosquitto_sub -h testing-in.mcci.com -t test -p 8883 -u user1 -P tmm123 --capath /etc/ssl/certs/
+      mosquitto_sub -h dashboard.example.com -t test -p 8883 -u user1 -P tmm123 --capath /etc/ssl/certs/
       
       hello 
       ```
@@ -532,7 +532,7 @@ $
 
       ```bash
 
-      mosquitto_pub -h testing-in.mcci.com -m "hello" -t test -p 8883 -u user1 -P tmm123 --capath /etc/ssl/certs/
+      mosquitto_pub -h dashboard.example.com -m "hello" -t test -p 8883 -u user1 -P tmm123 --capath /etc/ssl/certs/
       ```
 
 - In order to test the "MQTT over Nginx proxy", the user can use the `mqtts web based client` [portal1](http://tools.emqx.io/) or [portal2](https://www.eclipse.org/paho/clients/js/utility/).

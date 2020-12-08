@@ -519,7 +519,7 @@ $
 
     Mail setup on `Influxdb` and `Postfix` can be tested using `mail` command, by logging into their container.
 
-    **Influxdb**
+    `Influxdb`
     1. Log into the `Influxdb` docker container
 
     ```bash
@@ -530,7 +530,7 @@ $
     Testing1
     ```
 
-    **Postfix**
+    `Postfix`
 
     1. Log into the `Postfix` docker container
 
@@ -548,7 +548,7 @@ $
 
     ![nodered_mail_testing](assets/postfix_node_1.png)
 
-    *Inject node's configuration*
+    `Inject node's configuration`
 
     ![nodered_mail_testing](assets/postfix_node_2.png)
 
@@ -557,7 +557,7 @@ $
   - `msg.topic`will be act as `subject`.
   - `msg.from` will be act as `Sender`
 
-    *Email node's configuration*
+   `Email node's configuration`
 
     ![nodered_mail_testing](assets/postfix_node_3.png)
 

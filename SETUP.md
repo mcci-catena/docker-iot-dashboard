@@ -22,7 +22,8 @@
 	- [Set up first data source](#set-up-first-data-source)
 	- [Test Node-RED](#test-node-red)
 	- [Creating an InfluxDB database](#creating-an-influxdb-database)
-   - [Test MQTT Channels](#Test-MQTT-Channels)
+    - [Test Postfix Mail setup](#Test-Postfix-Mail-setup)
+    - [Test MQTT Channels](#Test-MQTT-Channels)
 	
 
 <!-- /TOC -->
@@ -498,6 +499,68 @@ my-new-database
 # ^D
 $
 ```
+
+### Test Postfix Mail setup
+
+- Testing Mail setup on `Grafana`
+  1. Click on "Bell icon" and click the "Notification channels" option as shown below
+
+        ![grafana_mail_testing](assets/graf-mail_test_1.png)
+
+  2. Click "Add Channel" as shown below
+
+        ![grafana_mail_testing](assets/graf-mail_test_2.png)
+  
+  3. Input the required info as shown below. *Be sure to select type as `Email`*. Click `Test" button finally to send test mail.
+
+        ![grafana_mail_testing](assets/graf-mail_test_3.png)
+
+- Testing Mail setup on `Influxdb` and `Postfix`
+
+    Mail setup on `Influxdb` and `Postfix` can be tested using `mail` command, by logging into their container.
+
+    **Influxdb**
+    1. Log into the `Influxdb` docker container
+
+    ```bash
+    docker-compose exec influxdb bash
+
+    root@influxdbbackup:/# mail -s "Testing mail from Influxdb" cmurugan@mcci.com
+    Cc:
+    Testing1
+    ```
+
+    **Postfix**
+
+    1. Log into the `Postfix` docker container
+
+    ```bash
+    docker-compose exec postfix bash
+
+    root@dashboard:/# mail -s "Testing mail from Postfix" cmurugan@mcci.com
+    Cc:
+    Testing1
+    ```
+
+- Testing Mail setup on Node-red
+
+    Mail setup on Node-red can be tested by deploying a node-red flow on <https://dashboard.example.com/node-red/> as shown below.
+
+    ![nodered_mail_testing](assets/postfix_node_1.png)
+
+    *Inject node's configuration*
+
+    ![nodered_mail_testing](assets/postfix_node_2.png)
+
+    here,
+  - `msg.payload` will be act as `mail body`.
+  - `msg.topic`will be act as `subject`.
+  - `msg.from` will be act as `Sender`
+
+    *Email node's configuration*
+
+    ![nodered_mail_testing](assets/postfix_node_3.png)
+
 ### Test MQTT Channels
 
 - To test the `MQTT over TCP` and `MQTT over TLS/SSL` channels user can use [mosquitto client](https://mosquitto.org/download/) tool.
@@ -523,7 +586,7 @@ $
       `Subscribing` mqtt channel on topic `test`
 
       ```bash
-      mosquitto_sub -h dashboard.example.com -t test -p 8883 -u user1 -P tmm123 --capath /etc/ssl/certs/
+      mosquitto_sub -h dashboard.example.com -t test -p 8883 -u user1 -P pwd123 --capath /etc/ssl/certs/
       
       hello 
       ```
@@ -532,7 +595,7 @@ $
 
       ```bash
 
-      mosquitto_pub -h dashboard.example.com -m "hello" -t test -p 8883 -u user1 -P tmm123 --capath /etc/ssl/certs/
+      mosquitto_pub -h dashboard.example.com -m "hello" -t test -p 8883 -u user1 -P pwd123 --capath /etc/ssl/certs/
       ```
 
 - In order to test the "MQTT over Nginx proxy", the user can use the `mqtts web based client` [portal1](http://tools.emqx.io/) or [portal2](https://www.eclipse.org/paho/clients/js/utility/).
@@ -572,4 +635,3 @@ $
    Full window
 
    ![mqtt_testing](assets/mqtt_web_4.png)
-

@@ -11,7 +11,7 @@
 		- [Create droplet](#create-droplet)
 		- [Configure droplet](#configure-droplet)
 - [After server is set up](#after-server-is-set-up)
-	- [Create and edit the .env file](#create-and-edit-the-env-file)
+	- [Create and edit the .env file](#Create-and-edit-the-.env-file)
 	- [Set up the Node-RED and InfluxDB API logins](#set-up-the-node-red-and-influxdb-api-logins)
 		- [Migrating `htpasswd` from Apache to Nginx (if required)](#migrating-htpasswd-from-apache-to-nginx-if-required)
 		- [Creating new `htpasswd` files](#creating-new-htpasswd-files)

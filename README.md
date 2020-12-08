@@ -214,11 +214,6 @@ MQTT over TLS/SSL | https://dashboard.example.com:8883 | Username/Password come 
 WebSockets over TLS/SSL | https://dashboard.example.com:8083 | Username/Password come from mosquitto’s configuration (password_file)
 MQTT over TCP protocol (not secure) | http://dashboard.example.com:1883 |Username/Password come from mosquitto’s configuration (password_file)
 
-- To test the above channels (other than "MQTT over Nginx proxy"), the user also will need a [mosquitto
-client](https://mosquitto.org/download/) tool.
-
-- In order to test the "MQTT over Nginx proxy", the user should use the [mqtt web portal](https://www.eclipse.org/paho/clients/js/utility/) tool.
-
 ## Setup Instructions
 
 Please refer to [`SETUP.md`](./SETUP.md) for detailed set-up instructions.

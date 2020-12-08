@@ -3,7 +3,29 @@
 <!-- markdownlint-disable MD033 -->
 <!-- markdownlint-capture -->
 <!-- markdownlint-disable -->
-<!-- TOC depthFrom:2 updateOnSave:true -->autoauto- [Notes](#notes)auto- [Cloud-Provider-Specific Setup](#cloud-provider-specific-setup)auto    - [On Digital Ocean](#on-digital-ocean)auto        - [Create droplet](#create-droplet)auto        - [Configure droplet](#configure-droplet)auto- [After server is set up](#after-server-is-set-up)auto    - [Create and edit the .env file](#create-and-edit-the env file)auto    - [Set up the Node-RED and InfluxDB API logins](#set-up-the-node-red-and-influxdb-api-logins)auto        - [Migrating `htpasswd` from Apache to Nginx (if required)](#migrating-htpasswd-from-apache-to-nginx-if-required)auto        - [Creating new `htpasswd` files](#creating-new-htpasswd-files)auto    - [MQTT User Credentials setup](#mqtt-user-credentials-setup)auto    - [Start the server](#start-the-server)auto    - [Restart servers in the background](#restart-servers-in-the-background)auto    - [Initial testing](#initial-testing)auto    - [Set up first data source](#set-up-first-data-source)auto    - [Test Node-RED](#test-node-red)auto    - [Creating an InfluxDB database](#creating-an-influxdb-database)autoauto<!-- /TOC -->
+<!-- TOC depthFrom:2 updateOnSave:true -->
+
+- [Notes](#notes)
+- [Cloud-Provider-Specific Setup](#cloud-provider-specific-setup)
+	- [On Digital Ocean](#on-digital-ocean)
+		- [Create droplet](#create-droplet)
+		- [Configure droplet](#configure-droplet)
+- [After server is set up](#after-server-is-set-up)
+	- [Create and edit the .env file](#create-and-edit-the-env-file)
+	- [Set up the Node-RED and InfluxDB API logins](#set-up-the-node-red-and-influxdb-api-logins)
+		- [Migrating `htpasswd` from Apache to Nginx (if required)](#migrating-htpasswd-from-apache-to-nginx-if-required)
+		- [Creating new `htpasswd` files](#creating-new-htpasswd-files)
+   - [MQTT User Credentials setup](#mqtt-user-credentials-setup)
+	- [Start the server](#start-the-server)
+	- [Restart servers in the background](#restart-servers-in-the-background)
+	- [Initial testing](#initial-testing)
+	- [Set up first data source](#set-up-first-data-source)
+	- [Test Node-RED](#test-node-red)
+	- [Creating an InfluxDB database](#creating-an-influxdb-database)
+   - [Test MQTT Channels](#Test-MQTT-Channels)
+	
+
+<!-- /TOC -->
 <!-- markdownlint-restore -->
 <!-- Due to a bug in Markdown TOC, the table is formatted incorrectly if tab indentation is set other than 4. Due to another bug, this comment must be *after* the TOC entry. -->
 
@@ -32,19 +54,19 @@ As an initial step, a cloud provider is required and Docker and Docker-Compose m
 3. Discover > Marketplace, search for `Docker`
 
 4. This page will be redirected:
-   <https://cloud.digitalocean.com/marketplace/5ba19751fc53b8179c7a0071?i=ec3581>
+    <https://cloud.digitalocean.com/marketplace/5ba19751fc53b8179c7a0071?i=ec3581>
 
 5. Press "Create"
 
 6. Select the standard 8G GB Starter that is selected.
 
-7. Choose a datacenter; _New York is selected in the example created for this document._
+7. Choose a datacenter; *New York is selected in the example created for this document.*
 
 8. Additional options: none.
 
 9. Add the SSH keys.
 
-10. Choose a host name, _e.g. `passivehouse-ecovillage`._
+10. Choose a host name, *e.g. `passivehouse-ecovillage`.*
 
 11. Select the project.
 
@@ -89,7 +111,7 @@ As an initial step, a cloud provider is required and Docker and Docker-Compose m
    username@host-name:~$
    ```
 
-8. Drop back to root, and then copy the authorized_keys file to  `~username`:
+8. Drop back to root, and then copy the authorized_keys file to   `~username`:
 
    ```bash
    mkdir -m 700 ~username/.ssh
@@ -139,15 +161,15 @@ The following instructions are essentially independent of the cloud provider and
 
 1. Clone this repository.
 
-   ```bash
-   git clone git@github.com:mcci-catena/docker-iot-dashboard.git /opt/docker/dashboard.example.com
-   ```
+    ```bash
+    git clone git@github.com:mcci-catena/docker-iot-dashboard.git /opt/docker/dashboard.example.com
+    ```
 
 2. Move to the directory populated in step 1.
 
-   ```bash
-   cd /opt/docker/dashboard.example.com
-   ```
+    ```bash
+    cd /opt/docker/dashboard.example.com
+    ```
 
 3. Get a fully-qualified domain name (FQDN) for the server, for which the DNS can be controlled. Point it to the server. Make sure it works, using "`dig FQDN`" -- get back an `A` record pointing to your server's IP address.
 
@@ -163,39 +185,39 @@ Then, edit the .env file as follows:
 
 1. `IOT_DASHBOARD_NGINX_FQDN=myhost.example.com`
 
-   This sets the name of the resulting server. It tells Nginx what it's serving out. It must be a fully-qualified domain name (FQDN) that resolves to the IP address of the container host.
+    This sets the name of the resulting server. It tells Nginx what it's serving out. It must be a fully-qualified domain name (FQDN) that resolves to the IP address of the container host.
 
 2. `IOT_DASHBOARD_CERTBOT_FQDN=myhost.example.com`
 
-   This should be the same as `IOT_DASHBOARD_NGINX_FQDN`.
+    This should be the same as `IOT_DASHBOARD_NGINX_FQDN`.
 
 3. `IOT_DASHBOARD_CERTBOT_EMAIL=someone@example.com`
 
-   This sets the contact email for Let's Encrypt. The script automatically accepts the Let's Encrypt terms of service, and this indicates who is doing the accepting.
+    This sets the contact email for Let's Encrypt. The script automatically accepts the Let's Encrypt terms of service, and this indicates who is doing the accepting.
 
 4. `IOT_DASHBOARD_DATA=/full/path/to/directory/`
 
-   The trailing slash is required! This will put all the data files for this instance as subdirectories of the specified path. If this is undefined, `docker-compose` will print error messages and quit.
+    The trailing slash is required! This will put all the data files for this instance as subdirectories of the specified path. If this is undefined, `docker-compose` will print error messages and quit.
 
 5. `IOT_DASHBOARD_GRAFANA_ADMIN_PASSWORD=SomethingVerySecretIndeed`
 
-   This needs to be confidential. Indeed this sets the *initial* password for the Grafana admin login.This should be changed via the Grafana UI after booting the server.
+    This needs to be confidential. Indeed this sets the *initial* password for the Grafana admin login.This should be changed via the Grafana UI after booting the server.
 
 6. `IOT_DASHBOARD_GRAFANA_SMTP_FROM_ADDRESS`
 
-   This sets the Grafana originating mail address.
+    This sets the Grafana originating mail address.
 
 7. `IOT_DASHBOARD_GRAFANA_INSTALL_PLUGINS=plugin plugin2`
 
-   This sets a list of Grafana plugins to install.
+    This sets a list of Grafana plugins to install.
 
 8. `IOT_DASHBOARD_INFLUXDB_INITIAL_DATABASE_NAME=demo`
 
-   Change "demo" to the desired name of the initial database that will be created in InfluxDB.
+    Change "demo" to the desired name of the initial database that will be created in InfluxDB.
 
 9. `IOT_DASHBOARD_MAIL_HOST_NAME=myhost.example.com`
 
-   This sets the name of your mail server. Used by Postfix.
+    This sets the name of your mail server. Used by Postfix.
 
 10. `IOT_DASHBOARD_MAIL_DOMAIN=example.com`
 
@@ -313,10 +335,10 @@ If migrating from an older version of the dashboard that used Apache, you'll nee
 
 - Run the script as below.
 
-  ```bash
-  chmod +x htpasswd_migration.sh
-  ./htpasswd_migration.sh
-  ```
+    ```bash
+    chmod +x htpasswd_migration.sh
+    ./htpasswd_migration.sh
+    ```
 
 - This script creates one `htpasswd` for each of the controlled services, and then copies them(`node-red_htpasswd`, `query_htpasswd`) to appropriate files as below.
 
@@ -332,43 +354,43 @@ If migrating from an older version of the dashboard that used Apache, you'll nee
 
 1. Log into the Nginx docker container.
 
-   ```console
-   $ docker-compose run nginx /bin/bash
-   #
-   ```
+    ```console
+    $ docker-compose run nginx /bin/bash
+    #
+    ```
 
    If this fails with the message, `ERROR: Couldn't connect to Docker daemon at http+docker://localunixsocket - is it running?`, then probably the user ID is not in the `docker` group. To fix this, `sudo adduser MYUSER docker`, where "MYUSER" is the login ID. Then (**very important**) log out and log back in.
 
 2. Create `.htpasswd` files for node-red and influxdb queries authentication.
 
-   ```bash
-   touch /etc/nginx/authdata/influxdb/.htpasswd
-   touch /etc/nginx/authdata/nodered/.htpasswd
-   chown www-data /etc/nginx/authdata/influxdb/.htpasswd
-   chown www-data /etc/nginx/authdata/nodered/.htpasswd
-   ```
+    ```bash
+    touch /etc/nginx/authdata/influxdb/.htpasswd
+    touch /etc/nginx/authdata/nodered/.htpasswd
+    chown www-data /etc/nginx/authdata/influxdb/.htpasswd
+    chown www-data /etc/nginx/authdata/nodered/.htpasswd
+    ```
 
 3. Add user logins for node-red and influxdb queries. Make `USERS` be a list of login IDs.
 
    - For Node-red authentication:
 
-     ```bash
-     export USERS="tmm amy josh"
-     for USER in $USERS; do \
-      echo "Set password for "$USER; \
-      htpasswd /etc/nginx/authdata/nodered/.htpasswd $USER; \
-     done
-     ```
+       ```bash
+       export USERS="tmm amy josh"
+       for USER in $USERS; do \
+        echo "Set password for "$USER; \
+        htpasswd /etc/nginx/authdata/nodered/.htpasswd $USER; \
+       done
+       ```
 
    - For Influxdb queries:
 
-     ```bash
-     export USERS="tmm amy josh"
-     for USER in $USERS; do \
-      echo "Set password for "$USER; \
-      htpasswd /etc/nginx/authdata/influxdb/.htpasswd $USER; \
-     done
-     ```
+       ```bash
+       export USERS="tmm amy josh"
+       for USER in $USERS; do \
+        echo "Set password for "$USER; \
+        htpasswd /etc/nginx/authdata/influxdb/.htpasswd $USER; \
+       done
+       ```
 
 4. Exit Nginx's container with Control+D.
 
@@ -397,9 +419,9 @@ To access mqtt channel, user needs credentials to access it.
 
 1. Starting things up in "interactive mode" is recommended as a first step.
 
-   ```bash
-   docker-compose up
-   ```
+    ```bash
+    docker-compose up
+    ```
 
 This will show the log output from the various services. It will also be pretty clear if there are any issues.
 
@@ -476,7 +498,6 @@ my-new-database
 # ^D
 $
 ```
-
 ### Test MQTT Channels
 
 - To test the `MQTT over TCP` and `MQTT over TLS/SSL` channels user can use [mosquitto client](https://mosquitto.org/download/) tool.
@@ -551,3 +572,4 @@ $
    Full window
 
    ![mqtt_testing](assets/mqtt_web_4.png)
+

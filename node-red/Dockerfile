@@ -13,9 +13,13 @@ ENV NODE_TLS_REJECT_UNAUTHORIZED=0
 # Install required modules
 ARG node_red_install_modules
 RUN npm install ${node_red_install_modules}
+# we always want the influxdb plug-in.
+RUN npm install node-red-contrib-influxdb
+# fix any dependency issues
 RUN npm audit fix
 
-# add The Things Network connector
+# add The Things Network connector -- this must be after npm audit fix becuase
+# it uses a deprecated API.
 ARG node_red_contrib_ttn_version
 RUN npm install node-red-contrib-ttn@${node_red_contrib_ttn_version}
 

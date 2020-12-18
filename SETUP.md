@@ -11,17 +11,20 @@
 		- [Create droplet](#create-droplet)
 		- [Configure droplet](#configure-droplet)
 - [After server is set up](#after-server-is-set-up)
-	- [Create and edit the .env file](#create-and-edit-the env file)
+	- [Create and edit the .env file](#Create-and-edit-the-.env-file)
 	- [Set up the Node-RED and InfluxDB API logins](#set-up-the-node-red-and-influxdb-api-logins)
 		- [Migrating `htpasswd` from Apache to Nginx (if required)](#migrating-htpasswd-from-apache-to-nginx-if-required)
 		- [Creating new `htpasswd` files](#creating-new-htpasswd-files)
+   - [MQTT User Credentials setup](#mqtt-user-credentials-setup)
 	- [Start the server](#start-the-server)
 	- [Restart servers in the background](#restart-servers-in-the-background)
 	- [Initial testing](#initial-testing)
 	- [Set up first data source](#set-up-first-data-source)
 	- [Test Node-RED](#test-node-red)
 	- [Creating an InfluxDB database](#creating-an-influxdb-database)
-	- [MQTT User Credentials setup](#mqtt-user-credentials-setup)
+    - [Test Postfix Mail setup](#Test-Postfix-Mail-setup)
+    - [Test MQTT Channels](#Test-MQTT-Channels)
+	
 
 <!-- /TOC -->
 <!-- markdownlint-restore -->
@@ -392,6 +395,27 @@ If migrating from an older version of the dashboard that used Apache, you'll nee
 
 4. Exit Nginx's container with Control+D.
 
+#### Set up the `MQTTs` User Credentials
+
+To access mqtt channel, user needs credentials to access it.
+
+1. Log into the mqtts docker container.
+
+   ```console
+   $ docker-compose run mqtts /bin/bash
+   #
+   ```
+
+2. In the container, Create username and password using `mosquitto_passwd` command. ( option `-c` - Create a new password file. If the file already exists, it will be overwritten. so `-c` should be used for the first user creation. please avoid `-c` for the second user creation onwards. )
+
+   ```bash
+   # mosquitto_passwd -c /etc/mosquitto/credentials/passwd <user>
+   Password:
+   Reenter password:
+   ```
+
+3. Close the connection to mqtts (Ctrl+D).
+
 ### Start the server
 
 1. Starting things up in "interactive mode" is recommended as a first step.
@@ -476,26 +500,138 @@ my-new-database
 $
 ```
 
-### MQTT User Credentials setup
+### Test Postfix Mail setup
 
-To access mqtt channel, user needs credentials to access it.
+- Testing Mail setup on `Grafana`
+  1. Click on "Bell icon" and click the "Notification channels" option as shown below
 
-1. Log into the host machine
+        ![grafana_mail_testing](assets/graf-mail_test_1.png)
 
-2. Change the directory (cd) to `/opt/docker/dashboard.example.com`.
+  2. Click "Add Channel" as shown below
 
-3. log into the mqtts docker container.
+        ![grafana_mail_testing](assets/graf-mail_test_2.png)
+  
+  3. Input the required info as shown below. *Be sure to select type as `Email`*. Click `Test" button finally to send test mail.
+
+        ![grafana_mail_testing](assets/graf-mail_test_3.png)
+
+- Testing Mail setup on `Influxdb` and `Postfix`
+
+    Mail setup on `Influxdb` and `Postfix` can be tested using `mail` command, by logging into their container.
+
+    ***Influxdb***
+    1. Log into the `Influxdb` docker container
 
     ```bash
-    $ docker-compose exec mqtts /bin/bash
+    docker-compose exec influxdb bash
+
+    root@influxdbbackup:/# mail -s "Testing mail from Influxdb" cmurugan@mcci.com
+    Cc:
+    Testing1
     ```
 
-4. In the container, set the user password.
+    ***Postfix***
+
+    1. Log into the `Postfix` docker container
 
     ```bash
-    # mosquitto_passwd -c /etc/mosquitto/credentials/passwd <user>
-    Password:
-    Reenter password:
+    docker-compose exec postfix bash
+
+    root@dashboard:/# mail -s "Testing mail from Postfix" cmurugan@mcci.com
+    Cc:
+    Testing1
     ```
 
-5. Close the connection to mqtts (Ctrl+D).
+- Testing Mail setup on Node-red
+
+    Mail setup on Node-red can be tested by deploying a node-red flow on <https://dashboard.example.com/node-red/> as shown below.
+
+    ![nodered_mail_testing](assets/postfix_node_1.png)
+
+    ***Inject node's configuration***
+
+    ![nodered_mail_testing](assets/postfix_node_2.png)
+
+    here,
+  - `msg.payload` will be act as `mail body`.
+  - `msg.topic`will be act as `subject`.
+  - `msg.from` will be act as `Sender`
+
+   ***Email node's configuration***
+
+    ![nodered_mail_testing](assets/postfix_node_3.png)
+
+### Test MQTT Channels
+
+- To test the `MQTT over TCP` and `MQTT over TLS/SSL` channels user can use [mosquitto client](https://mosquitto.org/download/) tool.
+
+  - MQTT over TCP
+
+      `Subscribing` mqtt channel on topic `test`
+
+      ```bash
+      mosquitto_sub -h dashboard.example.com -t test -p 1883 -u user1 -P pwd123
+      
+      hello
+      ```
+
+      `publishing` on mqtt channel with topic `test`
+
+      ```bash
+      mosquitto_pub -h dashboard.example.com -m "hello" -t test -p 1883 -u user1 -P pwd123
+      ```
+
+  - MQTT over TLS/SSL
+
+      `Subscribing` mqtt channel on topic `test`
+
+      ```bash
+      mosquitto_sub -h dashboard.example.com -t test -p 8883 -u user1 -P pwd123 --capath /etc/ssl/certs/
+      
+      hello 
+      ```
+
+      `publishing` on mqtt channel with topic `test`
+
+      ```bash
+
+      mosquitto_pub -h dashboard.example.com -m "hello" -t test -p 8883 -u user1 -P pwd123 --capath /etc/ssl/certs/
+      ```
+
+- In order to test the "MQTT over Nginx proxy", the user can use the `mqtts web based client` [portal1](http://tools.emqx.io/) or [portal2](https://www.eclipse.org/paho/clients/js/utility/).
+
+   *Using [portal1](http://tools.emqx.io/)*
+
+   Connection Details
+
+   ![mqtt_testing](assets/mqtt_nginx_1.png)
+
+   `Subscribing` mqtt channel on topic `test`
+
+   ![mqtt_testing](assets/mqtt_nginx_2.png)
+
+   `publishing` on mqtt channel with topic `test`
+
+   ![mqtt_testing](assets/mqtt_nginx_3.png)
+
+   Full window
+
+   ![mqtt_testing](assets/mqtt_nginx_4.png)
+
+- To test the `MQTT over WebSockets with TLS/SSL`, the user can use the `mqtts web based client` [Portal](http://www.hivemq.com/demos/websocket-client/).
+
+   Connection Details
+
+   ![mqtt_testing](assets/mqtt_web_1.png)
+
+  `Subscribing` mqtt channel on topic `test`
+
+   ![mqtt_testing](assets/mqtt_web_2.png)
+
+   `publishing` on mqtt channel with topic `test`
+
+   ![mqtt_testing](assets/mqtt_web_3.png)
+
+   Full window
+
+   ![mqtt_testing](assets/mqtt_web_4.png)

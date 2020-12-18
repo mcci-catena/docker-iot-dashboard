@@ -75,11 +75,12 @@
 #	Set the grafana log level (e.g. debug)
 #
 # IOT_DASHBOARD_GRAFANA_SMTP_ENABLED
-#	Set to true to enable SMTP.
+#	Set to false to disable SMTP.
+# Defaults to true
 #
 # IOT_DASHBOARD_GRAFANA_SMTP_SKIP_VERIFY
-#	Set to true to disable SSL verification.
-#	Defaults to false.
+#	Set to false to enable SSL verification.
+#	Defaults to true.
 #
 # IOT_DASHBOARD_GRAFANA_INSTALL_PLUGINS
 #	A list of grafana plugins to install. Use (comma and space) ", " to delimit plugins.
@@ -106,6 +107,13 @@
 #
 # IOT_DASHBOARD_MAIL_RELAY_IP
 #       the mail relay machine, assuming that the real mailer is upstream from us.
+#
+# IOT_DASHBOARD_MAIL_SMTP_LOGIN
+#       the mail relay login: name@example.com -- it will come from your upstream
+#       provider.
+#
+# IOT_DASHBOARD_MAIL_SMTP_PASSWORD
+#       the mail relay password
 #
 # IOT_DASHBOARD_PORT_HTTP
 #	The port to listen to for HTTP. Primarily for test purposes. Defaults to
@@ -219,7 +227,7 @@ services:
         distrib_id: "${IOT_DASHBOARD_OS_DISTRIB_ID:-ubuntu}"
         distrib_codename: "${IOT_DASHBOARD_OS_DISTRIB_CODENAME:-xenial}"
         hostname: "${IOT_DASHBOARD_INFLUXDB_MAIL_HOST_NAME:-.}"
-        relay_ip: "${IOT_DASHBOARD_MAIL_RELAY_IP:-.}"
+        relay_ip: "postfix:25"
         domain: "${IOT_DASHBOARD_MAIL_DOMAIN:-.}"
     hostname: "${IOT_DASHBOARD_INFLUXDB_MAIL_HOST_NAME:-.}"
     expose:
@@ -251,8 +259,8 @@ services:
       GF_SECURITY_ADMIN_PASSWORD: "${IOT_DASHBOARD_GRAFANA_ADMIN_PASSWORD:-!notset}"
       GF_SERVER_DOMAIN: "${IOT_DASHBOARD_NGINX_FQDN}"
       GF_SERVER_ROOT_URL: "https://%(domain)s/grafana/"
-      GF_SMTP_ENABLED: "${IOT_DASHBOARD_GRAFANA_SMTP_ENABLED:-false}"
-      GF_SMTP_SKIP_VERIFY: "${IOT_DASHBOARD_GRAFANA_SMTP_SKIP_VERIFY:-false}"
+      GF_SMTP_ENABLED: "${IOT_DASHBOARD_GRAFANA_SMTP_ENABLED:-true}"
+      GF_SMTP_SKIP_VERIFY: "${IOT_DASHBOARD_GRAFANA_SMTP_SKIP_VERIFY:-true}"
       GF_SMTP_HOST: "postfix:25"
       GF_SMTP_FROM_ADDRESS: "${IOT_DASHBOARD_GRAFANA_SMTP_FROM_ADDRESS:-grafana@localhost}"
       GF_SMTP_FROM_NAME: "${IOT_DASHBOARD_GRAFANA_PROJECT_NAME:-Default} grafana admin"
@@ -274,6 +282,8 @@ services:
         hostname: "${IOT_DASHBOARD_MAIL_HOST_NAME:-.}"
         relay_ip: "${IOT_DASHBOARD_MAIL_RELAY_IP:-.}"
         domain: "${IOT_DASHBOARD_MAIL_DOMAIN:-.}"
+        smtp_login: "${IOT_DASHBOARD_MAIL_SMTP_LOGIN:-.}"
+        smtp_password: "${IOT_DASHBOARD_MAIL_SMTP_PASSWORD:-.}"
     expose:
       - "25"
     hostname: "${IOT_DASHBOARD_MAIL_HOST_NAME:-.}"

@@ -30,19 +30,12 @@ ARG domain
 
 # Install Postfix
 run echo "postfix postfix/mailname string $host_name" | debconf-set-selections
-run echo "postfix postfix/main_mailer_type string 'Internet Site'" | debconf-set-selections
+run echo "postfix postfix/main_mailer_type select Satellite system" | debconf-set-selections
 run apt-get update && apt-get install -y postfix
 run postconf -e relayhost=$relay_ip
-run postconf -e myhostname=$hostname
-run postconf -e mydomain=$domain
-run postconf -e masquerade_domains=$domain
-run postconf -e mydestination="\$myhostname, $hostname, localhost, localhost.localdomain, localhost"
-run postconf -e mynetworks="127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128 172.0.0.0/8"
-run postconf -e smtpd_use_tls=no
-run echo $domain > /etc/mailname
 
 # This will replace local mail addresses by valid Internet addresses when mail leaves the machine via SMTP.
-run echo "root@${domain} influxdbbackup@${domain}" > /etc/postfix/generic
+run echo "root@${hostname} influxdbbackup@${domain}" > /etc/postfix/generic
 run postconf -e smtp_generic_maps=hash:/etc/postfix/generic
 run postmap /etc/postfix/generic
 

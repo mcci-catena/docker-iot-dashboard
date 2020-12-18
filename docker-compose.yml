@@ -107,6 +107,13 @@
 # IOT_DASHBOARD_MAIL_RELAY_IP
 #       the mail relay machine, assuming that the real mailer is upstream from us.
 #
+# IOT_DASHBOARD_MAIL_SMTP_LOGIN
+#       the mail relay login: name@example.com -- it will come from your upstream
+#       provider.
+#
+# IOT_DASHBOARD_MAIL_SMTP_PASSWORD
+#       the mail relay password
+#
 # IOT_DASHBOARD_PORT_HTTP
 #	The port to listen to for HTTP. Primarily for test purposes. Defaults to
 #	80.

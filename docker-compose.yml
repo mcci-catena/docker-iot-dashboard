@@ -202,7 +202,7 @@ services:
       args:
         ssl_cert: "${IOT_DASHBOARD_NGINX_FQDN:-.}"
     ports:
-      - "${IOT_DASHBOARD_PORT_MQTT_TCP:-1883}:1883"
+#      - "${IOT_DASHBOARD_PORT_MQTT_TCP:-1883}:1883"   #-----> Connection on this TCP port is insecure. can be added if needed
       - "${IOT_DASHBOARD_PORT_MQTT_SSL:-8883}:8883"
       - "${IOT_DASHBOARD_PORT_MQTT_WSS:-8083}:8083"
     volumes:

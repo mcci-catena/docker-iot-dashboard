@@ -75,11 +75,12 @@
 #	Set the grafana log level (e.g. debug)
 #
 # IOT_DASHBOARD_GRAFANA_SMTP_ENABLED
-#	Set to true to enable SMTP.
+#	Set to false to disable SMTP.
+# Defaults to true
 #
 # IOT_DASHBOARD_GRAFANA_SMTP_SKIP_VERIFY
-#	Set to true to disable SSL verification.
-#	Defaults to false.
+#	Set to false to enable SSL verification.
+#	Defaults to true.
 #
 # IOT_DASHBOARD_GRAFANA_INSTALL_PLUGINS
 #	A list of grafana plugins to install. Use (comma and space) ", " to delimit plugins.

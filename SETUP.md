@@ -179,7 +179,7 @@ The following instructions are essentially independent of the cloud provider and
 First, create a .env file. The following comand sequence can be cut and paste to generate an empty template:
 
 ```bash
-sed -ne '/^#+++/,/^#---/p' docker-compose.yml | sed -e '/^#[^ \t]/d' -e '/^# TTN/s/$/=/' > .env
+sed -ne '/^#+++/,/^#---/p' docker-compose.yml | sed -e '/^#[^ \t]/d' -e '/^# IOT/s/$/=/' > .env
 ```
 
 Then, edit the .env file as follows:

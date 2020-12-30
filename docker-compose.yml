@@ -126,7 +126,7 @@
 # IOT_DASHBOARD_TIMEZONE
 #	The timezone to use. Defaults to GMT.
 #
-# IOT_DASHBOARD_NODE_RED_VERSION 
+# IOT_DASHBOARD_NODE_RED_VERSION
 #       To Install specific version of node-red version. Defaults to latest.
 #
 # IOT_DASHBOARD_NODE_RED_INSTALL_MODULES
@@ -138,7 +138,7 @@
 # IOT_DASHBOARD_PORT_MQTT_SSL
 #       Accessing mqtt channel over TLS/SSL. Defaults to 8883.
 #
-# IOT_DASHBOARD_PORT_MQTT_WSS 
+# IOT_DASHBOARD_PORT_MQTT_WSS
 #        Accessing mqtt channel over WSS. Defaults to 8083.
 #
 # IOT_DASHBOARD_INFLUXDB_MAIL_HOST_NAME
@@ -185,7 +185,7 @@ services:
 
   node-red:
     restart: unless-stopped
-    build: 
+    build:
       context: ./node-red
       dockerfile: Dockerfile
       args:
@@ -201,10 +201,10 @@ services:
     links:
       - influxdb
       - postfix
-  
+
   mqtts:
     restart: unless-stopped
-    build:   
+    build:
       context: ./mqtts
       dockerfile: Dockerfile
       args:
@@ -220,7 +220,7 @@ services:
 
   influxdb:
     restart: unless-stopped
-    build:   
+    build:
       context: ./influxdb
       dockerfile: Dockerfile
       args:
@@ -234,7 +234,7 @@ services:
       - "8086"
     volumes:
       - "${IOT_DASHBOARD_DATA}influxdb:/var/lib/influxdb"
-     # Dircectory for influxdb metadata and database backup inside "./data" 
+     # Dircectory for influxdb metadata and database backup inside "./data"
       - "${IOT_DASHBOARD_DATA}influx-backup:/var/lib/influxdb-backup"
       - "${IOT_DASHBOARD_DATA}influxdb-S3-bucket:/var/lib/influxdb-S3-bucket"
     environment:

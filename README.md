@@ -222,4 +222,30 @@ Please refer to [`SETUP.md`](./SETUP.md) for detailed set-up instructions.
 
 Please refer to [`influxdb/README.md`](./influxdb/README.md).
 
+## Release History
+
+- HEAD includes the following changes
+
+  - Influxdb:
+    1. Backup script is updated for backing up online (live) databases and to push the backup to Amazon bucket.
+    2. Crontab was set for automatic backup.
+    3. supports sending email for backup alerting.
+  - Nginx:
+    1. The Apache setup is migrated to Nginx.
+    2. Proxy-ing the services like ( influxdb, grafana, node-red, mqtts over proxy) was updated.
+  - Node-red:
+    1. supports data flowing via MQTT channel and HTTPS Endpoint
+    2. supports sending email.
+
+  - MQTTS:
+    1. supports different connections as below:
+        1. Mqtt Over Nginx proxy.
+        2. Mqtt over TCP( disabled by default )
+        3. Mqtt over TLS/SSL
+        4. Mqtt over Websockets(WSS)
+
+  - Postfix:
+    1. Configured to Relay mails via External SMTP Auth( Tested with Gmail and Mailgun ).	
+    2. Mails generated from Containers like Grafana,Influxdb and Node-red will be relayed through Postfix container.
+
 ## Meta

@@ -1,24 +1,30 @@
-# Set-by-step Setup Instructions
-<!-- markdownlint-disable MD034 -->
+# Step-by-step Setup Instructions
+
+<!-- markdownlint-disable MD033 -->
 <!-- markdownlint-capture -->
 <!-- markdownlint-disable -->
 <!-- TOC depthFrom:2 updateOnSave:true -->
 
 - [Notes](#notes)
-- [Cloud-Provider Setup](#cloud-provider-setup)
+- [Cloud-Provider-Specific Setup](#cloud-provider-specific-setup)
 	- [On Digital Ocean](#on-digital-ocean)
 		- [Create droplet](#create-droplet)
 		- [Configure droplet](#configure-droplet)
 - [After server is set up](#after-server-is-set-up)
-	- [Create and edit the `.env` file](#create-and-edit-the-env-file)
+	- [Create and edit the .env file](#Create-and-edit-the-.env-file)
 	- [Set up the Node-RED and InfluxDB API logins](#set-up-the-node-red-and-influxdb-api-logins)
-- [Start the server](#start-the-server)
+		- [Migrating `htpasswd` from Apache to Nginx (if required)](#migrating-htpasswd-from-apache-to-nginx-if-required)
+		- [Creating new `htpasswd` files](#creating-new-htpasswd-files)
+   - [MQTT User Credentials setup](#mqtt-user-credentials-setup)
+	- [Start the server](#start-the-server)
 	- [Restart servers in the background](#restart-servers-in-the-background)
 	- [Initial testing](#initial-testing)
-		- [Set up first data source](#set-up-first-data-source)
+	- [Set up first data source](#set-up-first-data-source)
 	- [Test Node-RED](#test-node-red)
 	- [Creating an InfluxDB database](#creating-an-influxdb-database)
-- [Add Apache log in for NodeRed or query after the fact](#add-apache-log-in-for-nodered-or-query-after-the-fact)
+    - [Test Postfix Mail setup](#Test-Postfix-Mail-setup)
+    - [Test MQTT Channels](#Test-MQTT-Channels)
+	
 
 <!-- /TOC -->
 <!-- markdownlint-restore -->
@@ -26,45 +32,44 @@
 
 ## Notes
 
-Throughout the following, we assume you're creating a dashboard server named `dashboard.example.com`. Change this to whatever you like. For convenience, we name other things consistently:
+Throughout this document, we use `dashboard.example.com` as the DNS name for the server. You will, of course, change this to something more suitable. When you do this, other things are to be named consistently:
 
-`/opt/docker/dashboard.example.com` is the directory (on the host system) containing the docker files.
+- `/opt/docker/dashboard.example.com` is the directory (on the host system) containing the docker files.
 
-`/var/opt/docker/dashboard.example.com` is the directory (on the host system) containing persistent data.
+- `/var/opt/docker/dashboard.example.com` is the directory (on the host system) containing persistent data.
 
-We assume that you're familiar with Node-RED.
+Node-RED familiarity is assumed.
 
-## Cloud-Provider Setup
+## Cloud-Provider-Specific Setup
 
-First you have to choose a cloud provider and install Docker and Docker-Compose. That's very much provider dependent.
+As an initial step, a cloud provider is required and Docker and Docker-Compose must be installed. The procedure is provider dependent.
 
 ### On Digital Ocean
 
-_Last Update: 2019-07-31_
-
 #### Create droplet
 
-1. Log in at [Digital Ocean](https://cloud.digitalocean.com/)
+1. Log in to [Digital Ocean](https://cloud.digitalocean.com/)
 
-2. Create a new project (if needed) to hold your new droplet.
+2. Create a new project (if needed) to hold the new droplet.
 
-3. Discover > Marketplace, search for `Docker`
+3. Discover > Marketplace, search for `Docker`
 
-4. You should come to this page: https://cloud.digitalocean.com/marketplace/5ba19751fc53b8179c7a0071?i=ec3581
+4. This page will be redirected:
+    <https://cloud.digitalocean.com/marketplace/5ba19751fc53b8179c7a0071?i=ec3581>
 
 5. Press "Create"
 
 6. Select the standard 8G GB Starter that is selected.
 
-7. Choose a datacenter; I chose New York.
+7. Choose a datacenter; *New York is selected in the example created for this document.*
 
 8. Additional options: none.
 
-9. Add your SSH keys.
+9. Add the SSH keys.
 
-10. Choose a host name, e.g. `passivehouse-ecovillage`.
+10. Choose a host name, *e.g. `passivehouse-ecovillage`.*
 
-11. Select your project.
+11. Select the project.
 
 12. Press "Create"
 
@@ -76,19 +81,19 @@ _Last Update: 2019-07-31_
 
 3. Remove the motd (message of the day).
 
-4. Add user:
+4. Add user(s). Change `username` as needed.
 
    ```bash
-   adduser username
-   adduser username admin
-   adduser username docker
-   adduser username plugdev
-   adduser username staff
+    adduser username
+    adduser username admin
+    adduser username docker
+    adduser username plugdev
+    adduser username staff
    ```
 
 5. Disable root login via SSH or via password
 
-6. Optional: enable `username` to sudo without password.
+6. Optional: enable `username` to sudo without password.
 
    ```bash
    sudo VISUAL=vi visudo
@@ -96,18 +101,18 @@ _Last Update: 2019-07-31_
 
    Add the following line at the bottom:
 
-   ```sudoers
+   ```bash
    username ALL=(ALL) NOPASSWD: ALL
    ```
 
-7. Test that you can become `username`:
+7. Test that you can become `username`:
 
    ```console
-   # sudo -i username
+   # sudo su - username
    username@host-name:~$
    ```
 
-8. Drop back to root, and then copy the authorized_keys file to `~username`:
+8. Drop back to root, and then copy the authorized_keys file to   `~username`:
 
    ```bash
    mkdir -m 700 ~username/.ssh
@@ -115,9 +120,9 @@ _Last Update: 2019-07-31_
    chown -R username.username ~username/.ssh/authorized_keys
    ```
 
-9. See if you can ssh in.
+9. Confirm that the user can SSH in.
 
-10. Optional: set up `byobu` by default:
+10. Optional: set up byobu by default. This allows a session to continue even if your connection drops.
 
     ```bash
     byobu
@@ -130,11 +135,11 @@ _Last Update: 2019-07-31_
     vi /etc/hosts
     ```
 
-    Change the line `127.0.1.1 name name` to `127.0.0.1 myhost.myfq.dn myhost`.
+    Change the line `127.0.1.1 name name` to `127.0.0.1 myhost.myfq.dn myhost`.
 
-12. If needed, use `hostnamectl` to set the static hostname to match `myhost`.
+12. If needed, use `hostnamectl` to set the static hostname to match `myhost`.
 
-13. set up Git:
+13. Set up git. This makes sure you have the latest version.
 
     ```bash
     sudo add-apt-repository ppa:git-core/ppa
@@ -142,251 +147,323 @@ _Last Update: 2019-07-31_
     sudo apt install git
     ```
 
-14. We'll put the docker files at `/opt/docker/docker-ttn-dashboard`, setting up as follows:
+14. We'll put the docker files at `/opt/docker/docker-iot-dashboard`, setting up as follows:
 
-   ```bash
-   sudo mkdir /opt/docker
-   cd /opt/docker
-   sudo chgrp admin .
-   sudo chmod g+w .
-   ```
+    ```bash
+    sudo mkdir /opt/docker
+    cd /opt/docker
+    sudo chgrp admin .
+    sudo chmod g+w .
+    ```
 
 ## After server is set up
 
-The following instructions are essentially independent of the cloud provider and the underlying distribution. But we've only tested on Ubuntu and (in 2017) on CentOS.
+The following instructions are essentially independent of the cloud provider and the underlying distribution. But this was only tested on Ubuntu and (in 2019) on CentOS.
 
 1. Clone this repository.
 
-   ```bash
-   git clone git@github.com:mcci-catena/docker-ttn-dashboard.git /opt/docker/dashboard.example.com
-   ```
+    ```bash
+    git clone git@github.com:mcci-catena/docker-iot-dashboard.git /opt/docker/dashboard.example.com
+    ```
 
 2. Move to the directory populated in step 1.
 
-   ```bash
-   cd /opt/docker/dashboard.example.com
-   ```
+    ```bash
+    cd /opt/docker/dashboard.example.com
+    ```
 
-3. Get a fully-qualified domain name (FQDN) for your server, for which you control DNS. Point it to your server. Make sure it works, using "`dig FQDN`" -- you should get back an `A` record pointing to your server's IP address.
+3. Get a fully-qualified domain name (FQDN) for the server, for which the DNS can be controlled. Point it to the server. Make sure it works, using "`dig FQDN`" -- get back an `A` record pointing to your server's IP address.
 
-### Create and edit the `.env` file
+### Create and edit the .env file
 
-1. Create a `.env` file. To get a template:
+First, create a .env file. The following comand sequence can be cut and paste to generate an empty template:
 
-   ```bash
-   sed -ne '/^#+++/,/^#---/p' docker-compose.yml | sed -e '/^#[^ \t]/d' -e '/^# TTN/s/$/=/' > .env
-   ```
+```bash
+sed -ne '/^#+++/,/^#---/p' docker-compose.yml | sed -e '/^#[^ \t]/d' -e '/^# IOT/s/$/=/' > .env
+```
 
-2. Edit the `.env` file as follows:
+Then, edit the .env file as follows:
 
-   1. `TTN_DASHBOARD_APACHE_FQDN=myhost.example.com`
-   This sets the name of your resulting server. It tells Apache what it's serving out.  It must be a fully-qualified domain name (FQDN) that resolves to the IP address of the container host.
+1. `IOT_DASHBOARD_NGINX_FQDN=myhost.example.com`
 
-   2. `TTN_DASHBOARD_CERTBOT_FQDN=myhost.example.com`
-   This should be the same as `TTN_DASHBOARD_APACHE_FQDN`.
+    This sets the name of the resulting server. It tells Nginx what it's serving out. It must be a fully-qualified domain name (FQDN) that resolves to the IP address of the container host.
 
-   3. `TTN_DASHBOARD_CERTBOT_EMAIL=someone@example.com`
-   This sets the contact email for Let's Encrypt. The script automatically accepts the Let's Encrypt terms of service, and this indicates who is doing the accepting.
+2. `IOT_DASHBOARD_CERTBOT_FQDN=myhost.example.com`
 
-   4. `TTN_DASHBOARD_DATA=/full/path/to/directory/`
-   The trailing slash is required!
-   This will put all the data file for this instance as subdirectories of the specified path. If you leave this undefined, `docker-compose` will print error messages and quit.
+    This should be the same as `IOT_DASHBOARD_NGINX_FQDN`.
 
-   5. `TTN_DASHBOARD_GRAFANA_ADMIN_PASSWORD=SomethingVerySecretIndeed`
-   This sets the *initial* password for the Grafana `admin` login. You should change this via the Grafana UI after booting the server.
+3. `IOT_DASHBOARD_CERTBOT_EMAIL=someone@example.com`
 
-   6. `TTN_DASHBOARD_GRAFANA_SMTP_FROM_ADDRESS`
-   This sets the Grafana originating mail address.
+    This sets the contact email for Let's Encrypt. The script automatically accepts the Let's Encrypt terms of service, and this indicates who is doing the accepting.
 
-   7. `TTN_DASHBOARD_GRAFANA_INSTALL_PLUGINS`
-   This sets a list of Grafana plugins to install.
+4. `IOT_DASHBOARD_DATA=/full/path/to/directory/`
 
-   8. `TTN_DASHBOARD_INFLUXDB_INITIAL_DATABASE_NAME=demo`
-   Change "demo" to the desired name of the initial database that will be created in InfluxDB.
+    The trailing slash is required! This will put all the data files for this instance as subdirectories of the specified path. If this is undefined, `docker-compose` will print error messages and quit.
 
-   9. `TTN_DASHBOARD_MAIL_HOST_NAME=myhost.example.com`
-   This sets the name of your mail server. Used by Postfix.
+5. `IOT_DASHBOARD_GRAFANA_ADMIN_PASSWORD=SomethingVerySecretIndeed`
 
-   10. `TTN_DASHBOARD_MAIL_DOMAIN=example.com`
-   This sets the domain name of your mail server. Used by Postfix.
+    This needs to be confidential. Indeed this sets the *initial* password for the Grafana admin login.This should be changed via the Grafana UI after booting the server.
 
-   11. `TTN_DASHBOARD_NODERED_INSTALL_PLUGINS=node-red-node-example1 node-red-node-example2`
-   This installs one or more Node-RED plug-ins.
+6. `IOT_DASHBOARD_GRAFANA_SMTP_FROM_ADDRESS`
 
-   11. `TTN_DASHBOARD_TIMEZONE=Europe/Paris`
-   If not defined, the default timezone will be GMT.
+    This sets the Grafana originating mail address.
 
-Your `.env` file should look like this:
+7. `IOT_DASHBOARD_GRAFANA_INSTALL_PLUGINS=plugin plugin2`
+
+    This sets a list of Grafana plugins to install.
+
+8. `IOT_DASHBOARD_INFLUXDB_INITIAL_DATABASE_NAME=demo`
+
+    Change "demo" to the desired name of the initial database that will be created in InfluxDB.
+
+9. `IOT_DASHBOARD_MAIL_HOST_NAME=myhost.example.com`
+
+    This sets the name of your mail server. Used by Postfix.
+
+10. `IOT_DASHBOARD_MAIL_DOMAIN=example.com`
+
+    This sets the domain name of your mail server. Used by Postfix.
+
+11. `IOT_DASHBOARD_NODERED_INSTALL_PLUGINS=node-red-node-example1 node-red-node-example2`
+
+    This installs one or more Node-RED plug-ins.
+
+12. `IOT_DASHBOARD_TIMEZONE=Europe/Paris`
+
+    If not defined, the default time zone will be GMT.
+
+13. `IOT_DASHBOARD_INFLUXDB_MAIL_HOST_NAME=myhost.example.com`
+
+    This sets the name of your mail server for backup mail. Used by Postfix.
+
+14. `IOT_DASHBOARD_INFLUXDB_BACKUP_EMAIL=a@example.com b@example.com`
+
+    Backup mail will be sent to the mentioned MAIL IDs.
+
+The resulting `.env` file should look like this:
 
 ```bash
 ### env file for configuring dashboard.example.com
-TTN_DASHBOARD_APACHE_FQDN=dashboard.example.com
-#       The fully-qualified domain name to be served by Apache.
-#
-# TTN_DASHBOARD_AWS_ACCESS_KEY_ID=
-# The access key for AWS for backups.
-#
-# TTN_DASHBOARD_AWS_DEFAULT_REGION=
-# The AWS default region.
-#
-# TTN_DASHBOARD_AWS_S3_BUCKET_INFLUXDB=
-# The S3 bucket to use for uploading the influxdb backup data.
-#
-# TTN_DASHBOARD_AWS_SECRET_ACCESS_KEY=
-# The AWS API secret key for backing up influxdb data.
-#
-TTN_DASHBOARD_CERTBOT_EMAIL=somebody@example.com
+IOT_DASHBOARD_NGINX_FQDN=dashboard.example.com
+#       The fully-qualified domain name to be served by NGINX.
+# IOT_DASHBOARD_AWS_ACCESS_KEY_ID
+#       The access key for AWS for backups.
+# IOT_DASHBOARD_AWS_DEFAULT_REGION
+#       The AWS default region.
+# IOT_DASHBOARD_AWS_S3_BUCKET_INFLUXDB
+#       The S3 bucket to use for uploading the influxdb backup data.
+# IOT_DASHBOARD_AWS_SECRET_ACCESS_KEY
+#       The AWS API secret key for backing up influxdb data.
+IOT_DASHBOARD_CERTBOT_EMAIL=somebody@example.com
 #       The email address to be used for registering with Let's Encrypt.
-#
-TTN_DASHBOARD_CERTBOT_FQDN=dashboard.example.com
+IOT_DASHBOARD_CERTBOT_FQDN=dashboard.example.com
 #       The domain(s) to be used by certbot when registering with Let's Encrypt.
-#
-TTN_DASHBOARD_DATA=/var/opt/docker/dashboard.example.com/
-#       The path to the data directory. This must end with a '/', and must eithe
-r
+IOT_DASHBOARD_DATA=/var/opt/docker/dashboard.example.com/
+#       The path to the data directory. This must end with a '/', and must either
 #       be absolute or must begin with './'. (If not, you'll get parse errors.)
-#
-TTN_DASHBOARD_GRAFANA_ADMIN_PASSWORD=...................
+IOT_DASHBOARD_GRAFANA_ADMIN_PASSWORD=...................
 #       The password to be used for the admin user on first login. This is ignored
 #       after the Grafana database has been built.
-#
-TTN_DASHBOARD_GRAFANA_PROJECT_NAME=My Dashboard
+IOT_DASHBOARD_GRAFANA_PROJECT_NAME=My Dashboard
 #       The project name to be used for the emails from the administrator.
-#
-# TTN_DASHBOARD_GRAFANA_LOG_MODE=
+# IOT_DASHBOARD_GRAFANA_LOG_MODE
 #       Set the grafana log mode.
-#
-# TTN_DASHBOARD_GRAFANA_LOG_LEVEL=
+# IOT_DASHBOARD_GRAFANA_LOG_LEVEL
 #       Set the grafana log level (e.g. debug)
-#
-TTN_DASHBOARD_GRAFANA_SMTP_ENABLED=true
+IOT_DASHBOARD_GRAFANA_SMTP_ENABLED=true
 #       Set to true to enable SMTP.
-#
-# TTN_DASHBOARD_GRAFANA_SMTP_SKIP_VERIFY=
+IOT_DASHBOARD_GRAFANA_SMTP_SKIP_VERIFY=true
 #       Set to true to disable SSL verification.
 #       Defaults to false.
-#
-# TTN_DASHBOARD_GRAFANA_INSTALL_PLUGINS=
-#       A list of grafana plugins to install.
-#
-TTN_DASHBOARD_GRAFANA_SMTP_FROM_ADDRESS=grafana-admin@dashboard.example.com
-# The "from" address for Grafana emails.
-#
-# TTN_DASHBOARD_GRAFANA_USERS_ALLOW_SIGN_UP=
-#       Set to true to allow users to sign-up to get access to the dashboard.
-#
-TTN_DASHBOARD_INFLUXDB_ADMIN_PASSWORD=jadb4a4WH5za7wvp
+IOT_DASHBOARD_GRAFANA_INSTALL_PLUGINS=plugins1, plugins2
+#       A list of grafana plugins to install. Use (comma and space) ", " to delimit plugins.
+IOT_DASHBOARD_GRAFANA_SMTP_FROM_ADDRESS=grafana-admin@dashboard.example.com
+#       The "from" address for Grafana emails.
+IOT_DASHBOARD_GRAFANA_USERS_ALLOW_SIGN_UP=true
+#       Set to true to allow users to sign up.
+IOT_DASHBOARD_INFLUXDB_ADMIN_PASSWORD=jadb4a4WH5za7wvp
 #       The password to be used for the admin user by influxdb. Again, this is
 #       ignored after the influxdb database has been built.
-#
-TTN_DASHBOARD_INFLUXDB_INITIAL_DATABASE_NAME=mydatabase
+IOT_DASHBOARD_INFLUXDB_INITIAL_DATABASE_NAME=mydatabase
 #       The inital database to be created on first launch of influxdb. Ignored
 #       after influxdb has been launched.
-#
-TTN_DASHBOARD_MAIL_DOMAIN=example.com
-# the postfix mail domain.
-#
-TTN_DASHBOARD_MAIL_HOST_NAME=dashboard.example.com
-# the external FQDN for the mail host.
-#
-# TTN_DASHBOARD_MAIL_RELAY_IP=
-# the mail relay machine, assuming that the real mailer is upstream from us.
-#
-TTN_DASHBOARD_NODERED_INSTALL_PLUGINS=node-red-node-example1 nodered-node-example2
-#	Additional plugins to be installed for Node-RED.
-#
-# TTN_DASHBOARD_PORT_HTTP=
+IOT_DASHBOARD_MAIL_DOMAIN=example.com
+#       the postfix mail domain.
+IOT_DASHBOARD_MAIL_HOST_NAME=dashboard.example.com
+#       the external FQDN for the mail host.
+IOT_DASHBOARD_MAIL_RELAY_IP=<IP/FQDN>
+#       the mail relay machine, assuming that the real mailer is upstream from us.
+# IOT_DASHBOARD_PORT_HTTP
 #       The port to listen to for HTTP. Primarily for test purposes. Defaults to
 #       80.
-#
-# TTN_DASHBOARD_PORT_HTTPS=
+# IOT_DASHBOARD_PORT_HTTPS
 #       The port to listen to for HTTPS. Primarily for test purposes. Defaults to
 #       443.
-#
-# TTN_DASHBOARD_TIMEZONE=
+# IOT_DASHBOARD_TIMEZONE
 #       The timezone to use. Defaults to GMT.
+# IOT_DASHBOARD_NODE_RED_VERSION
+#       To Install specific version of node-red version. Defaults to latest.
+IOT_DASHBOARD_NODE_RED_INSTALL_MODULES=node-red-node-example1 nodered-node-example2
+#       Install the required node-red modules. use "space" to delimit the modules.
+# IOT_DASHBOARD_PORT_MQTT_TCP
+#       Accessing mqtt channel over TCP. Defaults to 1883.
+# IOT_DASHBOARD_PORT_MQTT_SSL
+#       Accessing mqtt channel over TLS/SSL. Defaults to 8883.
+# IOT_DASHBOARD_PORT_MQTT_WSS
+#        Accessing mqtt channel over WSS. Defaults to 8083.
+IOT_DASHBOARD_INFLUXDB_MAIL_HOST_NAME=influxdbbackup.example.com
+#       the external FQDN for the influxdb host
+IOT_DASHBOARD_INFLUXDB_BACKUP_EMAIL=somebody1@example.com somebody2@example.com
+#       Backup mail will be sent to the mentioned MAIL IDs. Use "space" to delimit the MAIL IDs.
 ```
 
 ### Set up the Node-RED and InfluxDB API logins
 
-1. Prepare everything:
+Run the following commands.
+
+```bash
+docker-compose pull
+docker-compose build
+```
+
+If there are any errors, they need to be fixed before going on.
+
+#### Migrating `htpasswd` from Apache to Nginx (if required)
+
+If migrating from an older version of the dashboard that used Apache, you'll need to migrate the `htpasswd` file.
+
+- Copy [`htpasswd_migration.sh`](./htpasswd_migration.sh) into your local directory (on the host system) containing the docker files.
+
+- Run the script as below.
 
     ```bash
-    docker-compose pull
-    docker-compose build
-    ````
+    chmod +x htpasswd_migration.sh
+    ./htpasswd_migration.sh
+    ```
 
-   If there are any errors, fix them before going on.
+- This script creates one `htpasswd` for each of the controlled services, and then copies them(`node-red_htpasswd`, `query_htpasswd`) to appropriate files as below.
 
-2. Use `docker-compose run apache /bin/bash` to launch a shell in the Apache context.
+  - For Node-red:
+    `${IOT_DASHBOARD_DATA}docker-nginx/authdata/nodered/.htpasswd`
 
-   - If this fails with the message, `ERROR: Couldn't connect to Docker daemon at http+docker://localunixsocket - is it running?`, then probably your user ID is not in the `docker` group. To fix this, `sudo adduser MYUSER docker`, where "MYUSER" is your login ID. Then (**very important**) log out and log back in.
+  - For Infludb Queries:
+    `${IOT_DASHBOARD_DATA}docker-nginx/authdata/influxdb/.htpasswd`
 
-3. Change ownership of Apache's `/etc/apache2/authdata` to user `www-data`.
+- If you are migrating older `htpasswd` files, please skip steps `[1-4]` to `htpasswd` below.
 
-   ```bash
-   chown www-data /etc/apache2/authdata
+#### Creating new `htpasswd` files
+
+1. Log into the Nginx docker container.
+
+    ```console
+    $ docker-compose run nginx /bin/bash
+    #
+    ```
+
+   If this fails with the message, `ERROR: Couldn't connect to Docker daemon at http+docker://localunixsocket - is it running?`, then probably the user ID is not in the `docker` group. To fix this, `sudo adduser MYUSER docker`, where "MYUSER" is the login ID. Then (**very important**) log out and log back in.
+
+2. Create `.htpasswd` files for node-red and influxdb queries authentication.
+
+    ```bash
+    touch /etc/nginx/authdata/influxdb/.htpasswd
+    touch /etc/nginx/authdata/nodered/.htpasswd
+    chown www-data /etc/nginx/authdata/influxdb/.htpasswd
+    chown www-data /etc/nginx/authdata/nodered/.htpasswd
+    ```
+
+3. Add user logins for node-red and influxdb queries. Make `USERS` be a list of login IDs.
+
+   - For Node-red authentication:
+
+       ```bash
+       export USERS="tmm amy josh"
+       for USER in $USERS; do \
+        echo "Set password for "$USER; \
+        htpasswd /etc/nginx/authdata/nodered/.htpasswd $USER; \
+       done
+       ```
+
+   - For Influxdb queries:
+
+       ```bash
+       export USERS="tmm amy josh"
+       for USER in $USERS; do \
+        echo "Set password for "$USER; \
+        htpasswd /etc/nginx/authdata/influxdb/.htpasswd $USER; \
+       done
+       ```
+
+4. Exit Nginx's container with Control+D.
+
+#### Set up the `MQTTs` User Credentials
+
+To access mqtt channel, user needs credentials to access it.
+
+1. Log into the mqtts docker container.
+
+   ```console
+   $ docker-compose run mqtts /bin/bash
+   #
    ```
 
-4. Add Apache's `/etc/apache2/authdata/.htpasswd`.
+2. In the container, Create username and password using `mosquitto_passwd` command. ( option `-c` - Create a new password file. If the file already exists, it will be overwritten. so `-c` should be used for the first user creation. please avoid `-c` for the second user creation onwards. )
 
    ```bash
-   touch /etc/apache2/authdata/.htpasswd
-   chown www-data /etc/apache2/authdata/.htpasswd
+   # mosquitto_passwd -c /etc/mosquitto/credentials/passwd <user>
+   Password:
+   Reenter password:
    ```
 
-5. Add user logins for node-red and influxdb queries. Make `USERS` be a list of login IDs.
+3. Close the connection to mqtts (Ctrl+D).
 
-   ```bash
-   export USERS="tmm amy josh"
-   for USER in $USERS; do echo "Set password for "$USER; htpasswd /etc/apache2/authdata/.htpasswd $USER; done
-   ```
+### Start the server
 
-6. Add Apache's `/etc/apache2/authdata/.htgroup`.
-
-   ```bash
-   # this assumes USERS is still set from previous step.
-   touch /etc/apache2/authdata/.htgroup
-   chown www-data /etc/apache2/authdata/.htgroup
-   echo "node-red: ${USERS}" >>/etc/apache2/authdata/.htgroup
-   echo "query: ${USERS}" >>/etc/apache2/authdata/.htgroup
-   ```
-
-7. Exit Apache's container with Control+D.
-
-## Start the server
-
-1. We recommend you first start things up in "interactive mode".
+1. Starting things up in "interactive mode" is recommended as a first step.
 
     ```bash
     docker-compose up
     ```
 
-   This will show you the log files. It will also be pretty clear if there are any issues.
+This will show the log output from the various services. It will also be pretty clear if there are any issues.
 
-   One common error (for me, anyway) is entering an illegal initial InfluxDB database name. InfluxDB will spew a number of errors, but eventually it will start up anyway. But then you'll need to create a database manually.
+One common error (for me, anyway) is entering an illegal initial InfluxDB database name. InfluxDB will spew a number of errors, but eventually it will start up anyway. But then the database needs to be created manually.
 
 ### Restart servers in the background
 
-Once the servers are coming up interactively, use ^C to shut them down, then restart in daemon mode.
+Once the servers are coming up interactively, use ^C to shut them down, and then restart in daemon mode.
 
 ```bash
 docker-compose up -d
 ```
 
+Status of the containers can be seen as below
+
+```console
+$ docker-compose ps
+
+Name                             Command        State    Ports
+-----------------------------------------------------------------
+dashboardexamplecom_grafana_1   /run.sh        Up       3000/tcp
+dashboardexamplecom_influxdb_1  /sbin/my_init  Up       8086/tcp
+dashboardexamplecom_mqtts_1     /sbin/my_init  Up       0.0.0.0:1883->1883/tcp, 0.0.0.0:8083->8083/tcp, 0.0.0.0:8883->8883/tcp
+dashboardexamplecom_nginx_1     /sbin/my_init  Up       0.0.0.0:443->443/tcp, 0.0.0.0:80->80/tcp
+dashboardexamplecom_node-red_1   npm start -- --userDir /da ...   Up (healthy)   1880/tcp
+dashboardexamplecom_postfix_1    /sbin/my_init Up       25/tcp
+```
+
 ### Initial testing
 
-- Open Grafana on **https://dashboard.example.com**, and log in as admin.
+- Open Grafana on [https://dashboard.example.com](https://dashboard.example.com/), and log in as admin.
 
 - Change the admin password.
 
-#### Set up first data source
+### Set up first data source
 
-Use the Grafana UI -- either click on "add first data source" or use "Configure>Add Data Source", and add an InfluxDB data source.
+Use the Grafana UI -- either click on "add first data source" or use "Configure >Add Data Source", and add an InfluxDB data source.
 
-- Set the URL (under HTTP Settings) to `http://influxdb:8086`.
+- Set the URL (under HTTP Settings) to `<http://influxdb:8086>`.
 
-- Select the database.  If InfluxDB properly initialized a database, you should also be able to connect to it as a Grafana data source. If not, you'll first need to [create an InfluxDB database](#creating-an-influxdb-database).
+- Select the database. If InfluxDB is properly initialized in a database, connect to it as a Grafana data source. If not, [create an InfluxDB database](https://github.com/mcci-catena/docker-iot-dashboard/blob/master/SETUP.md#creating-an-influxdb-database).
 
 - Leave user and password blank.
 
@@ -394,11 +471,11 @@ Use the Grafana UI -- either click on "add first data source" or use "Configure>
 
 ### Test Node-RED
 
-Open Node-RED on **https://dashboard.example.com/node-red/**, and build a flow that stores data in InfluxDB. **Be sure to add the trailing slash! Otherwise you'll get a 404 from Grafana. We'll fix this soon.**
+Open Node-RED on <https://dashboard.example.com/node-red/>, and build a flow that stores data in InfluxDB. **Be sure to add the trailing slash! Otherwise a 404 error pops from Grafana. This will be fixed soon.**
 
 ### Creating an InfluxDB database
 
-To create a database, log in to the host machine, and cd to `/opt/docker/dashboard.example.com`. Use the following commands:
+To create a database, log in to the host machine, and cd to `/opt/docker/dashboard.example.com`. Use the following commands:
 
 ```console
 $ docker-compose exec influxdb /bin/bash
@@ -423,50 +500,138 @@ my-new-database
 $
 ```
 
-## Add Apache log in for NodeRed or query after the fact
+### Test Postfix Mail setup
 
-To add a user with Node-RED access or query access, follow this procedure.
+- Testing Mail setup on `Grafana`
+  1. Click on "Bell icon" and click the "Notification channels" option as shown below
 
-1. Log into the host machine
+        ![grafana_mail_testing](assets/graf-mail_test_1.png)
 
-2. cd to `/opt/docker/dashboard.example.com`.
+  2. Click "Add Channel" as shown below
 
-3. log into the apache docker container.
+        ![grafana_mail_testing](assets/graf-mail_test_2.png)
+  
+  3. Input the required info as shown below. *Be sure to select type as `Email`*. Click `Test" button finally to send test mail.
 
-    ```console
-    $ docker-compose exec apache /bin/bash
-    #
+        ![grafana_mail_testing](assets/graf-mail_test_3.png)
+
+- Testing Mail setup on `Influxdb` and `Postfix`
+
+    Mail setup on `Influxdb` and `Postfix` can be tested using `mail` command, by logging into their container.
+
+    ***Influxdb***
+    1. Log into the `Influxdb` docker container
+
+    ```bash
+    docker-compose exec influxdb bash
+
+    root@influxdbbackup:/# mail -s "Testing mail from Influxdb" cmurugan@mcci.com
+    Cc:
+    Testing1
     ```
 
-4. In the container, move to the `authdata` directory.
+    ***Postfix***
 
-    ```console
-    # cd /etc/apache2/authdata
-    #
+    1. Log into the `Postfix` docker container
+
+    ```bash
+    docker-compose exec postfix bash
+
+    root@dashboard:/# mail -s "Testing mail from Postfix" cmurugan@mcci.com
+    Cc:
+    Testing1
     ```
 
-5. Add the user.
+- Testing Mail setup on Node-red
 
-    ```console
-    # htpasswd .htpasswd {newuserid}
-    New password:
-    Re-type new password:
-    Adding password for user {newuserid}
-    #
-    ```
+    Mail setup on Node-red can be tested by deploying a node-red flow on <https://dashboard.example.com/node-red/> as shown below.
 
-6. Grant permissions to the user by updating `.htgroup` in the same directory.
+    ![nodered_mail_testing](assets/postfix_node_1.png)
 
-    ```console
-    # vi .htgroup
-    ```
+    ***Inject node's configuration***
 
-   There are at least two groups, `node-red` and `query`.
+    ![nodered_mail_testing](assets/postfix_node_2.png)
 
-   - Add `{newuserid}` to group `node-red` if you want to grant access to Node-READ.
+    here,
+  - `msg.payload` will be act as `mail body`.
+  - `msg.topic`will be act as `subject`.
+  - `msg.from` will be act as `Sender`
 
-   - Add `{newuserid}` to group `query` if you want to grant access for InfluxDB queries.
+   ***Email node's configuration***
 
-7. Write and save the file, then use `cat` to display it.
+    ![nodered_mail_testing](assets/postfix_node_3.png)
 
-8. Close the connection to apache (control+D).
+### Test MQTT Channels
+
+- To test the `MQTT over TCP` and `MQTT over TLS/SSL` channels user can use [mosquitto client](https://mosquitto.org/download/) tool.
+
+  - MQTT over TCP
+
+      `Subscribing` mqtt channel on topic `test`
+
+      ```bash
+      mosquitto_sub -h dashboard.example.com -t test -p 1883 -u user1 -P pwd123
+      
+      hello
+      ```
+
+      `publishing` on mqtt channel with topic `test`
+
+      ```bash
+      mosquitto_pub -h dashboard.example.com -m "hello" -t test -p 1883 -u user1 -P pwd123
+      ```
+
+  - MQTT over TLS/SSL
+
+      `Subscribing` mqtt channel on topic `test`
+
+      ```bash
+      mosquitto_sub -h dashboard.example.com -t test -p 8883 -u user1 -P pwd123 --capath /etc/ssl/certs/
+      
+      hello 
+      ```
+
+      `publishing` on mqtt channel with topic `test`
+
+      ```bash
+
+      mosquitto_pub -h dashboard.example.com -m "hello" -t test -p 8883 -u user1 -P pwd123 --capath /etc/ssl/certs/
+      ```
+
+- In order to test the "MQTT over Nginx proxy", the user can use the `mqtts web based client` [portal1](http://tools.emqx.io/) or [portal2](https://www.eclipse.org/paho/clients/js/utility/).
+
+   *Using [portal1](http://tools.emqx.io/)*
+
+   Connection Details
+
+   ![mqtt_testing](assets/mqtt_nginx_1.png)
+
+   `Subscribing` mqtt channel on topic `test`
+
+   ![mqtt_testing](assets/mqtt_nginx_2.png)
+
+   `publishing` on mqtt channel with topic `test`
+
+   ![mqtt_testing](assets/mqtt_nginx_3.png)
+
+   Full window
+
+   ![mqtt_testing](assets/mqtt_nginx_4.png)
+
+- To test the `MQTT over WebSockets with TLS/SSL`, the user can use the `mqtts web based client` [Portal](http://www.hivemq.com/demos/websocket-client/).
+
+   Connection Details
+
+   ![mqtt_testing](assets/mqtt_web_1.png)
+
+  `Subscribing` mqtt channel on topic `test`
+
+   ![mqtt_testing](assets/mqtt_web_2.png)
+
+   `publishing` on mqtt channel with topic `test`
+
+   ![mqtt_testing](assets/mqtt_web_3.png)
+
+   Full window
+
+   ![mqtt_testing](assets/mqtt_web_4.png)

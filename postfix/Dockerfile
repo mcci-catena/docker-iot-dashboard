@@ -28,7 +28,7 @@ run postconf -e mydomain=$domain
 run postconf -e myorigin=\$mydomain
 run postconf -e masquerade_domains=\$mydomain
 run postconf -e mydestination="\$myhostname, $hostname, localhost, localhost.localdomain, localhost"
-run postconf -e mynetworks="127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128 172.0.0.0/8" 
+run postconf -e mynetworks="127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16" 
 run echo $domain > /etc/mailname
 
 # set up the credentials for SMTP authentication using username and password

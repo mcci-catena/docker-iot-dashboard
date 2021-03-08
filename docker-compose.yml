@@ -46,10 +46,19 @@
 #       The AWS default region.
 #
 # IOT_DASHBOARD_AWS_S3_BUCKET_INFLUXDB
-#       The S3 bucket to use for uploading the influxdb backup data.
+#       The S3 bucket to be used for uploading the influxdb backup data.
 #
 # IOT_DASHBOARD_AWS_SECRET_ACCESS_KEY
 #       The AWS API secret key for backing up influxdb data.
+#
+# IOT_DASHBOARD_AWS_HOST_BASE
+#		The S3 endpoint is used to configure 3rd party clients. 
+#		For Amazon:  s3.amazonaws.com , For DigitalOcean: nyc3.digitaloceanspaces.com
+#
+# IOT_DASHBOARD_AWS_HOST_BUCKET_INFLUXDB
+#		The S3 endpoint to access Influxdb bucket.
+#		For Amazon: '%($IOT_DASHBOARD_AWS_S3_BUCKET_INFLUXDB)s.s3.amazonaws.com'
+#		For DigitalOcean: '%($IOT_DASHBOARD_AWS_S3_BUCKET_INFLUXDB).nyc3.digitaloceanspaces.com'
 #
 # IOT_DASHBOARD_CERTBOT_EMAIL
 #	The email address to be used for registering with Let's Encrypt.
@@ -153,7 +162,7 @@
 # debugging.
 #
 
-version: '3.7'
+version: '3.8'
 services:
   # the nginx server connects us to the outside world
   nginx:
@@ -225,10 +234,16 @@ services:
       dockerfile: Dockerfile
       args:
         distrib_id: "${IOT_DASHBOARD_OS_DISTRIB_ID:-ubuntu}"
-        distrib_codename: "${IOT_DASHBOARD_OS_DISTRIB_CODENAME:-xenial}"
+        distrib_codename: "${IOT_DASHBOARD_OS_DISTRIB_CODENAME:-bionic}"
         hostname: "${IOT_DASHBOARD_INFLUXDB_MAIL_HOST_NAME:-.}"
         relay_ip: "postfix:25"
         domain: "${IOT_DASHBOARD_MAIL_DOMAIN:-.}"
+      # Backing up influxdb metadata and database to S3 Bucket
+        AWS_ACCESS_KEY_ID: "${IOT_DASHBOARD_AWS_ACCESS_KEY_ID:-.}"
+        AWS_SECRET_ACCESS_KEY: "${IOT_DASHBOARD_AWS_SECRET_ACCESS_KEY:-.}"
+        AWS_DEFAULT_REGION: "${IOT_DASHBOARD_AWS_DEFAULT_REGION:-.}"
+        AWS_HOST_BASE: "${IOT_DASHBOARD_AWS_HOST_BASE:-.}"
+        AWS_HOST_BUCKET_INFLUXDB: "${IOT_DASHBOARD_AWS_HOST_BUCKET_INFLUXDB:-.}"
     hostname: "${IOT_DASHBOARD_INFLUXDB_MAIL_HOST_NAME:-.}"
     expose:
       - "8086"
@@ -242,12 +257,8 @@ services:
       PRE_CREATE_DB: "${IOT_DASHBOARD_INFLUXDB_INITIAL_DATABASE_NAME:-demo}"
       INFLUXDB_BIND_ADDRESS: "influxdb:8088"
       INFLUXDB_BACKUP_MAIL: "${IOT_DASHBOARD_INFLUXDB_BACKUP_EMAIL:-}"
-    # Backuping influxdb metadata and database to cloud
       SOURCE_NAME: "${IOT_DASHBOARD_CERTBOT_FQDN}"
       S3_BUCKET_INFLUXDB: "${IOT_DASHBOARD_AWS_S3_BUCKET_INFLUXDB:-.}"
-      AWS_ACCESS_KEY_ID: "${IOT_DASHBOARD_AWS_ACCESS_KEY_ID:-.}"
-      AWS_SECRET_ACCESS_KEY: "${IOT_DASHBOARD_AWS_SECRET_ACCESS_KEY:-.}"
-      AWS_DEFAULT_REGION: "${IOT_DASHBOARD_AWS_DEFAULT_REGION:-.}"
 
   grafana:
     restart: unless-stopped
@@ -279,13 +290,13 @@ services:
       context: ./postfix
       dockerfile: Dockerfile
       args:
-        hostname: "${IOT_DASHBOARD_MAIL_HOST_NAME:-.}"
-        relay_ip: "${IOT_DASHBOARD_MAIL_RELAY_IP:-.}"
-        domain: "${IOT_DASHBOARD_MAIL_DOMAIN:-.}"
-        smtp_login: "${IOT_DASHBOARD_MAIL_SMTP_LOGIN:-.}"
-        smtp_password: "${IOT_DASHBOARD_MAIL_SMTP_PASSWORD:-.}"
+        hostname: "${IOT_DASHBOARD_MAIL_HOST_NAME:-}"
+        relay_ip: "${IOT_DASHBOARD_MAIL_RELAY_IP:-}"
+        domain: "${IOT_DASHBOARD_MAIL_DOMAIN:-}"
+        smtp_login: "${IOT_DASHBOARD_MAIL_SMTP_LOGIN:-}"
+        smtp_password: "${IOT_DASHBOARD_MAIL_SMTP_PASSWORD:-}"
     expose:
       - "25"
-    hostname: "${IOT_DASHBOARD_MAIL_HOST_NAME:-.}"
+    hostname: "${IOT_DASHBOARD_MAIL_HOST_NAME:-}"
 
 ### end of file ###

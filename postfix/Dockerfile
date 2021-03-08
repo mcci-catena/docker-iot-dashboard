@@ -22,7 +22,7 @@ run echo "postfix postfix/mailname string $hostname" | debconf-set-selections &&
     echo "postfix postfix/main_mailer_type string 'Internet Site'" | debconf-set-selections && \
     echo "postfix postfix/relayhost string $relay_ip" | debconf-set-selections
 
-run apt-get update && apt-get install -y postfix libsasl2-modules
+run apt-get update && apt-get install -y postfix libsasl2-modules telnet
 run postconf -e myhostname=$hostname
 run postconf -e mydomain=$domain
 run postconf -e myorigin=\$mydomain
@@ -46,7 +46,7 @@ run postconf -e smtp_generic_maps=hash:/etc/postfix/generic
 run postmap /etc/postfix/generic
 
 # mail command would be used for sending mails
-run apt-get install -y mailutils 
+run apt-get install -y mailutils
 
 # Start the postfix daemon during container startup
 RUN mkdir -p /etc/my_init.d

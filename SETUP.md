@@ -117,7 +117,7 @@ As an initial step, a cloud provider is required and Docker and Docker-Compose m
    ```bash
    mkdir -m 700 ~username/.ssh
    cp -p .ssh/authorized_keys ~username/.ssh
-   chown -R username.username ~username/.ssh/authorized_keys
+   chown -R username.username ~username/.ssh
    ```
 
 9. Confirm that the user can SSH in.

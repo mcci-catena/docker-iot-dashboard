@@ -48,7 +48,14 @@ WORKDIR "/opt/influxdb-backup"
 
 # To backup influxdb to S3 Bucket, some packages need to be installed as follows:
 RUN apt-get update && apt-get install -y python-pip influxdb
-RUN pip install awscli --upgrade  
+RUN pip install s3cmd
+ARG AWS_ACCESS_KEY_ID
+ARG AWS_DEFAULT_REGION
+ARG AWS_HOST_BASE
+ARG AWS_HOST_BUCKET_INFLUXDB
+ARG AWS_SECRET_ACCESS_KEY
+RUN set -x \
+        && echo "[default]\naccess_key = ${AWS_ACCESS_KEY_ID}\nbucket_location = $AWS_DEFAULT_REGION\nhost_base = $AWS_HOST_BASE\nhost_bucket = $AWS_HOST_BUCKET_INFLUXDB\nsecret_key = $AWS_SECRET_ACCESS_KEY" | tee /root/.s3cfg
 
 # Backup script for influxdb
 COPY backup.sh /bin/backup.sh
@@ -64,7 +71,7 @@ RUN chmod +x /etc/my_init.d/influxdb_cron.sh
 COPY postfix.sh /etc/my_init.d/postfix.sh
 RUN chmod +x /etc/my_init.d/postfix.sh
 
-# Starting influxd daemon service 
+# Starting influxd daemon service
 RUN mkdir /etc/service/influx
 COPY influx.sh /etc/service/influx/run
 RUN chmod +x /etc/service/influx/run

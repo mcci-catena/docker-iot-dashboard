@@ -315,6 +315,15 @@ IOT_DASHBOARD_INFLUXDB_MAIL_HOST_NAME=influxdbbackup.example.com
 #       the external FQDN for the influxdb host
 IOT_DASHBOARD_INFLUXDB_BACKUP_EMAIL=somebody1@example.com somebody2@example.com
 #       Backup mail will be sent to the mentioned MAIL IDs. Use "space" to delimit the MAIL IDs.
+IOT_DASHBOARD_AWS_HOST_BASE=s3.amazonaws.com
+#		The S3 endpoint is used to configure 3rd party clients. 
+#		For Amazon:  s3.amazonaws.com , For DigitalOcean: nyc3.digitaloceanspaces.com
+#
+IOT_DASHBOARD_AWS_HOST_BUCKET_INFLUXDB='%($IOT_DASHBOARD_AWS_S3_BUCKET_INFLUXDB)s.s3.amazonaws.com'
+#		The S3 endpoint to access Influxdb bucket.
+#		For Amazon: '%($IOT_DASHBOARD_AWS_S3_BUCKET_INFLUXDB)s.s3.amazonaws.com'
+#		For DigitalOcean: '%($IOT_DASHBOARD_AWS_S3_BUCKET_INFLUXDB).nyc3.digitaloceanspaces.com'
+#
 ```
 
 ### Set up the Node-RED and InfluxDB API logins

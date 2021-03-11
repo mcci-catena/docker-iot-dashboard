@@ -187,7 +187,7 @@ This version requires that you set up Node-RED, the Influxdb database and the Gr
 
 ### Connecting to InfluxDB from Node-RED and Grafana
 
-There is one point that is somewhat confusing about the connections from Node-RED and Grafana to InfluxDB. Even though InfluxDB is running on the same host, it is logically running on its own virtual machine (created by docker). Because of this, Node-RED and Grafana cannot use **`local host`** when connecting to Grafana. A special name is provided by docker: `influxdb`. Note that there's no DNS suffix. If `InfluxDB` is not used, Node-RED and Grafana will not be able to connect.
+There is one point that is somewhat confusing about the connections from Node-RED and Grafana to InfluxDB. Even though InfluxDB is running on the same host, it is logically running on its own virtual machine (created by docker). Because of this, Node-RED and Grafana cannot use **`local host`** when connecting to InfluxDB. A special name is provided by docker: `influxdb`. Note that there's no DNS suffix. If `InfluxDB` is not used, Node-RED and Grafana will not be able to connect.
 
 ### Logging in to Grafana
 

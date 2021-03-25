@@ -41,11 +41,11 @@ if [ $? -eq 0 ]; then
         echo " " >> /influxbackup.txt
         echo "******* Influxdb Database & metadata Backup ********" >> /influxbackup.txt
         echo " " >> /influxbackup.txt
-        s3cmd ls --no-mime-magic s3://${S3_BUCKET_INFLUXDB}/  --human-readable | grep -i ${SOURCE_NAME}_influxdb_metdata_db | cut -d' ' -f3- | tac | head -10 | sed "s/s3:\/\/${S3_BUCKET_INFLUXDB}\///g" &>> /influxbackup.txt
+        s3cmd ls --no-mime-magic s3://${S3_BUCKET_INFLUXDB}/  --human-readable | grep -i ${SOURCE_NAME}_influxdb_metdata_db | cut -d' ' -f3- | tac | head -10 | sed "s,s3:\/\/${S3_BUCKET_INFLUXDB}\/,,g" &>> /influxbackup.txt
         echo " " >> /influxbackup.txt
         echo "************** Influxdb data Backup ****************" >> /influxbackup.txt
         echo " " >> /influxbackup.txt
-        s3cmd ls --no-mime-magic s3://${S3_BUCKET_INFLUXDB}/  --human-readable | grep -i ${SOURCE_NAME}_influxdb_data | cut -d' ' -f3- | tac | head -10 | sed "s/s3:\/\/${S3_BUCKET_INFLUXDB}\///g" &>> /influxbackup.txt
+        s3cmd ls --no-mime-magic s3://${S3_BUCKET_INFLUXDB}/  --human-readable | grep -i ${SOURCE_NAME}_influxdb_data | cut -d' ' -f3- | tac | head -10 | sed "s,s3:\/\/${S3_BUCKET_INFLUXDB}\/,,g" &>> /influxbackup.txt
         echo " " >> /influxbackup.txt
         echo "********************** END *********************  " >> /influxbackup.txt
 

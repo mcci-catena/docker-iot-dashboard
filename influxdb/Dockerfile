@@ -2,7 +2,7 @@
 # Dockerfile for building the influxdb instance with S3-backup and Mail alert setup
 #
 
-FROM phusion/baseimage:bionic-1.0.0
+FROM phusion/baseimage:master-amd64
 
 # Default InfluxDB host
 ENV INFLUX_HOST=influxdb
@@ -47,8 +47,8 @@ RUN mkdir -p /opt/influxdb-backup
 WORKDIR "/opt/influxdb-backup"
 
 # To backup influxdb to S3 Bucket, some packages need to be installed as follows:
-RUN apt-get update && apt-get install -y python-pip influxdb
-RUN pip install s3cmd
+RUN apt-get update && apt-get install -y python3-pip influxdb
+RUN pip3 install s3cmd
 ARG AWS_ACCESS_KEY_ID
 ARG AWS_DEFAULT_REGION
 ARG AWS_HOST_BASE

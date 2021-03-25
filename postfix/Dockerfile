@@ -2,7 +2,7 @@
 # Dockerfile for building POSTFIX
 #
 # Build the Postfix  using phusion base image
-FROM phusion/baseimage:bionic-1.0.0
+FROM phusion/baseimage:master-amd64
 
 # some basic package installation for troubleshooting
 RUN apt-get update && apt-get install -y \

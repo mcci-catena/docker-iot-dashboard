@@ -6,10 +6,9 @@
 
 # passing arguments to map letsencrypt certs
 
-FROM phusion/baseimage:bionic-1.0.0
+FROM phusion/baseimage:master-amd64
 
 # Installing mosquitto packages and certbot
-RUN add-apt-repository ppa:certbot/certbot
 RUN apt-get update && apt-get install -y \
 	certbot \ 
 	mosquitto \ 

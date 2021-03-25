@@ -234,7 +234,7 @@ services:
       dockerfile: Dockerfile
       args:
         distrib_id: "${IOT_DASHBOARD_OS_DISTRIB_ID:-ubuntu}"
-        distrib_codename: "${IOT_DASHBOARD_OS_DISTRIB_CODENAME:-bionic}"
+        distrib_codename: "${IOT_DASHBOARD_OS_DISTRIB_CODENAME:-focal}"
         hostname: "${IOT_DASHBOARD_INFLUXDB_MAIL_HOST_NAME:-.}"
         relay_ip: "postfix:25"
         domain: "${IOT_DASHBOARD_MAIL_DOMAIN:-.}"

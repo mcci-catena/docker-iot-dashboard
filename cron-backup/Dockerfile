@@ -1,8 +1,10 @@
 #
 # Dockerfile for building the cron-backup instance with S3-backup and Mail alert setup for the below service
-# 1. mongodb
+# 1. Node-red
+# 2. Grafana
+# 3. Nginx
 #
-FROM phusion/baseimage:bionic-1.0.0
+FROM phusion/baseimage:master-amd64
 
 #some basic package installation for troubleshooting
 RUN apt-get update && apt-get install -y \
@@ -32,8 +34,8 @@ RUN mkdir -p /opt/backup
 WORKDIR "/opt/backup"
 
 # To backup Mongodb to S3 Bucket, some packages need to be installed as follows:
-RUN apt-get update && apt-get install -y python-pip
-RUN pip install s3cmd
+RUN apt-get update && apt-get install -y python3-pip
+RUN pip3 install s3cmd
 ARG AWS_ACCESS_KEY_ID
 ARG AWS_DEFAULT_REGION
 ARG AWS_HOST_BASE

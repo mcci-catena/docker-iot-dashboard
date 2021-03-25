@@ -243,7 +243,7 @@ services:
         AWS_SECRET_ACCESS_KEY: "${IOT_DASHBOARD_AWS_SECRET_ACCESS_KEY:-.}"
         AWS_DEFAULT_REGION: "${IOT_DASHBOARD_AWS_DEFAULT_REGION:-.}"
         AWS_HOST_BASE: "${IOT_DASHBOARD_AWS_HOST_BASE:-.}"
-        AWS_HOST_BUCKET_INFLUXDB: "${IOT_DASHBOARD_AWS_HOST_BUCKET_INFLUXDB:-.}"
+        AWS_HOST_BUCKET: "${IOT_DASHBOARD_AWS_HOST_BUCKET:-.}"
     hostname: "${IOT_DASHBOARD_INFLUXDB_MAIL_HOST_NAME:-.}"
     expose:
       - "8086"
@@ -299,4 +299,32 @@ services:
       - "25"
     hostname: "${IOT_DASHBOARD_MAIL_HOST_NAME:-}"
 
+  cron-backup:
+    restart: unless-stopped
+    build:
+      context: ./cron-backup
+      dockerfile: Dockerfile
+      args:
+        hostname: "${IOT_DASHBOARD_CRONBACKUP_MAIL_HOST_NAME:-cron-backup}"
+        relay_ip: "postfix:25"
+        domain: "${IOT_DASHBOARD_MAIL_DOMAIN:-.}"
+      # Moving backup data to S3 Bucket
+        AWS_ACCESS_KEY_ID: "${IOT_DASHBOARD_AWS_ACCESS_KEY_ID:-.}"
+        AWS_SECRET_ACCESS_KEY: "${IOT_DASHBOARD_AWS_SECRET_ACCESS_KEY:-.}"
+        AWS_DEFAULT_REGION: "${IOT_DASHBOARD_AWS_DEFAULT_REGION:-.}"
+        AWS_HOST_BASE: "${IOT_DASHBOARD_AWS_HOST_BASE:-.}"
+        AWS_HOST_BUCKET: "${IOT_DASHBOARD_AWS_HOST_BUCKET:-.}"
+    hostname: "${IOT_DASHBOARD_CRONBACKUP_MAIL_HOST_NAME:-cron-backup}"
+    volumes:
+      - "${IOT_DASHBOARD_DATA}grafana:/grafana"
+      - "${IOT_DASHBOARD_DATA}node-red:/nodered"
+      - "${IOT_DASHBOARD_DATA}docker-nginx:/nginx"
+    environment:
+      CRON_BACKUP_MAIL: "${IOT_DASHBOARD_CRON_BACKUP_EMAIL:-}"
+      MONGO_INITDB_ROOT_USERNAME: "${IOT_DASHBOARD_MONGO_INITDB_ROOT_USERNAME:-}"
+      MONGO_INITDB_ROOT_PASSWORD: "${IOT_DASHBOARD_MONGO_INITDB_ROOT_PASSWORD:-}"
+      SOURCE_NAME: "${IOT_DASHBOARD_CERTBOT_FQDN}"
+      S3_BUCKET_NODERED: "${IOT_DASHBOARD_AWS_S3_BUCKET_NODERED:-.}"
+      S3_BUCKET_GRAFANA: "${IOT_DASHBOARD_AWS_S3_BUCKET_GRAFANA:-.}"
+      S3_BUCKET_NGINX: "${IOT_DASHBOARD_AWS_S3_BUCKET_NGINX:-.}"
 ### end of file ###

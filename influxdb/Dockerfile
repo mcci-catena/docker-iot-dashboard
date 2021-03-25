@@ -52,10 +52,10 @@ RUN pip install s3cmd
 ARG AWS_ACCESS_KEY_ID
 ARG AWS_DEFAULT_REGION
 ARG AWS_HOST_BASE
-ARG AWS_HOST_BUCKET_INFLUXDB
+ARG AWS_HOST_BUCKET
 ARG AWS_SECRET_ACCESS_KEY
 RUN set -x \
-        && echo "[default]\naccess_key = ${AWS_ACCESS_KEY_ID}\nbucket_location = $AWS_DEFAULT_REGION\nhost_base = $AWS_HOST_BASE\nhost_bucket = $AWS_HOST_BUCKET_INFLUXDB\nsecret_key = $AWS_SECRET_ACCESS_KEY" | tee /root/.s3cfg
+        && echo "[default]\naccess_key = ${AWS_ACCESS_KEY_ID}\nbucket_location = $AWS_DEFAULT_REGION\nhost_base = $AWS_HOST_BASE\nhost_bucket = $AWS_HOST_BUCKET\nsecret_key = $AWS_SECRET_ACCESS_KEY" | tee /root/.s3cfg
 
 # Backup script for influxdb
 COPY backup.sh /bin/backup.sh

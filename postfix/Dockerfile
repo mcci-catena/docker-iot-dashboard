@@ -38,7 +38,10 @@ run echo "$relay_ip $smtp_login:$smtp_password" >/etc/postfix/sasl_passwd && chm
         'smtp_sasl_password_maps=hash:/etc/postfix/sasl_passwd' \
         'smtp_sasl_security_options=noanonymous' \
         'smtp_sasl_tls_security_options=noanonymous' \
-        'smtp_sasl_mechanism_filter=AUTH LOGIN' >> /etc/postfix/main.cf
+        'smtp_sasl_mechanism_filter=AUTH LOGIN' \
+        '# Uncomment the below settings if you want to use SSL/TLS' \
+        '#smtp_tls_wrappermode = yes' \
+	'#smtp_tls_security_level = encrypt' >> /etc/postfix/main.cf
 
 # This will replace local mail addresses by valid Internet addresses when mail leaves the machine via SMTP. 
 run echo "root@${domain} iotmail@${domain}" > /etc/postfix/generic
@@ -46,7 +49,7 @@ run postconf -e smtp_generic_maps=hash:/etc/postfix/generic
 run postmap /etc/postfix/generic
 
 # mail command would be used for sending mails
-run apt-get install -y mailutils
+run apt-get update && apt-get install -y mailutils
 
 # Start the postfix daemon during container startup
 RUN mkdir -p /etc/my_init.d

@@ -30,21 +30,21 @@ if [ ! -f /etc/nginx/authdata/influxdb/.htpasswd ]; then
 	exit 3
 fi
 
-chown -R www-data $(find /etc/nginx/authdata -type d)  
-chmod 700 $(find /etc/nginx/authdata -type d)
+chown -R www-data "$(find /etc/nginx/authdata -type d)" 
+chmod 700 "$(find /etc/nginx/authdata -type d)"
 
 # check that we got the vars we need
-if [ -z "$CERTBOT_DOMAINS" -o "$CERTBOT_DOMAINS" = "." ]; then
+if [ -z "$CERTBOT_DOMAINS" ] || [ "$CERTBOT_DOMAINS" = "." ]; then
 	echo "The docker-compose script must set CERTBOT_DOMAINS to value to be passed to certbot for --domains" 
 	exit 3
 fi
 
-if [ -z "$CERTBOT_EMAIL" -o "$CERTBOT_EMAIL" = "." ]; then
+if [ -z "$CERTBOT_EMAIL" ] || [ "$CERTBOT_EMAIL" = "." ]; then
 	echo "The docker-compose script must set CERTBOT_EMAIL to an email address useful to certbot/letsencrypt for notifications"
 	exit 3
 fi
 
-if [ -z "$NGINX_FQDN" -o "$NGINX_FQDN" = "." ]; then
+if [ -z "$NGINX_FQDN" ] || [ "$NGINX_FQDN" = "." ]; then
 	echo "The docker-compose script must set NGINX_FQDN to the (single) fully-qualified domain at the top level"
 	exit 3
 fi

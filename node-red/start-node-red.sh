@@ -27,10 +27,10 @@
 #
 ##############################################################################
 
-PNAME="`basename $0`"
-PDIR="`dirname $0`"
+PNAME="$(basename "$0")"
+PDIR="$(dirname "$0")"
 VERBOSE=0
-true ${DEBUG:=0}
+true "${DEBUG:=0}"
 
 TARGET=../.node-red
 
@@ -69,8 +69,8 @@ if [ ! -d "${TARGET}" ]; then
 fi
 
 # copy the files
-_copyfile settings.js $PDIR .
-_copyfile evb $PDIR lib/flows
+_copyfile settings.js "$PDIR" .
+_copyfile evb "$PDIR" lib/flows
 
 # if there's are arguments, start node-red 
 if [ $# -ne 0 ]; then

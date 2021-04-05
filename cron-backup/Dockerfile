@@ -19,15 +19,15 @@ ARG relay_ip
 ARG domain
 
 # Install Postfix
-run echo "postfix postfix/mailname string $host_name" | debconf-set-selections
-run echo "postfix postfix/main_mailer_type select Satellite system" | debconf-set-selections
-run apt-get update && apt-get install -y postfix mailutils
-run postconf -e relayhost=$relay_ip
+RUN echo "postfix postfix/mailname string $host_name" | debconf-set-selections
+RUN echo "postfix postfix/main_mailer_type select Satellite system" | debconf-set-selections
+RUN apt-get update && apt-get install -y postfix mailutils
+RUN postconf -e relayhost=$relay_ip
 
 # This will replace local mail addresses by valid Internet addresses when mail leaves the machine via SMTP.
-run echo "root@${hostname} backup@${domain}" > /etc/postfix/generic
-run postconf -e smtp_generic_maps=hash:/etc/postfix/generic
-run postmap /etc/postfix/generic
+RUN echo "root@${hostname} backup@${domain}" > /etc/postfix/generic
+RUN postconf -e smtp_generic_maps=hash:/etc/postfix/generic
+RUN postmap /etc/postfix/generic
 
 # Change workdir
 RUN mkdir -p /opt/backup

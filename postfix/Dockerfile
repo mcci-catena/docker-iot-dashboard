@@ -16,6 +16,8 @@ ARG relay_ip
 ARG domain
 ARG smtp_login
 ARG smtp_password
+ARG tls_security_level
+ARG tls_wrappermode
 
 # Install Postfix
 RUN echo "postfix postfix/mailname string $hostname" | debconf-set-selections && \
@@ -38,10 +40,11 @@ RUN echo "$relay_ip $smtp_login:$smtp_password" >/etc/postfix/sasl_passwd && chm
         'smtp_sasl_password_maps=hash:/etc/postfix/sasl_passwd' \
         'smtp_sasl_security_options=noanonymous' \
         'smtp_sasl_tls_security_options=noanonymous' \
-        'smtp_sasl_mechanism_filter=AUTH LOGIN' \
-        '# Uncomment the below settings if you want to use SSL/TLS' \
-        '#smtp_tls_wrappermode = yes' \
-	'#smtp_tls_security_level = encrypt' >> /etc/postfix/main.cf
+        'smtp_sasl_mechanism_filter=AUTH LOGIN'  >> /etc/postfix/main.cf
+
+# Enable SSL/TLS SMTP Authentication
+RUN sed -i "s/smtp_tls_security_level=may/smtp_tls_security_level=$tls_security_level/" /etc/postfix/main.cf && \
+    printf '%s\n' "smtp_tls_wrappermode = $tls_wrappermode" >> /etc/postfix/main.cf
 
 # This will replace local mail addresses by valid Internet addresses when mail leaves the machine via SMTP. 
 RUN echo "root@${domain} iotmail@${domain}" > /etc/postfix/generic

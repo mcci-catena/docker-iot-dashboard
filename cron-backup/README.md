@@ -27,4 +27,4 @@ The following backup jobs are added to run at specific time.
 
 ## Mail Alert
 
-The above backup shell script is configured to send mail for the both successful/unsuccessful run.
+The above backup shell scripts were configured to send mail for the both successful/unsuccessful run.

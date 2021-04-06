@@ -239,7 +239,7 @@ Please refer to [`influxdb/README.md`](./influxdb/README.md).
 - HEAD includes the following changes
 
   - Included auxiliary backup container(`cron-backup`) for providing backup support for `Nginx`, `Node-red` and `Grafana` containers.
-  - Updated the base images in all `Dockerfile` from bionic to focal.
+  - Updated the base images used in all `Dockerfile` from bionic to focal.
   - Added TLS/SSL based SMTP authentication support in `Postfix` container.
   - Some minor changes(shell-scripts, Dockerfile, docker-compose.yml).
 

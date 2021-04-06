@@ -216,8 +216,8 @@ services:
     build:
       context: ./mqtts
       dockerfile: Dockerfile
-      args:
-        ssl_cert: "${IOT_DASHBOARD_NGINX_FQDN:-.}"
+    environment:
+      ssl_cert: "${IOT_DASHBOARD_NGINX_FQDN:-.}"
     ports:
 #      - "${IOT_DASHBOARD_PORT_MQTT_TCP:-1883}:1883"   #-----> Connection on this TCP port is insecure. can be added if needed
       - "${IOT_DASHBOARD_PORT_MQTT_SSL:-8883}:8883"
@@ -295,6 +295,9 @@ services:
         domain: "${IOT_DASHBOARD_MAIL_DOMAIN:-}"
         smtp_login: "${IOT_DASHBOARD_MAIL_SMTP_LOGIN:-}"
         smtp_password: "${IOT_DASHBOARD_MAIL_SMTP_PASSWORD:-}"
+      # Enable SSL/TLS postfix communication
+        tls_security_level: "${IOT_DASHBOARD_MAIL_TLS_SECURITY_LEVEL:-may}" 
+        tls_wrappermode: "${IOT_DASHBOARD_MAIL_TLS_WRAPPERMODE:-no}"
     expose:
       - "25"
     hostname: "${IOT_DASHBOARD_MAIL_HOST_NAME:-}"

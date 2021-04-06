@@ -240,8 +240,9 @@ Please refer to [`influxdb/README.md`](./influxdb/README.md).
 
   - Included auxiliary backup container(`cron-backup`) for providing backup support for `Nginx`, `Node-red` and `Grafana` containers.
   - Updated the base images used in all `Dockerfile` from bionic to focal.
+  - Added Mosquitto(MQTT client) Ubuntu ppa repository to install the latest version and fixed ownership issue when accessing Let's encrypt certs.
   - Added TLS/SSL based SMTP authentication support in `Postfix` container.
-  - Some minor changes(shell-scripts, Dockerfile, docker-compose.yml).
+  - Some minor changes in the following files: Dockerfile, docker-compose.yml, setup.md and shell scripts.
 
 - PR #6 includes the following changes
   - Influxdb:

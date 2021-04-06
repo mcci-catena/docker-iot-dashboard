@@ -30,8 +30,8 @@ if [ ! -f /etc/nginx/authdata/influxdb/.htpasswd ]; then
 	exit 3
 fi
 
-chown -R www-data "$(find /etc/nginx/authdata -type d)" 
-chmod 700 "$(find /etc/nginx/authdata -type d)"
+chown -R www-data $(find /etc/nginx/authdata -type d)
+chmod 700 $(find /etc/nginx/authdata -type d)
 
 # check that we got the vars we need
 if [ -z "$CERTBOT_DOMAINS" ] || [ "$CERTBOT_DOMAINS" = "." ]; then

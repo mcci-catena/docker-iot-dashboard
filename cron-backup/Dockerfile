@@ -13,6 +13,21 @@ RUN apt-get update && apt-get install -y \
     debconf-utils \
     rsync
 
+# Change workdir
+RUN mkdir -p /opt/backup
+WORKDIR "/opt/backup"
+
+# To backup Mongodb to S3 Bucket, some packages need to be installed as follows:
+RUN apt-get update && apt-get install -y python3-pip
+RUN pip3 install s3cmd
+ARG AWS_ACCESS_KEY_ID
+ARG AWS_DEFAULT_REGION
+ARG AWS_HOST_BASE
+ARG AWS_HOST_BUCKET
+ARG AWS_SECRET_ACCESS_KEY
+RUN set -x \
+        && echo "[default]\naccess_key = ${AWS_ACCESS_KEY_ID}\nbucket_location = $AWS_DEFAULT_REGION\nhost_base = $AWS_HOST_BASE\nhost_bucket = $AWS_HOST_BUCKET\nsecret_key = $AWS_SECRET_ACCESS_KEY" | tee /root/.s3cfg
+
 # passing arguments to build postfix image
 ARG hostname
 ARG relay_ip
@@ -28,21 +43,6 @@ RUN postconf -e relayhost=$relay_ip
 RUN echo "root@${hostname} backup@${domain}" > /etc/postfix/generic
 RUN postconf -e smtp_generic_maps=hash:/etc/postfix/generic
 RUN postmap /etc/postfix/generic
-
-# Change workdir
-RUN mkdir -p /opt/backup
-WORKDIR "/opt/backup"
-
-# To backup Mongodb to S3 Bucket, some packages need to be installed as follows:
-RUN apt-get update && apt-get install -y python3-pip
-RUN pip3 install s3cmd
-ARG AWS_ACCESS_KEY_ID
-ARG AWS_DEFAULT_REGION
-ARG AWS_HOST_BASE
-ARG AWS_HOST_BUCKET
-ARG AWS_SECRET_ACCESS_KEY
-RUN set -x \
-        && echo "[default]\naccess_key = ${AWS_ACCESS_KEY_ID}\nbucket_location = $AWS_DEFAULT_REGION\nhost_base = $AWS_HOST_BASE\nhost_bucket = $AWS_HOST_BUCKET\nsecret_key = $AWS_SECRET_ACCESS_KEY" | tee /root/.s3cfg
 
 # Backup script for node-red data directory backup
 COPY nodered_backup.sh /bin/nodered_backup.sh

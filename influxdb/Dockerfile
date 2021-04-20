@@ -23,25 +23,6 @@ RUN apt-get update && apt-get install -y \
     net-tools \
     debconf-utils
 
-# passing arguments to build postfix image
-ARG hostname
-ARG relay_ip
-ARG domain
-
-# Install Postfix
-RUN echo "postfix postfix/mailname string $host_name" | debconf-set-selections
-RUN echo "postfix postfix/main_mailer_type select Satellite system" | debconf-set-selections
-RUN apt-get update && apt-get install -y postfix
-RUN postconf -e relayhost=$relay_ip
-
-# This will replace local mail addresses by valid Internet addresses when mail leaves the machine via SMTP.
-RUN echo "root@${hostname} influxdbbackup@${domain}" > /etc/postfix/generic
-RUN postconf -e smtp_generic_maps=hash:/etc/postfix/generic
-RUN postmap /etc/postfix/generic
-
-# mail command would be used for sending mails
-RUN apt-get install -y mailutils
-
 # Change workdir
 RUN mkdir -p /opt/influxdb-backup
 WORKDIR "/opt/influxdb-backup"
@@ -56,6 +37,22 @@ ARG AWS_HOST_BUCKET
 ARG AWS_SECRET_ACCESS_KEY
 RUN set -x \
         && echo "[default]\naccess_key = ${AWS_ACCESS_KEY_ID}\nbucket_location = $AWS_DEFAULT_REGION\nhost_base = $AWS_HOST_BASE\nhost_bucket = $AWS_HOST_BUCKET\nsecret_key = $AWS_SECRET_ACCESS_KEY" | tee /root/.s3cfg
+
+# passing arguments to build postfix image
+ARG hostname
+ARG relay_ip
+ARG domain
+
+# Install Postfix
+RUN echo "postfix postfix/mailname string $host_name" | debconf-set-selections
+RUN echo "postfix postfix/main_mailer_type select Satellite system" | debconf-set-selections
+RUN apt-get update && apt-get install -y postfix mailutils
+RUN postconf -e relayhost=$relay_ip
+
+# This will replace local mail addresses by valid Internet addresses when mail leaves the machine via SMTP.
+RUN echo "root@${hostname} influxdbbackup@${domain}" > /etc/postfix/generic
+RUN postconf -e smtp_generic_maps=hash:/etc/postfix/generic
+RUN postmap /etc/postfix/generic
 
 # Backup script for influxdb
 COPY backup.sh /bin/backup.sh

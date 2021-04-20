@@ -255,16 +255,16 @@ services:
       args:
         distrib_id: "${IOT_DASHBOARD_OS_DISTRIB_ID:-ubuntu}"
         distrib_codename: "${IOT_DASHBOARD_OS_DISTRIB_CODENAME:-focal}"
-        hostname: "${IOT_DASHBOARD_INFLUXDB_MAIL_HOST_NAME:-.}"
+        hostname: "${IOT_DASHBOARD_INFLUXDB_MAIL_HOST_NAME:-influxdb}"
         relay_ip: "postfix:25"
-        domain: "${IOT_DASHBOARD_MAIL_DOMAIN:-.}"
+        domain: "${IOT_DASHBOARD_MAIL_DOMAIN:-example.com}"
       # Backing up influxdb metadata and database to S3 Bucket
         AWS_ACCESS_KEY_ID: "${IOT_DASHBOARD_AWS_ACCESS_KEY_ID:-.}"
         AWS_SECRET_ACCESS_KEY: "${IOT_DASHBOARD_AWS_SECRET_ACCESS_KEY:-.}"
         AWS_DEFAULT_REGION: "${IOT_DASHBOARD_AWS_DEFAULT_REGION:-.}"
         AWS_HOST_BASE: "${IOT_DASHBOARD_AWS_HOST_BASE:-.}"
         AWS_HOST_BUCKET: "${IOT_DASHBOARD_AWS_HOST_BUCKET:-.}"
-    hostname: "${IOT_DASHBOARD_INFLUXDB_MAIL_HOST_NAME:-.}"
+    hostname: "${IOT_DASHBOARD_INFLUXDB_MAIL_HOST_NAME:-influxdb}"
     expose:
       - "8086"
     volumes:
@@ -310,9 +310,9 @@ services:
       context: ./postfix
       dockerfile: Dockerfile
       args:
-        hostname: "${IOT_DASHBOARD_MAIL_HOST_NAME:-}"
+        hostname: "${IOT_DASHBOARD_MAIL_HOST_NAME:-iotmail}"
         relay_ip: "${IOT_DASHBOARD_MAIL_RELAY_IP:-}"
-        domain: "${IOT_DASHBOARD_MAIL_DOMAIN:-}"
+        domain: "${IOT_DASHBOARD_MAIL_DOMAIN:-example.com}"
         smtp_login: "${IOT_DASHBOARD_MAIL_SMTP_LOGIN:-}"
         smtp_password: "${IOT_DASHBOARD_MAIL_SMTP_PASSWORD:-}"
       # Enable SSL/TLS postfix communication
@@ -320,7 +320,7 @@ services:
         tls_wrappermode: "${IOT_DASHBOARD_MAIL_TLS_WRAPPERMODE:-no}"
     expose:
       - "25"
-    hostname: "${IOT_DASHBOARD_MAIL_HOST_NAME:-}"
+    hostname: "${IOT_DASHBOARD_MAIL_HOST_NAME:-iotmail}"
 
   cron-backup:
     restart: unless-stopped
@@ -330,7 +330,7 @@ services:
       args:
         hostname: "${IOT_DASHBOARD_CRONBACKUP_MAIL_HOST_NAME:-cron-backup}"
         relay_ip: "postfix:25"
-        domain: "${IOT_DASHBOARD_MAIL_DOMAIN:-.}"
+        domain: "${IOT_DASHBOARD_MAIL_DOMAIN:-example.com}"
       # Moving backup data to S3 Bucket
         AWS_ACCESS_KEY_ID: "${IOT_DASHBOARD_AWS_ACCESS_KEY_ID:-.}"
         AWS_SECRET_ACCESS_KEY: "${IOT_DASHBOARD_AWS_SECRET_ACCESS_KEY:-.}"

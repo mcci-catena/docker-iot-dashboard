@@ -2,9 +2,9 @@
 
 This repository contains a complete example that grabs device data from IoT-Network server, stores it in a database, and then displays the data using a web-based dashboard.
 
-You can set this up on a "Ubuntu + Docker" VM from the Microsoft Azure store (or on a Ubuntu VM from [DreamCompute](https://www.dreamhost.com/cloud/computing/), or on a Docker droplet from [Digital Ocean](https://www.digitalocean.com/)) with minimal effort. You should set up this service to run all the time so as to capture the data from your devices; you then access the data at your convenience using a web browser.
+You can set this up on a Docker droplet from [Digital Ocean](https://www.digitalocean.com/) (or on a Ubuntu VM from [DreamCompute](https://www.dreamhost.com/cloud/computing/), or on a "Ubuntu + Docker" VM from the [Microsoft Azure store](https://portal.azure.com/) ) with minimal effort. You should set up this service to run all the time so as to capture the data from your devices; you then access the data at your convenience using a web browser.
 
-**Table of Contents**
+## Table of Contents
 
 <!-- markdownlint-disable MD033 -->
 <!-- markdownlint-capture -->
@@ -36,13 +36,13 @@ You can set this up on a "Ubuntu + Docker" VM from the Microsoft Azure store (or
 This [`SETUP.md`](./SETUP.md) explains the Application Server Installation and its setup. [Docker](https://docs.docker.com/) and [Docker Compose](https://docs.docker.com/compose/) are used to make the installation and
 setup easier.
 
-This dashboard uses [docker-compose](https://docs.docker.com/compose/overview/) to set up a group of five primary [docker containers](https://www.docker.com), backed by one auxiliary container:
+This dashboard uses [docker-compose](https://docs.docker.com/compose/overview/) to set up a group of five primary [docker containers](https://www.docker.com), backed by two auxiliary container:
 
 1. An instance of [Nginx](https://www.nginx.com/), which proxies the other services, handles access control, gets SSL certificates from [Let's Encrypt](https://letsencrypt.org/), and faces the outside world.
 
 2. An instance of [Node-RED](http://nodered.org/), which processes the data from the individual nodes, and puts it into the database.
 
-3. An instance of [InfluxDB](https://docs.influxdata.com/influxdb/), which stores the data as time-series measurements with tags.
+3. An instance of [InfluxDB](https://docs.influxdata.com/influxdb/), which stores the data as time-series measurements with tags and provides backup support for the databases.
 
 4. An instance of [Grafana](http://grafana.org/), which gives a web-based dashboard interface to the data.
 
@@ -50,9 +50,11 @@ This dashboard uses [docker-compose](https://docs.docker.com/compose/overview/)
 
 The auxiliary container is:
 
-1. [Postfix](http://www.postfix.org/documentation.html), which (if configured) handles outbound mail services for the containers.
+1. [Postfix](http://www.postfix.org/documentation.html), which (if configured) handles outbound mail services for the containers (for now, `Influxdb`, `Node-red` and `Grafana`).
 
-To make things more specific, most of the description here assumes use of Microsoft Azure. However, this was tested on Ubuntu 16 with no issues (apart from the additional complexity of setting up `apt-get` to fetch docker, and the need for a manual install of `docker-compose`), on Dream Compute, and on Digital Ocean This will work on any Linux or Linux-like platform that supports docker, docker-compose, and Node-. Its likelihood of working with Raspberry Pi has not been tested as yet.
+2. [cron-backup](./cron-backup), which provides backup support for the `Nginx`, `Node-red` and `Grafana` containers and pushed the backed up data to S3-compatible storage.
+
+To make things more specific, most of the description here assumes use of Digital Ocean. However, this was tested on Ubuntu 20.04 with no issues (apart from the additional complexity of setting up `apt-get` to fetch docker, and the need for a manual install of `docker-compose`), on Dream Compute, and on Microsoft Azure. This will work on any Linux or Linux-like platform that supports `docker` and `docker-compose`. *Note:-* Its likelihood of working with Raspberry Pi has not been tested as yet.
 
 ## Definitions
 
@@ -74,28 +76,28 @@ All communication with the Nginx server is encrypted using SSL with auto-provisi
 The initial administrator's login password for Grafana must be initialized prior to starting; it's stored in `.env`. (When the Grafana container is started for the first time, it creates `grafana.db` in the Grafana container, and stores
 the password at that time. If `grafana.db` already exists, the password in grafana/.env is ignored.)
 
-Microsoft Azure, by default, will not open any of the ports to the outside world, so the user will need to open port 443 for SSL access to Nginx.
+*Note:-* Microsoft Azure, by default, will not open any of the ports to the outside world, so the user will need to open port 443 for SSL access to Nginx.
 
-For concreteness, the following table assumes that **base** is “server.example.com”.
+For concreteness, the following table assumes that **base** is “dashboard.example.com”.
 
-**User Access**
+### User Access
 
 |**To access**| **Open this link**| **Notes**|
 |-------------|-------------------|----------|
-| Node-RED    | <https://server.example.com/node-red/> | Port number is not needed and shouldn't be used. Note trailing '/' after node-red.                        |
-| InfluxDB API queries | <https://server.example.com/influxdb:8086/> | Port number is needed. Also note trailing '/' after influxdb.                                             |
-| Grafana    | [https://server.example.com](https://server.example.com/)| Port number is not needed and shouldn't be used.                                                          |
-| Mqtt       | <wss://server.example.com/mqtts/>| Mqtt client is needed. To test it via [Mqtt web portal](https://www.eclipse.org/paho/clients/js/utility/) |
+| Node-RED    | <https://dashboard.example.com/node-red/> | Port number is not needed and shouldn't be used. Note trailing '/' after node-red.                        |
+| InfluxDB API queries | <https://dashboard.example.com/influxdb:8086/> | Port number is needed. Also note trailing '/' after influxdb.                                             |
+| Grafana    | <https://dashboard.example.com/> | Port number is not needed and shouldn't be used.                                                          |
+| Mqtt       | <wss://dashboard.example.com/mqtts/>| Mqtt client is needed. To test it via [Mqtt web portal](http://tools.emqx.io/) |
 
 This can be visualized as shown in the figure below:
 
-**Docker connection and User Access**
+### Docker connection and User Access
 
 ![Connection Architecture using SSH](assets/Connection-architecture.png)
 
 ## Assumptions
 
-- The host system must have docker-compose verison 1.9 or later (for which <https://github.com/docker-compose> -- be aware that apt-get normally doesn't grab this; if configured at all, it frequently gets an out-of-date version).
+- The host system must have docker-compose version 1.9 or later (for which <https://github.com/docker-compose> -- be aware that apt-get normally doesn't grab this; if configured at all, it frequently gets an out-of-date version).
 
 - The environment variable `IOT_DASHBOARD_DATA`, if set, points to the common directory for the data. If not set, docker-compose will quit at start-up. (This is by design!)
 
@@ -115,7 +117,17 @@ Within the containers, the individual programs use their usual ports, but these 
 
 In `docker-compose.yml`, the following ports on the docker host are connected to the individual programs.
 
-- Nginx runs on 80 and 443. (All connections to port 80 are redirected to 443 using SSL).
+- Nginx runs on 80/tcp and 443/tcp. (All connections to port 80 are redirected to 443 using SSL).
+
+*The below ports are exposed only for the inter-container communication; These ports can't be accessed by host system.*
+
+- Grafana runs on 3000/tcp.
+
+- Influxdb runs on 8086/tcp.
+
+- Node-red runs on 1880/tcp.
+
+- Postfix runs on 25/tcp.
 
 Remember, if the server is running on a cloud platform like Microsoft Azure or AWS, one needs to check the firewall and confirm that the ports are open to the outside world.
 
@@ -130,7 +142,7 @@ data files:
 
 The advantage of the former is that everything is reset when the docker images are rebuilt. The disadvantage of the former is that there is a possibility to lose all the data when it’s rebuilt. On the other hand, there's another level of indirection when keeping things on the host, as the files reside in different locations on the host and in the docker containers.
 
-Because IoT data is generally persistent, we decided that the the extra level of indirection was required. To help find things, consult the followign table. Data files are kept in the following locations by default.
+Because IoT data is generally persistent, we decided that the the extra level of indirection was required. To help find things, consult the following table. Data files are kept in the following locations by default.
 
 | **Component** | **Data file location on host**| **Location in container**  |
 |---------------|-----------|----------------------------|
@@ -187,11 +199,11 @@ This version requires that you set up Node-RED, the Influxdb database and the Gr
 
 ### Connecting to InfluxDB from Node-RED and Grafana
 
-There is one point that is somewhat confusing about the connections from Node-RED and Grafana to InfluxDB. Even though InfluxDB is running on the same host, it is logically running on its own virtual machine (created by docker). Because of this, Node-RED and Grafana cannot use **`local host`** when connecting to InfluxDB. A special name is provided by docker: `influxdb`. Note that there's no DNS suffix. If `InfluxDB` is not used, Node-RED and Grafana will not be able to connect.
+There is one point that is somewhat confusing about the connections from Node-RED and Grafana to InfluxDB. Even though InfluxDB is running on the same host, it is logically running on its own virtual machine (created by docker). Because of this, Node-RED and Grafana cannot use **`local host`** when connecting to InfluxDB. A special name is provided by docker: `influxdb`. Note that there's no DNS suffix. If `influxdb` is not used, Node-RED and Grafana will not be able to connect.
 
 ### Logging in to Grafana
 
-On the login screen, the initial user name is "`admin`". The initial password is given by the value of the variable `GF_SECURITY_ADMIN_PASSWORD` in `.env`. Note that if you change the password in `.env` after the first time you launch the grafana container, the admin password does not change. If you somehow lose the previous value of the admin password, and you don't have another admin login, it's very hard to recover; easiest is to remove `grafana.db` and start over.
+On the login screen, the initial user name is "`admin`". The initial password is given by the value of the variable `IOT_DASHBOARD_GRAFANA_ADMIN_PASSWORD` in `.env`. Note that if you change the password in `.env` after the first time you launch the grafana container, the admin password does not change. If you somehow lose the previous value of the admin password, and you don't have another admin login, it's very hard to recover; easiest is to remove `grafana.db` and start over.
 
 ### Data source settings in Grafana
 
@@ -207,12 +219,12 @@ On the login screen, the initial user name is "`admin`". The initial password is
 
 Mqtts can be accessed in the following ways:
 
-Method  |  Path  | Credentials
---------|--------|-------------
-MQTT over Nginx proxy | https://dashboard.example.com/mqtts/:443 | Username/Password come from mosquitto’s configuration (password_file)
-MQTT over TLS/SSL | https://dashboard.example.com:8883 | Username/Password come from mosquitto’s configuration (password_file)
-WebSockets over TLS/SSL | https://dashboard.example.com:8083 | Username/Password come from mosquitto’s configuration (password_file)
-MQTT over TCP protocol (not secure) | http://dashboard.example.com:1883 |Username/Password come from mosquitto’s configuration (password_file)
+Method  |  Hostname/Path | Port | Credentials
+--------|----------------|------|------------
+MQTT over Nginx proxy | <wss://dashboard.example.com/mqtts/> | 443 | Username/Password come from mosquitto’s configuration (password_file)
+MQTT over TLS/SSL | dashboard.example.com | 8883 | Username/Password come from mosquitto’s configuration (password_file)
+WebSockets over TLS/SSL | <wss://dashboard.example.com/> | 8083 | Username/Password come from mosquitto’s configuration (password_file)
+MQTT over TCP protocol (not secure) | dashboard.example.com | 1883 |Username/Password come from mosquitto’s configuration (password_file)
 
 ## Setup Instructions
 
@@ -226,6 +238,13 @@ Please refer to [`influxdb/README.md`](./influxdb/README.md).
 
 - HEAD includes the following changes
 
+  - Included auxiliary backup container(`cron-backup`) for providing backup support for `Nginx`, `Node-red` and `Grafana` containers.
+  - Updated the base images used in all `Dockerfile` from bionic to focal.
+  - Added Mosquitto(MQTT client) Ubuntu ppa repository to install the latest version and fixed ownership issue when accessing Let's encrypt certs.
+  - Added TLS/SSL based SMTP authentication support in `Postfix` container.
+  - Some minor changes in the following files: Dockerfile, docker-compose.yml, setup.md and shell scripts.
+
+- PR #6 includes the following changes
   - Influxdb:
     1. Backup script is updated for backing up online (live) databases and to push the backup to Amazon bucket.
     2. Crontab was set for automatic backup.
@@ -245,7 +264,7 @@ Please refer to [`influxdb/README.md`](./influxdb/README.md).
         4. Mqtt over Websockets(WSS)
 
   - Postfix:
-    1. Configured to Relay mails via External SMTP Auth( Tested with Gmail and Mailgun ).	
+    1. Configured to Relay mails via External SMTP Auth( Tested with Gmail and Mailgun ).
     2. Mails generated from Containers like Grafana,Influxdb and Node-red will be relayed through Postfix container.
 
 ## Meta

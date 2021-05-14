@@ -3,13 +3,15 @@
 #
 
 # Start from Phusion.
-FROM phusion/baseimage:bionic-1.0.0
+FROM phusion/baseimage:master-amd64
 
-RUN /usr/bin/apt-get update && /usr/bin/apt-get install software-properties-common -y
-RUN /usr/bin/add-apt-repository ppa:certbot/certbot && /usr/bin/apt-get update && /usr/bin/apt-get install nginx  apache2-utils -y
-
-#  Add the certbot layer
-RUN /usr/bin/apt-get install python-certbot-nginx -y
+# Installing the required packages
+RUN apt-get update && apt-get install -y \
+	software-properties-common \
+	certbot \
+	python3-certbot-nginx \
+	nginx \
+	apache2-utils
 
 # Copying Proxy files 
 COPY setup.sh proxy-*.conf /root/

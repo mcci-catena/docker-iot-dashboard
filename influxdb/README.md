@@ -60,7 +60,7 @@ time                host    region  value
 
 Backup can be taken through shell script and synced with Amazon S3 cloud. When complete, mail notification will be sent for the backup.
 
-The backup shell script `backup.sh` wiil be configured in Crontab while building. (For testing, run `backup.sh` manually )
+The backup shell script `backup.sh` will be configured in Crontab while building. (For testing, run `backup.sh` manually )
 
 The backup shell script `backup.sh` will back up everything.
 
@@ -102,7 +102,7 @@ upload: ../../var/lib/influxdb-S3-bucket/ithaca-power.mcci.com_metdata_db_backup
 upload: ../../var/lib/influxdb-S3-bucket/ithaca-power.mcci.com_data_directory_backup_2020-05-23.tar.gz to s3://mcci-influxdb-test/ithaca-power.mcci.com_data_directory_backup_2020-05-23.tar.gz
 ```
 
-* Backup files will be uploaded in Amazon S3 bucket. They can be viewed using below command.
+- Backup files will be uploaded in Amazon S3 bucket. They can be viewed using below command.
 
 ```console
 root@influxdb:/opt/influxdb-backup# aws s3 ls s3://${S3_BUCKET_INFLUXDB}/

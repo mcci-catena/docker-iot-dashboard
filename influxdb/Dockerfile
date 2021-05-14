@@ -2,7 +2,7 @@
 # Dockerfile for building the influxdb instance with S3-backup and Mail alert setup
 #
 
-FROM phusion/baseimage:bionic-1.0.0
+FROM phusion/baseimage:master-amd64
 
 # Default InfluxDB host
 ENV INFLUX_HOST=influxdb
@@ -23,39 +23,36 @@ RUN apt-get update && apt-get install -y \
     net-tools \
     debconf-utils
 
+# Change workdir
+RUN mkdir -p /opt/influxdb-backup
+WORKDIR "/opt/influxdb-backup"
+
+# To backup influxdb to S3 Bucket, some packages need to be installed as follows:
+RUN apt-get update && apt-get install -y python3-pip influxdb
+RUN pip3 install s3cmd
+ARG AWS_ACCESS_KEY_ID
+ARG AWS_DEFAULT_REGION
+ARG AWS_HOST_BASE
+ARG AWS_HOST_BUCKET
+ARG AWS_SECRET_ACCESS_KEY
+RUN set -x \
+        && echo "[default]\naccess_key = ${AWS_ACCESS_KEY_ID}\nbucket_location = $AWS_DEFAULT_REGION\nhost_base = $AWS_HOST_BASE\nhost_bucket = $AWS_HOST_BUCKET\nsecret_key = $AWS_SECRET_ACCESS_KEY" | tee /root/.s3cfg
+
 # passing arguments to build postfix image
 ARG hostname
 ARG relay_ip
 ARG domain
 
 # Install Postfix
-run echo "postfix postfix/mailname string $host_name" | debconf-set-selections
-run echo "postfix postfix/main_mailer_type select Satellite system" | debconf-set-selections
-run apt-get update && apt-get install -y postfix
-run postconf -e relayhost=$relay_ip
+RUN echo "postfix postfix/mailname string $host_name" | debconf-set-selections
+RUN echo "postfix postfix/main_mailer_type select Satellite system" | debconf-set-selections
+RUN apt-get update && apt-get install -y postfix mailutils
+RUN postconf -e relayhost=$relay_ip
 
 # This will replace local mail addresses by valid Internet addresses when mail leaves the machine via SMTP.
-run echo "root@${hostname} influxdbbackup@${domain}" > /etc/postfix/generic
-run postconf -e smtp_generic_maps=hash:/etc/postfix/generic
-run postmap /etc/postfix/generic
-
-# mail command would be used for sending mails
-run apt-get install -y mailutils
-
-# Change workdir
-RUN mkdir -p /opt/influxdb-backup
-WORKDIR "/opt/influxdb-backup"
-
-# To backup influxdb to S3 Bucket, some packages need to be installed as follows:
-RUN apt-get update && apt-get install -y python-pip influxdb
-RUN pip install s3cmd
-ARG AWS_ACCESS_KEY_ID
-ARG AWS_DEFAULT_REGION
-ARG AWS_HOST_BASE
-ARG AWS_HOST_BUCKET_INFLUXDB
-ARG AWS_SECRET_ACCESS_KEY
-RUN set -x \
-        && echo "[default]\naccess_key = ${AWS_ACCESS_KEY_ID}\nbucket_location = $AWS_DEFAULT_REGION\nhost_base = $AWS_HOST_BASE\nhost_bucket = $AWS_HOST_BUCKET_INFLUXDB\nsecret_key = $AWS_SECRET_ACCESS_KEY" | tee /root/.s3cfg
+RUN echo "root@${hostname} influxdbbackup@${domain}" > /etc/postfix/generic
+RUN postconf -e smtp_generic_maps=hash:/etc/postfix/generic
+RUN postmap /etc/postfix/generic
 
 # Backup script for influxdb
 COPY backup.sh /bin/backup.sh

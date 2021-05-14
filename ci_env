@@ -1,0 +1,3 @@
+IOT_DASHBOARD_DATA=/var/opt/docker/dashboard.example.com/
+IOT_DASHBOARD_CERTBOT_FQDN=dashboard.example.com
+IOT_DASHBOARD_NGINX_FQDN=dashboard.example.com

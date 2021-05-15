@@ -3,9 +3,6 @@
 #
 
 # Build the MQTTS using phusion base image
-
-# passing arguments to map letsencrypt certs
-
 FROM phusion/baseimage:master-amd64
 
 # Installing mosquitto packages and certbot

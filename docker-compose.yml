@@ -3,22 +3,22 @@
 # Name: docker-compose.yml
 #
 # Function:
-#   Configure the docker-iot-dashboard collection of docker containers.
+# 	Configure the docker-iot-dashboard collection of docker containers.
 #
 # Copyright:
-#   This file copyright (c) 2017-2020 by
+#	This file copyright (c) 2017-2021 by
 #
-#   MCCI Corporation
-#   3520 Krums Corners Road
-#   Ithaca, NY 14850
+#		MCCI Corporation
+#		3520 Krums Corners Road
+#		Ithaca, NY 14850
 #
-# Distributed under the terms of the license file shipped with this
-# collection.
+#	Distributed under the terms of the license file shipped with this
+#	collection.
 #
 # Authors:
-#   Terry Moore, MCCI Corporation
-#   Murugan Chandrasekar, MCCI Corporation
-#   Based on work by Johan Stocking, The Things Network
+#	Terry Moore, MCCI Corporation
+#	Murugan Chandrasekar, MCCI Corporation
+#	Based on work by Johan Stocking, The Things Network
 #
 ##############################################################################
 

@@ -12,4 +12,4 @@
 
 6. Integrate the other things from `SETUP.md`.
 
-7. Add documention on setting up backups.
+7. Add documentation on setting up backups.

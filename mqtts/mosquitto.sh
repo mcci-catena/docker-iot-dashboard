@@ -8,4 +8,4 @@
 chown mosquitto /etc/mosquitto/*.pem
 
 # Starting the mosquitto service
-/usr/sbin/mosquitto -c /etc/mosquitto/mosquitto.conf 
+/usr/sbin/mosquitto -c /etc/mosquitto/mosquitto.conf

@@ -70,4 +70,3 @@ if [ "$1" != "proxy-*.conf" ] ; then
         rm -rf /etc/nginx/sites-enabled/000-default-le-ssl-local.conf || exit 9
         ln -s /etc/nginx/sites-available/000-default-le-ssl-local.conf /etc/nginx/sites-enabled/000-default-le-ssl-local.conf || exit 10
 fi
-

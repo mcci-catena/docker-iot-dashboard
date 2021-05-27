@@ -59,7 +59,10 @@
 #
 # IOT_DASHBOARD_AWS_S3_BUCKET_GRAFANA
 #   The name of S3 bucket for Grafana backup
-#      
+#
+# IOT_DASHBOARD_AWS_S3_BUCKET_MQTTS
+#   The name of S3 bucket for Mqtts backup
+#
 # IOT_DASHBOARD_AWS_S3_BUCKET_INFLUXDB
 #   The S3 bucket to be used for uploading the influxdb backup data.
 #
@@ -342,10 +345,14 @@ services:
       - "${IOT_DASHBOARD_DATA}grafana:/grafana"
       - "${IOT_DASHBOARD_DATA}node-red:/nodered"
       - "${IOT_DASHBOARD_DATA}docker-nginx:/nginx"
+      - "${IOT_DASHBOARD_DATA}mqtt/credentials:/mqtts"
+
     environment:
       CRON_BACKUP_MAIL: "${IOT_DASHBOARD_CRON_BACKUP_EMAIL:-}"
       SOURCE_NAME: "${IOT_DASHBOARD_CERTBOT_FQDN}"
       S3_BUCKET_NODERED: "${IOT_DASHBOARD_AWS_S3_BUCKET_NODERED:-.}"
       S3_BUCKET_GRAFANA: "${IOT_DASHBOARD_AWS_S3_BUCKET_GRAFANA:-.}"
       S3_BUCKET_NGINX: "${IOT_DASHBOARD_AWS_S3_BUCKET_NGINX:-.}"
+      S3_BUCKET_MQTTS: "${IOT_DASHBOARD_AWS_S3_BUCKET_MQTTS:-.}"
+
 ### end of file ###

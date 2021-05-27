@@ -14,6 +14,7 @@ crontab -l > mycron || echo "no crontab for root, going on"
     echo "35 6 * * * /bin/bash -l -c '/bin/nodered_backup.sh'"
     echo "35 7 * * * /bin/bash -l -c '/bin/grafana_backup.sh'" 
     echo "35 8 * * * /bin/bash -l -c '/bin/nginx_backup.sh'"
+    echo "35 9 * * * /bin/bash -l -c '/bin/mqtts_backup.sh'"
 } >> mycron
 
 # delete duplicated lines

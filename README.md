@@ -52,7 +52,7 @@ The auxiliary container is:
 
 1. [Postfix](http://www.postfix.org/documentation.html), which (if configured) handles outbound mail services for the containers (for now, `Influxdb`, `Node-red` and `Grafana`).
 
-2. [cron-backup](./cron-backup), which provides backup support for the `Nginx`, `Node-red` and `Grafana` containers and pushed the backed up data to S3-compatible storage.
+2. [cron-backup](./cron-backup), which provides backup support for the `Nginx`, `Node-red`, `Grafana` and `Mqtts` containers and pushed the backed up data to S3-compatible storage.
 
 To make things more specific, most of the description here assumes use of Digital Ocean. However, this was tested on Ubuntu 20.04 with no issues (apart from the additional complexity of setting up `apt-get` to fetch docker, and the need for a manual install of `docker-compose`), on Dream Compute, and on Microsoft Azure. This will work on any Linux or Linux-like platform that supports `docker` and `docker-compose`. *Note:-* Its likelihood of working with Raspberry Pi has not been tested as yet.
 
@@ -238,7 +238,7 @@ Please refer to [`influxdb/README.md`](./influxdb/README.md).
 
 - HEAD includes the following changes
 
-  - Included auxiliary backup container(`cron-backup`) for providing backup support for `Nginx`, `Node-red` and `Grafana` containers.
+  - Included auxiliary backup container(`cron-backup`) for providing backup support for `Nginx`, `Node-red`, `Grafana` and `Mqtts` containers.
   - Updated the base images used in all `Dockerfile` from bionic to focal.
   - Added Mosquitto(MQTT client) Ubuntu ppa repository to install the latest version and fixed ownership issue when accessing Let's encrypt certs.
   - Added TLS/SSL based SMTP authentication support in `Postfix` container.

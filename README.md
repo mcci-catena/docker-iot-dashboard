@@ -48,13 +48,13 @@ This dashboard uses [docker-compose](https://docs.docker.com/compose/overview/)
 
 5. An instance of [Mqtt](https://mosquitto.org/), which provides a lightweight method of carrying out messaging using a publish/subscribe model
 
-The auxiliary container is:
+The auxiliary containers are:
 
 1. [Postfix](http://www.postfix.org/documentation.html), which (if configured) handles outbound mail services for the containers (for now, `Influxdb`, `Node-red` and `Grafana`).
 
 2. [cron-backup](./cron-backup), which provides backup support for the `Nginx`, `Node-red`, `Grafana` and `Mqtts` containers and pushed the backed up data to S3-compatible storage.
 
-To make things more specific, most of the description here assumes use of Digital Ocean. However, this was tested on Ubuntu 20.04 with no issues (apart from the additional complexity of setting up `apt-get` to fetch docker, and the need for a manual install of `docker-compose`), on Dream Compute, and on Microsoft Azure. This will work on any Linux or Linux-like platform that supports `docker` and `docker-compose`. *Note:-* Its likelihood of working with Raspberry Pi has not been tested as yet.
+To make things more specific, most of the description here assumes use of Digital Ocean. However, this was tested on Ubuntu 20.04 with no issues (apart from the additional complexity of setting up `apt-get` to fetch docker, and the need for a manual install of `docker-compose`), on Dream Compute, and on Microsoft Azure. This will work on any Linux or Linux-like platform that supports `docker` and `docker-compose`. **Note:** Its likelihood of working with Raspberry Pi has not been tested as yet.
 
 ## Definitions
 
@@ -236,22 +236,22 @@ Please refer to [`influxdb/README.md`](./influxdb/README.md).
 
 ## Release History
 
-- HEAD includes the following changes
+- v2.0.0 includes the following changes
 
-  - Included auxiliary backup container(`cron-backup`) for providing backup support for `Nginx`, `Node-red`, `Grafana` and `Mqtts` containers.
+  - Included auxiliary backup container (`cron-backup`) for providing backup support for `Nginx`, `Node-red`, `Grafana` and `Mqtts` containers.
   - Updated the base images used in all `Dockerfile` from bionic to focal.
-  - Added Mosquitto(MQTT client) Ubuntu ppa repository to install the latest version and fixed ownership issue when accessing Let's encrypt certs.
+  - Added Mosquitto (MQTT client) Ubuntu ppa repository to install the latest version and fixed ownership issue when accessing Let's Encrypt certs.
   - Added TLS/SSL based SMTP authentication support in `Postfix` container.
   - Some minor changes in the following files: Dockerfile, docker-compose.yml, setup.md and shell scripts.
 
-- PR #6 includes the following changes
+- [v1.0.0](https://github.com/mcci-catena/docker-iot-dashboard/releases/tag/v1.0.0) has the following changes
   - Influxdb:
     1. Backup script is updated for backing up online (live) databases and to push the backup to Amazon bucket.
     2. Crontab was set for automatic backup.
     3. supports sending email for backup alerting.
   - Nginx:
     1. The Apache setup is migrated to Nginx.
-    2. Proxy-ing the services like ( influxdb, grafana, node-red, mqtts over proxy) was updated.
+    2. Proxy-ing the services like (influxdb, grafana, node-red, mqtts over proxy) was updated.
   - Node-red:
     1. supports data flowing via MQTT channel and HTTPS Endpoint
     2. supports sending email.
@@ -259,12 +259,12 @@ Please refer to [`influxdb/README.md`](./influxdb/README.md).
   - MQTTS:
     1. supports different connections as below:
         1. Mqtt Over Nginx proxy.
-        2. Mqtt over TCP( disabled by default )
+        2. Mqtt over TCP (disabled by default)
         3. Mqtt over TLS/SSL
-        4. Mqtt over Websockets(WSS)
+        4. Mqtt over Websockets (WSS)
 
   - Postfix:
-    1. Configured to Relay mails via External SMTP Auth( Tested with Gmail and Mailgun ).
+    1. Configured to Relay mails via External SMTP Auth (Tested with Gmail and Mailgun).
     2. Mails generated from Containers like Grafana,Influxdb and Node-red will be relayed through Postfix container.
 
 ## Meta

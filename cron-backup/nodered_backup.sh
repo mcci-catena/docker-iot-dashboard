@@ -11,11 +11,11 @@ nodered_src='/nodered'
 if [ ! -d $nodered_src ]; then
 
         echo "DATE:" $DATE > /tmp/nodered.txt
-        echo " " >> /tmp/nodered.txt
+        echo "" >> /tmp/nodered.txt
         echo "DESCRIPTION: ${SOURCE_NAME}_Nodered backup" >> /tmp/nodered.txt
-        echo " " >> /tmp/nodered.txt
-        echo "STATUS: Nodered backup is Failed." >> /tmp/nodered.txt
-        echo " " >> /tmp/nodered.txt
+        echo "" >> /tmp/nodered.txt
+        echo "STATUS: Nodered backup failed." >> /tmp/nodered.txt
+        echo "" >> /tmp/nodered.txt
 	echo "The source backup directory: nodered_src is not available" >> /tmp/nodered.txt
         < /tmp/nodered.txt mail -s "${SOURCE_NAME}: Nodered Data Backup" "${CRON_BACKUP_MAIL}"
 	exit
@@ -29,25 +29,25 @@ s3cmd put -r --no-mime-magic /var/lib/backup/nodered/ s3://"${S3_BUCKET_NODERED}
 if [ $? -eq 0 ]; then
 
         echo "DATE:" $DATE > /tmp/nodered.txt
-        echo " " >> /tmp/nodered.txt
+        echo "" >> /tmp/nodered.txt
         echo "DESCRIPTION: ${SOURCE_NAME}_Nodered backup" >> /tmp/nodered.txt
-        echo " " >> /tmp/nodered.txt
-        echo "STATUS: Node-red backup is Successful." >> /tmp/nodered.txt
-        echo " " >> /tmp/nodered.txt
+        echo "" >> /tmp/nodered.txt
+        echo "STATUS: Node-red backup succeeded." >> /tmp/nodered.txt
+        echo "" >> /tmp/nodered.txt
         echo "******* Node-red Data Backup ****************" >> /tmp/nodered.txt
-        echo " " >> /tmp/nodered.txt
+        echo "" >> /tmp/nodered.txt
         s3cmd ls --no-mime-magic s3://"${S3_BUCKET_NODERED}"/  --human-readable | grep -i "${SOURCE_NAME}"_nodered_data | cut -d' ' -f3- | tac | head -10 | sed "s,s3:\/\/${S3_BUCKET_NODERED}\/,,g" &>> /tmp/nodered.txt
-        echo " " >> /tmp/nodered.txt
+        echo "" >> /tmp/nodered.txt
         echo "************** END **************************" >> /tmp/nodered.txt
 
 else
         echo "DATE:" "$DATE" > /tmp/nodered.txt
-        echo " " >> /tmp/nodered.txt
+        echo "" >> /tmp/nodered.txt
         echo "DESCRIPTION: ${SOURCE_NAME}_Nodered backup" >> /tmp/nodered.txt
-        echo " " >> /tmp/nodered.txt
-        echo "STATUS: Nodered backup is Failed." >> /tmp/nodered.txt
-        echo " " >> /tmp/nodered.txt
-        echo "Something went wrong, Please check it"  >> /tmp/nodered.txt
+        echo "" >> /tmp/nodered.txt
+        echo "STATUS: Nodered backup failed." >> /tmp/nodered.txt
+        echo "" >> /tmp/nodered.txt
+        echo "Something went wrong, please check it"  >> /tmp/nodered.txt
         < /tmp/nodered.txt mail -s "${SOURCE_NAME}: Nodered Data Backup" "${CRON_BACKUP_MAIL}"
 fi
 < /tmp/nodered.txt mail -s "${SOURCE_NAME}: Nodered Data Backup" "${CRON_BACKUP_MAIL}"

@@ -272,9 +272,6 @@ services:
       - "8086"
     volumes:
       - "${IOT_DASHBOARD_DATA}influxdb:/var/lib/influxdb"
-    # Dircectory for influxdb metadata and database backup inside "./data"
-      - "${IOT_DASHBOARD_DATA}influx-backup:/var/lib/influxdb-backup"
-      - "${IOT_DASHBOARD_DATA}influxdb-S3-bucket:/var/lib/influxdb-S3-bucket"
     environment:
       INFLUXDB_INIT_PWD: "${IOT_DASHBOARD_INFLUXDB_ADMIN_PASSWORD:-!notset}"
       PRE_CREATE_DB: "${IOT_DASHBOARD_INFLUXDB_INITIAL_DATABASE_NAME:-demo}"
@@ -346,7 +343,6 @@ services:
       - "${IOT_DASHBOARD_DATA}node-red:/nodered"
       - "${IOT_DASHBOARD_DATA}docker-nginx:/nginx"
       - "${IOT_DASHBOARD_DATA}mqtt/credentials:/mqtts"
-
     environment:
       CRON_BACKUP_MAIL: "${IOT_DASHBOARD_CRON_BACKUP_EMAIL:-}"
       SOURCE_NAME: "${IOT_DASHBOARD_CERTBOT_FQDN}"

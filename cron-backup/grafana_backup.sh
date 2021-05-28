@@ -11,11 +11,11 @@ grafana_src='/grafana'
 if [ ! -d $grafana_src ]; then
 
         echo "DATE:" $DATE > /tmp/grafana.txt
-        echo " " >> /tmp/grafana.txt
+        echo "" >> /tmp/grafana.txt
         echo "DESCRIPTION: ${SOURCE_NAME}_Grafana backup" >> /tmp/grafana.txt
-        echo " " >> /tmp/grafana.txt
-        echo "STATUS: Grafana backup is Failed." >> /tmp/grafana.txt
-        echo " " >> /tmp/grafana.txt
+        echo "" >> /tmp/grafana.txt
+        echo "STATUS: Grafana backup failed" >> /tmp/grafana.txt
+        echo "" >> /tmp/grafana.txt
 	echo "The source backup directory: grafana_src is not available" >> /tmp/grafana.txt
         < /tmp/grafana.txt mail -s "${SOURCE_NAME}: Grafana Data Backup" "${CRON_BACKUP_MAIL}"
 	exit
@@ -29,25 +29,25 @@ s3cmd put -r --no-mime-magic /var/lib/backup/grafana/ s3://"${S3_BUCKET_GRAFANA}
 if [ $? -eq 0 ]; then
 
         echo "DATE:" $DATE > /tmp/grafana.txt
-        echo " " >> /tmp/grafana.txt
+        echo "" >> /tmp/grafana.txt
         echo "DESCRIPTION: ${SOURCE_NAME}_Grafana backup" >> /tmp/grafana.txt
-        echo " " >> /tmp/grafana.txt
-        echo "STATUS: Grafana backup is Successful." >> /tmp/grafana.txt
-        echo " " >> /tmp/grafana.txt
+        echo "" >> /tmp/grafana.txt
+        echo "STATUS: Grafana backup succeeded." >> /tmp/grafana.txt
+        echo "" >> /tmp/grafana.txt
         echo "******* Grafana Data Backup ****************" >> /tmp/grafana.txt
-        echo " " >> /tmp/grafana.txt
+        echo "" >> /tmp/grafana.txt
         s3cmd ls --no-mime-magic s3://"${S3_BUCKET_GRAFANA}"/  --human-readable | grep -i "${SOURCE_NAME}"_grafana_data | cut -d' ' -f3- | tac | head -10 | sed "s,s3:\/\/${S3_BUCKET_GRAFANA}\/,,g" &>> /tmp/grafana.txt
-        echo " " >> /tmp/grafana.txt
+        echo "" >> /tmp/grafana.txt
         echo "************** END **************************" >> /tmp/grafana.txt
 
 else
         echo "DATE:" $DATE > /tmp/grafana.txt
-        echo " " >> /tmp/grafana.txt
+        echo "" >> /tmp/grafana.txt
         echo "DESCRIPTION: ${SOURCE_NAME}_Grafana backup" >> /tmp/grafana.txt
-        echo " " >> /tmp/grafana.txt
-        echo "STATUS: Grafana backup is Failed." >> /tmp/grafana.txt
-        echo " " >> /tmp/grafana.txt
-        echo "Something went wrong, Please check it"  >> /tmp/grafana.txt
+        echo "" >> /tmp/grafana.txt
+        echo "STATUS: Grafana backup failed" >> /tmp/grafana.txt
+        echo "" >> /tmp/grafana.txt
+        echo "Something went wrong, please check it"  >> /tmp/grafana.txt
         < /tmp/grafana.txt mail -s "${SOURCE_NAME}: Grafana Data Backup" "${CRON_BACKUP_MAIL}"
 fi
 < /tmp/grafana.txt mail -s "${SOURCE_NAME}: Grafana Data Backup" "${CRON_BACKUP_MAIL}"

@@ -58,3 +58,5 @@ RUN apt-get update && apt-get install -y mailutils
 RUN mkdir -p /etc/my_init.d
 COPY postfix.sh /etc/my_init.d/postfix.sh
 RUN chmod +x /etc/my_init.d/postfix.sh
+
+# end of file

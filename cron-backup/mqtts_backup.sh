@@ -11,11 +11,11 @@ mqtts_src='/mqtts'
 if [ ! -d $mqtts_src ]; then
 
         echo "DATE:" $DATE > /tmp/mqtts.txt
-        echo " " >> /tmp/mqtts.txt
+        echo "" >> /tmp/mqtts.txt
         echo "DESCRIPTION: ${SOURCE_NAME}_MQTTs backup" >> /tmp/mqtts.txt
-        echo " " >> /tmp/mqtts.txt
-        echo "STATUS: MQTTs backup is Failed." >> /tmp/mqtts.txt
-        echo " " >> /tmp/mqtts.txt
+        echo "" >> /tmp/mqtts.txt
+        echo "STATUS: MQTTs backup failed." >> /tmp/mqtts.txt
+        echo "" >> /tmp/mqtts.txt
 	echo "The source backup directory: mqtts_src is not available" >> /tmp/mqtts.txt
         < /tmp/mqtts.txt mail -s "${SOURCE_NAME}: MQTTs Data Backup" "${CRON_BACKUP_MAIL}"
 	exit
@@ -29,25 +29,25 @@ s3cmd put -r --no-mime-magic /var/lib/backup/mqtts/ s3://"${S3_BUCKET_MQTTS}"/
 if [ $? -eq 0 ]; then
 
         echo "DATE:" $DATE > /tmp/mqtts.txt
-        echo " " >> /tmp/mqtts.txt
+        echo "" >> /tmp/mqtts.txt
         echo "DESCRIPTION: ${SOURCE_NAME}_MQTTs backup" >> /tmp/mqtts.txt
-        echo " " >> /tmp/mqtts.txt
-        echo "STATUS: MQTTs backup is Successful." >> /tmp/mqtts.txt
-        echo " " >> /tmp/mqtts.txt
+        echo "" >> /tmp/mqtts.txt
+        echo "STATUS: MQTTs backup succeeded." >> /tmp/mqtts.txt
+        echo "" >> /tmp/mqtts.txt
         echo "******* MQTTs Data Backup ****************" >> /tmp/mqtts.txt
-        echo " " >> /tmp/mqtts.txt
+        echo "" >> /tmp/mqtts.txt
         s3cmd ls --no-mime-magic s3://"${S3_BUCKET_MQTTS}"/  --human-readable | grep -i "${SOURCE_NAME}"_mqtts_data | cut -d' ' -f3- | tac | head -10 | sed "s,s3:\/\/${S3_BUCKET_MQTTS}\/,,g" &>> /tmp/mqtts.txt
-        echo " " >> /tmp/mqtts.txt
+        echo "" >> /tmp/mqtts.txt
         echo "************** END **************************" >> /tmp/mqtts.txt
 
 else
         echo "DATE:" $DATE > /tmp/mqtts.txt
-        echo " " >> /tmp/mqtts.txt
+        echo "" >> /tmp/mqtts.txt
         echo "DESCRIPTION: ${SOURCE_NAME}_MQTTs backup" >> /tmp/mqtts.txt
-        echo " " >> /tmp/mqtts.txt
-        echo "STATUS: MQTTs backup is Failed." >> /tmp/mqtts.txt
-        echo " " >> /tmp/mqtts.txt
-        echo "Something went wrong, Please check it"  >> /tmp/mqtts.txt
+        echo "" >> /tmp/mqtts.txt
+        echo "STATUS: MQTTs backup failed." >> /tmp/mqtts.txt
+        echo "" >> /tmp/mqtts.txt
+        echo "Something went wrong, please check it"  >> /tmp/mqtts.txt
         < /tmp/mqtts.txt mail -s "${SOURCE_NAME}: MQTTs Data Backup" "${CRON_BACKUP_MAIL}"
 fi
 < /tmp/mqtts.txt mail -s "${SOURCE_NAME}: MQTTs Data Backup" "${CRON_BACKUP_MAIL}"

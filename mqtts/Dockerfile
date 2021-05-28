@@ -19,3 +19,5 @@ COPY mosquitto.conf /etc/mosquitto/mosquitto.conf
 RUN mkdir /etc/service/mosquitto
 COPY mosquitto.sh /etc/service/mosquitto/run
 RUN chmod +x /etc/service/mosquitto/run
+
+# end of file

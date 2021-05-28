@@ -3,7 +3,8 @@
 # 1. Node-red
 # 2. Grafana
 # 3. Nginx
-#
+# 4. Mqtts
+
 FROM phusion/baseimage:master-amd64
 
 #some basic package installation for troubleshooting
@@ -55,6 +56,10 @@ RUN chmod +x /bin/grafana_backup.sh
 # Backup script for Nginx data directory backup
 COPY nginx_backup.sh /bin/nginx_backup.sh
 RUN chmod +x /bin/nginx_backup.sh
+
+# Backup script for Mqtts data directory backup
+COPY mqtts_backup.sh /bin/mqtts_backup.sh
+RUN chmod +x /bin/mqtts_backup.sh
 
 # Start the postfix daemon during container startup
 COPY postfix.sh /etc/my_init.d/postfix.sh

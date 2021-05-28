@@ -29,14 +29,11 @@ do
   influxd backup -portable -database "$db" -host "$INFLUX_HOST":8088 /var/lib/influxdb-backup
 done < "/tmp/data.txt"
 
-
-tar czf /var/lib/backup/influxdb/"${SOURCE_NAME}"_influxdb_metdata_db_backup_"${DATE1}".tgz /var/lib/influxdb-backup/ && tar czf /var/lib/backup/influxdb/${SOURCE_NAME}_influxdb_data_backup_${DATE1}.tgz /var/lib/influxdb/
-
-s3cmd put -r --no-mime-magic /var/lib/backup/influxdb/ s3://"${S3_BUCKET_INFLUXDB}"/
+tar czf /var/lib/backup/influxdb/"${SOURCE_NAME}"_influxdb_metdata_db_backup_"${DATE1}".tgz /var/lib/influxdb-backup/ && tar czf /var/lib/backup/influxdb/"${SOURCE_NAME}"_influxdb_data_backup_"${DATE1}".tgz /var/lib/influxdb/
 
 # Moving the backup to S3 bucket
-if [ $? -eq 0 ]; then
-
+if s3cmd put -r --no-mime-magic /var/lib/backup/influxdb/ s3://"${S3_BUCKET_INFLUXDB}"/;
+then
         echo "DATE:" "$DATE" > /tmp/influxbackup.txt
         echo "" >> /tmp/influxbackup.txt
         echo "DESCRIPTION: ${SOURCE_NAME}_Influxdb backup" >> /tmp/influxbackup.txt
@@ -54,7 +51,7 @@ if [ $? -eq 0 ]; then
         echo "********************** END *********************  " >> /tmp/influxbackup.txt
 
 else
-        echo "DATE:" $DATE > /tmp/influxbackup.txt
+        echo "DATE:" "$DATE" > /tmp/influxbackup.txt
         echo "" >> /tmp/influxbackup.txt
         echo "DESCRIPTION: ${SOURCE_NAME}_Influxdb backup" >> /tmp/influxbackup.txt
         echo "" >> /tmp/influxbackup.txt

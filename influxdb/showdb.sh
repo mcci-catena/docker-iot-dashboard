@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 # TO Show all Databases that will be used by backup.sh script for backup
 
 showdb(){

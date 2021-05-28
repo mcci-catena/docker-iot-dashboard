@@ -10,7 +10,7 @@ nginx_src='/nginx'
 
 if [ ! -d $nginx_src ]; then
 
-        echo "DATE:" $DATE > /tmp/nginx.txt
+        echo "DATE:" "$DATE" > /tmp/nginx.txt
         echo "" >> /tmp/nginx.txt
         echo "DESCRIPTION: ${SOURCE_NAME}_Nginx backup" >> /tmp/nginx.txt
         echo "" >> /tmp/nginx.txt
@@ -23,12 +23,10 @@ else
 	tar cvzf /var/lib/backup/nginx/"${SOURCE_NAME}"_nginx_data_backup_"${DATE1}".tgz ${nginx_src}/
 fi
 
-s3cmd put -r --no-mime-magic /var/lib/backup/nginx/ s3://"${S3_BUCKET_NGINX}"/
-
 # Moving the backup to S3 bucket
-if [ $? -eq 0 ]; then
-
-        echo "DATE:" $DATE > /tmp/nginx.txt
+if s3cmd put -r --no-mime-magic /var/lib/backup/nginx/ s3://"${S3_BUCKET_NGINX}"/;
+then
+        echo "DATE:" "$DATE" > /tmp/nginx.txt
         echo "" >> /tmp/nginx.txt
         echo "DESCRIPTION: ${SOURCE_NAME}_Nginx backup" >> /tmp/nginx.txt
         echo "" >> /tmp/nginx.txt
@@ -41,7 +39,7 @@ if [ $? -eq 0 ]; then
         echo "************** END **************************" >> /tmp/nginx.txt
 
 else
-        echo "DATE:" $DATE > /tmp/nginx.txt
+        echo "DATE:" "$DATE" > /tmp/nginx.txt
         echo "" >> /tmp/nginx.txt
         echo "DESCRIPTION: ${SOURCE_NAME}_Nginx backup" >> /tmp/nginx.txt
         echo "" >> /tmp/nginx.txt

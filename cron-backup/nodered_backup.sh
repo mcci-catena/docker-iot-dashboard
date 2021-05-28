@@ -10,7 +10,7 @@ nodered_src='/nodered'
 
 if [ ! -d $nodered_src ]; then
 
-        echo "DATE:" $DATE > /tmp/nodered.txt
+        echo "DATE:" "$DATE" > /tmp/nodered.txt
         echo "" >> /tmp/nodered.txt
         echo "DESCRIPTION: ${SOURCE_NAME}_Nodered backup" >> /tmp/nodered.txt
         echo "" >> /tmp/nodered.txt
@@ -23,12 +23,10 @@ else
 	tar cvzf /var/lib/backup/nodered/"${SOURCE_NAME}"_nodered_data_backup_"${DATE1}".tgz ${nodered_src}/
 fi
 
-s3cmd put -r --no-mime-magic /var/lib/backup/nodered/ s3://"${S3_BUCKET_NODERED}"/
-
 # Moving the backup to S3 bucket
-if [ $? -eq 0 ]; then
-
-        echo "DATE:" $DATE > /tmp/nodered.txt
+if s3cmd put -r --no-mime-magic /var/lib/backup/nodered/ s3://"${S3_BUCKET_NODERED}"/;
+then
+        echo "DATE:" "$DATE" > /tmp/nodered.txt
         echo "" >> /tmp/nodered.txt
         echo "DESCRIPTION: ${SOURCE_NAME}_Nodered backup" >> /tmp/nodered.txt
         echo "" >> /tmp/nodered.txt

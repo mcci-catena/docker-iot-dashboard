@@ -10,7 +10,7 @@ grafana_src='/grafana'
 
 if [ ! -d $grafana_src ]; then
 
-        echo "DATE:" $DATE > /tmp/grafana.txt
+        echo "DATE:" "$DATE" > /tmp/grafana.txt
         echo "" >> /tmp/grafana.txt
         echo "DESCRIPTION: ${SOURCE_NAME}_Grafana backup" >> /tmp/grafana.txt
         echo "" >> /tmp/grafana.txt
@@ -23,12 +23,10 @@ else
 	tar cvzf /var/lib/backup/grafana/"${SOURCE_NAME}"_grafana_data_backup_"${DATE1}".tgz ${grafana_src}/
 fi
 
-s3cmd put -r --no-mime-magic /var/lib/backup/grafana/ s3://"${S3_BUCKET_GRAFANA}"/
-
 # Moving the backup to S3 bucket
-if [ $? -eq 0 ]; then
-
-        echo "DATE:" $DATE > /tmp/grafana.txt
+if s3cmd put -r --no-mime-magic /var/lib/backup/grafana/ s3://"${S3_BUCKET_GRAFANA}"/;
+then
+        echo "DATE:" "$DATE" > /tmp/grafana.txt
         echo "" >> /tmp/grafana.txt
         echo "DESCRIPTION: ${SOURCE_NAME}_Grafana backup" >> /tmp/grafana.txt
         echo "" >> /tmp/grafana.txt
@@ -41,7 +39,7 @@ if [ $? -eq 0 ]; then
         echo "************** END **************************" >> /tmp/grafana.txt
 
 else
-        echo "DATE:" $DATE > /tmp/grafana.txt
+        echo "DATE:" "$DATE" > /tmp/grafana.txt
         echo "" >> /tmp/grafana.txt
         echo "DESCRIPTION: ${SOURCE_NAME}_Grafana backup" >> /tmp/grafana.txt
         echo "" >> /tmp/grafana.txt

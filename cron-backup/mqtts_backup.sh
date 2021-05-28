@@ -10,7 +10,7 @@ mqtts_src='/mqtts'
 
 if [ ! -d $mqtts_src ]; then
 
-        echo "DATE:" $DATE > /tmp/mqtts.txt
+        echo "DATE:" "$DATE" > /tmp/mqtts.txt
         echo "" >> /tmp/mqtts.txt
         echo "DESCRIPTION: ${SOURCE_NAME}_MQTTs backup" >> /tmp/mqtts.txt
         echo "" >> /tmp/mqtts.txt
@@ -23,12 +23,10 @@ else
 	tar cvzf /var/lib/backup/mqtts/"${SOURCE_NAME}"_mqtts_data_backup_"${DATE1}".tgz ${mqtts_src}/
 fi
 
-s3cmd put -r --no-mime-magic /var/lib/backup/mqtts/ s3://"${S3_BUCKET_MQTTS}"/
-
 # Moving the backup to S3 bucket
-if [ $? -eq 0 ]; then
-
-        echo "DATE:" $DATE > /tmp/mqtts.txt
+if s3cmd put -r --no-mime-magic /var/lib/backup/mqtts/ s3://"${S3_BUCKET_MQTTS}"/;
+then
+        echo "DATE:" "$DATE" > /tmp/mqtts.txt
         echo "" >> /tmp/mqtts.txt
         echo "DESCRIPTION: ${SOURCE_NAME}_MQTTs backup" >> /tmp/mqtts.txt
         echo "" >> /tmp/mqtts.txt
@@ -41,7 +39,7 @@ if [ $? -eq 0 ]; then
         echo "************** END **************************" >> /tmp/mqtts.txt
 
 else
-        echo "DATE:" $DATE > /tmp/mqtts.txt
+        echo "DATE:" "$DATE" > /tmp/mqtts.txt
         echo "" >> /tmp/mqtts.txt
         echo "DESCRIPTION: ${SOURCE_NAME}_MQTTs backup" >> /tmp/mqtts.txt
         echo "" >> /tmp/mqtts.txt

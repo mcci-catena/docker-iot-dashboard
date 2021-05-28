@@ -50,7 +50,7 @@ This dashboard uses [docker-compose](https://docs.docker.com/compose/overview/)
 
 The auxiliary containers are:
 
-1. [Postfix](http://www.postfix.org/documentation.html), which (if configured) handles outbound mail services for the containers (for now, `Influxdb`, `Node-red` and `Grafana`).
+1. [Postfix](http://www.postfix.org/documentation.html), which (if configured) handles outbound mail services for the containers (for now, `Influxdb`, `Node-red`, `cron-backup` and `Grafana`).
 
 2. [cron-backup](./cron-backup), which provides backup support for the `Nginx`, `Node-red`, `Grafana` and `Mqtts` containers and pushed the backed up data to S3-compatible storage.
 

@@ -16,7 +16,7 @@ if [ ! -d $grafana_src ]; then
         echo "" >> /tmp/grafana.txt
         echo "STATUS: Grafana backup failed" >> /tmp/grafana.txt
         echo "" >> /tmp/grafana.txt
-	echo "The source backup directory: grafana_src is not available" >> /tmp/grafana.txt
+	      echo "The source backup directory: grafana_src is not available" >> /tmp/grafana.txt
         < /tmp/grafana.txt mail -s "${SOURCE_NAME}: Grafana Data Backup" "${CRON_BACKUP_MAIL}"
 	exit
 else

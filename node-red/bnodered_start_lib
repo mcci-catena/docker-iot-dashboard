@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# To start node-red, sleeping for 20s to delay the script starting at booting
+sleep 20s
+a=$(netstat -nl | grep -o 1880)
+
+if [[ $a = 1880 ]]
+then
+  cp -rvfp /nodered_lib/* /data/lib/flows/
+  cd /data
+  npm install node-red-node-base64 node-red-contrib-ttn@${NODE_RED_CONTRIB_TTN_VERSION} ${NODE_RED_INSTALL_MODULES}
+  npm audit
+  sleep infinity 
+else
+  exit
+fi

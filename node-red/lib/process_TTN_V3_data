@@ -1,0 +1,106 @@
+[
+    {
+        "id": "e0be0b0d.5fbb",
+        "type": "subflow",
+        "name": "TTN V3 MQTT to Internal",
+        "info": "",
+        "category": "",
+        "in": [
+            {
+                "x": 40,
+                "y": 80,
+                "wires": [
+                    {
+                        "id": "7694b561.923c24"
+                    }
+                ]
+            }
+        ],
+        "out": [
+            {
+                "x": 700,
+                "y": 80,
+                "wires": [
+                    {
+                        "id": "172baf21.36ff99",
+                        "port": 0
+                    }
+                ]
+            },
+            {
+                "x": 700,
+                "y": 160,
+                "wires": [
+                    {
+                        "id": "5dbdf111.fa179",
+                        "port": 0
+                    }
+                ]
+            }
+        ],
+        "env": [],
+        "color": "#DDAA99"
+    },
+    {
+        "id": "7694b561.923c24",
+        "type": "json",
+        "z": "e0be0b0d.5fbb",
+        "name": "",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 190,
+        "y": 80,
+        "wires": [
+            [
+                "5dbdf111.fa179"
+            ]
+        ]
+    },
+    {
+        "id": "5dbdf111.fa179",
+        "type": "function",
+        "z": "e0be0b0d.5fbb",
+        "name": "TTN V3 > V2",
+        "func": "/*\n\nName:   ttn_v3_to_v2_converter.js\n\nFunction:\n    This function converts the TTN v3 payload into v2 payload format.\n\nVersion:\n    2.0.0   Fri Aug 13 2021 20:19:11    tmm Edit level 2\n\nCopyright and License:\n    This file copyright (c) 2021 by\n\n        MCCI Corporation\n        3520 Krums Corners Road\n        Ithaca, NY   14850\n\n    Released under the MIT license.\n\nAuthor:\n    Sivaprakash Veluthambi, MCCI Corporation   March 2021\n\nRevision history:\n   2.0.0  Fri Aug 13 2021 20:19:11  tmm\n        Bug fixes; header fixes.\n \n*/\n\nfunction fixChannel(msg) {\n    var bandwidth = msg.payload_v3.uplink_message.settings.frequency;\n    var frequency = msg.payload_v3.uplink_message.settings.data_rate.lora.bandwidth/1000;\n    var fBase = bandwidth === 125 ? 902.3 : 903;\n    var fWidth = bandwidth === 125 ? 0.2 : 1.6;\n    var chBase = bandwidth === 125 ? 0 : 64;\n    var channel = (frequency - fBase) / fWidth + chBase;\n    // channel is the 0..71 channel from the regional spec,\n    // not the number from TTN v2 for US.\n    // round channel to nearest multiple of 0.001\n    channel = Math.floor(channel * 1000 + 0.5) / 1000;\n    if (0 <= channel && channel <= 63 && bandwidth === 125) {\n        // probably US. that means subband 2, so offset\n        msg.metadata.gateways[i].channel = channel - 8;\n    } else if (64 <= channel && channel <= 71 && bandwidth === 500) {\n        msg.metadata.gateways[i].channel = channel;\n    } else {\n        msg.metadata.gateways[i].channel = 0;\n    }\n}\n\nif (msg.topic.startsWith(\"v3\")) {\n    msg['payload_v3'] = msg.payload;\n    msg.payload = {};\n\n    // device info\n    msg.app_id = msg.payload_v3.end_device_ids.application_ids.application_id;\n    msg.dev_id = msg.payload_v3.end_device_ids.device_id;\n    msg.hardware_serial = msg.payload_v3.end_device_ids.dev_eui;\n\n    // uplink info\n    msg.port = msg.payload_v3.uplink_message.f_port;\n    msg.counter = msg.payload_v3.uplink_message.f_cnt;\n    if (msg.port === 0) {\n        msg.payload_raw = \"\";\n    }\n    else {\n        msg.payload_raw = msg.payload_v3.uplink_message.frm_payload;\n    }\n\n    // payload\n    if ('decoded_payload' in msg.payload_v3.uplink_message) {\n        msg.payload_fields = {};\n        for (var iField in msg.payload_v3.uplink_message.decoded_payload) {\n            msg.payload_fields[iField] = msg.payload_v3.uplink_message.decoded_payload[iField];\n        }\n        msg.payload = msg.payload_fields;\n    }\n    else {\n        msg.payload = {};\n    }\n\n    // metadata\n    var metadata = {};\n    msg.metadata = metadata;\n    metadata.time = msg.payload_v3.uplink_message.received_at;\n    metadata.frequency = msg.payload_v3.uplink_message.settings.frequency/(1000*1000);\n    metadata.modulation = \"LORA\"\n    // data rate = spreading factor + bandwidth\n    metadata.data_rate = \"SF\" + msg.payload_v3.uplink_message.settings.data_rate.lora.spreading_factor + \"BW\" + (msg.payload_v3.uplink_message.settings.data_rate.lora.bandwidth/1000)\n    metadata.airtime = msg.payload_v3.uplink_message.consumed_airtime;\n    metadata.coding_rate = msg.payload_v3.uplink_message.settings.coding_rate;\n\n    // metadata gateway info\n    metadata.gateways = [];\n    for (var i in msg.payload_v3.uplink_message.rx_metadata) {\n        metadata.gateways[i] = {};\n        metadata.gateways[i].gtw_id = msg.payload_v3.uplink_message.rx_metadata[i].gateway_ids.gateway_id;\n        metadata.gateways[i].rssi = msg.payload_v3.uplink_message.rx_metadata[i].rssi;\n        metadata.gateways[i].snr = msg.payload_v3.uplink_message.rx_metadata[i].snr;\n        metadata.gateways[i].rf_chain = \"unknown\";\n\n        if (\"channel_index\" in msg.payload_v3.uplink_message.rx_metadata[i] && msg.payload_v3.uplink_message.rx_metadata[i].channel_index > 0) {\n            metadata.gateways[i].channel = msg.payload_v3.uplink_message.rx_metadata[i].channel_index;\n        }\n        else {\n            // fix channel\n            fixChannel(msg)\n        }\n\n        if (\"timestamp\" in msg.payload_v3.uplink_message.rx_metadata[i]) {\n            metadata.gateways[i].timestamp = msg.payload_v3.uplink_message.rx_metadata[i].timestamp;\n        }\n        \n        if (\"time\" in msg.payload_v3.uplink_message.rx_metadata[i]) {\n            metadata.gateways[i].time = msg.payload_v3.uplink_message.rx_metadata[i].time;\n        }\n    }\n\n}\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 356,
+        "y": 80,
+        "wires": [
+            [
+                "172baf21.36ff99"
+            ]
+        ]
+    },
+    {
+        "id": "172baf21.36ff99",
+        "type": "base64",
+        "z": "e0be0b0d.5fbb",
+        "name": "",
+        "action": "",
+        "property": "payload_raw",
+        "x": 527,
+        "y": 80,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "4802ab3c.9729cc",
+        "type": "subflow:e0be0b0d.5fbb",
+        "z": "3b21b7db.6abef8",
+        "name": "Process TTN v3 data",
+        "env": [],
+        "x": 160,
+        "y": 680,
+        "wires": [
+            [
+                "fc52c7d6.af67e8"
+            ],
+            [
+                "3c78eced.f3862c"
+            ]
+        ]
+    }
+]

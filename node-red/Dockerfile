@@ -31,4 +31,3 @@ COPY settings.js /usr/src/node-red/.node-red/
 CMD ["npm", "start", "--", "--userDir", "/data", "--settings", "/usr/src/node-red/.node-red/settings.js"]
 
 # end of file
-

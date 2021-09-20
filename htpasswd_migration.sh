@@ -53,12 +53,12 @@ case $var in
 				esac
 			done
 		done
-		echo " "
-		echo " "
-		echo " "
+		echo ""
+		echo ""
+		echo ""
 		echo "It is done. Thanks!"
-		echo " "
-		echo " "
+		echo ""
+		echo ""
                 exit
     	;;
 
@@ -73,12 +73,12 @@ case $var in
 				sed -n "/$k/p" "$htpasswd" >> "${file}_htpasswd"
 	        	done
 		done < "$htgroup"
-		echo " "
-		echo " "
-		echo " "
+		echo ""
+		echo ""
+		echo ""
 		echo "It is done. Thanks!"
-		echo " "
-		echo " "
+		echo ""
+		echo ""
 		exit
 		;;
 

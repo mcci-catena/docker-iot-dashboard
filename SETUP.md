@@ -267,6 +267,9 @@ IOT_DASHBOARD_AWS_S3_BUCKET_NODERED=dashboard.example.com/nodered
 #
 IOT_DASHBOARD_AWS_S3_BUCKET_GRAFANA=dashboard.example.com/grafana
 #   The name of S3 bucket for Grafana backup
+#
+IOT_DASHBOARD_AWS_S3_BUCKET_MQTTS=dashboard.example.com/mqtts
+#   The name of S3 bucket for Mqtts backup
 #      
 IOT_DASHBOARD_AWS_S3_BUCKET_INFLUXDB=dashboard.example.com/influxdb
 #   The S3 bucket to be used for uploading the influxdb backup data.

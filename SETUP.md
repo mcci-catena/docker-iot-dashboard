@@ -8,14 +8,15 @@
 - [Notes](#notes)
 - [Cloud-Provider-Specific Setup](#cloud-provider-specific-setup)
 	- [On Digital Ocean](#on-digital-ocean)
-		- [Create droplet](#create-droplet)
-		- [Configure droplet](#configure-droplet)
+        - [Create droplet](#create-droplet)
+        - [Configure droplet](#configure-droplet)
+    - [List of required ports to be opened in the firewall](#list-of-required-ports-to-be-opened-in-the-firewall)
 - [After server is set up](#after-server-is-set-up)
-	- [Create and edit the .env file](#Create-and-edit-the-.env-file)
+	- [Create and edit the .env file](#create-and-edit-the-env-file)
 	- [Set up the Node-RED and InfluxDB API logins](#set-up-the-node-red-and-influxdb-api-logins)
 		- [Migrating `htpasswd` from Apache to Nginx (if required)](#migrating-htpasswd-from-apache-to-nginx-if-required)
 		- [Creating new `htpasswd` files](#creating-new-htpasswd-files)
-   - [MQTT User Credentials setup](#mqtt-user-credentials-setup)
+   - [Set up the `MQTTs` User Credentials](#set-up-the-mqtts-user-credentials)
 	- [Start the server](#start-the-server)
 	- [Restart servers in the background](#restart-servers-in-the-background)
 	- [Initial testing](#initial-testing)
@@ -23,7 +24,7 @@
 	- [Test Node-RED](#test-node-red)
 	- [Creating an InfluxDB database](#creating-an-influxdb-database)
     - [Test Postfix Mail setup](#Test-Postfix-Mail-setup)
-    - [Test MQTT Channels](#Test-MQTT-Channels)
+    - [Test MQTT Channels](#test-mqtt-channels)
 	
 
 <!-- /TOC -->
@@ -155,6 +156,16 @@ As an initial step, a cloud provider is required and Docker and Docker-Compose m
     sudo chgrp admin .
     sudo chmod g+w .
     ```
+
+## List of required ports to be opened in the firewall
+
+Remember, if the server is running on a cloud platform like Microsoft Azure or AWS, one needs to check the firewall and confirm that the below ports are open to the outside world.
+
+- 80/tcp
+- 443/tcp
+- 8883/tcp
+- 8083/tcp
+- 1883/tcp (if needed; not secure)
 
 ## After server is set up
 

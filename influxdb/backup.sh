@@ -49,7 +49,6 @@ then
         s3cmd ls --no-mime-magic s3://"${S3_BUCKET_INFLUXDB}"/  --human-readable | grep -i "${SOURCE_NAME}"_influxdb_data | cut -d' ' -f3- | tac | head -10 | sed "s,s3:\/\/${S3_BUCKET_INFLUXDB}\/,,g" &>> /tmp/influxbackup.txt
         echo "" >> /tmp/influxbackup.txt
         echo "********************** END *********************  " >> /tmp/influxbackup.txt
-
 else
         echo "DATE:" "$DATE" > /tmp/influxbackup.txt
         echo "" >> /tmp/influxbackup.txt

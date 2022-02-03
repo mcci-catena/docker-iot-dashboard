@@ -119,6 +119,12 @@ In `docker-compose.yml`, the following ports on the docker host are connected t
 
 - Nginx runs on 80/tcp and 443/tcp. (All connections to port 80 are redirected to 443 using SSL).
 
+- MQTTS(Mosquitto) runs on
+  - 443/tcp for MQTT over Nginx proxy
+  - 8883/tcp for MQTT over TLS/SSL
+  - 8083/tcp for WebSockets over TLS/SSL
+  - 1883/tcp for MQTT over TCP protocol (not secure);(Disabled by default)
+
 *The below ports are exposed only for the inter-container communication; These ports can't be accessed by host system.*
 
 - Grafana runs on 3000/tcp.
@@ -128,8 +134,6 @@ In `docker-compose.yml`, the following ports on the docker host are connected t
 - Node-red runs on 1880/tcp.
 
 - Postfix runs on 25/tcp.
-
-Remember, if the server is running on a cloud platform like Microsoft Azure or AWS, one needs to check the firewall and confirm that the ports are open to the outside world.
 
 ## Data Files
 

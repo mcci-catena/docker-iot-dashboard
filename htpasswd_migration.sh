@@ -59,8 +59,8 @@ case $var in
 		echo "It is done. Thanks!"
 		echo ""
 		echo ""
-                exit
-    	;;
+		exit
+		;;
 
 	"creating htpasswd for each controlled service automatically")
 		while read -r line
@@ -69,9 +69,9 @@ case $var in
 			echo "create:" "${file}_htpasswd"
 			true > "${file}_htpasswd"
 			for k in $(echo "$line" | tr ' |,' '\n')
-        		do
+				do
 				sed -n "/$k/p" "$htpasswd" >> "${file}_htpasswd"
-	        	done
+				done
 		done < "$htgroup"
 		echo ""
 		echo ""
@@ -82,7 +82,7 @@ case $var in
 		exit
 		;;
 
-    *)
+	*)
 		echo "Please enter correct number"
 		;;
 esac

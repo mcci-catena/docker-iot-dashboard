@@ -16,11 +16,11 @@ if [ ! -d $mqtts_src ]; then
         echo "" >> /tmp/mqtts.txt
         echo "STATUS: MQTTs backup failed." >> /tmp/mqtts.txt
         echo "" >> /tmp/mqtts.txt
-	echo "The source backup directory: mqtts_src is not available" >> /tmp/mqtts.txt
+        echo "The source backup directory: mqtts_src is not available" >> /tmp/mqtts.txt
         < /tmp/mqtts.txt mail -s "${SOURCE_NAME}: MQTTs Data Backup" "${CRON_BACKUP_MAIL}"
-	exit
+        exit
 else
-	tar cvzf /var/lib/backup/mqtts/"${SOURCE_NAME}"_mqtts_data_backup_"${DATE1}".tgz ${mqtts_src}/
+        tar cvzf /var/lib/backup/mqtts/"${SOURCE_NAME}"_mqtts_data_backup_"${DATE1}".tgz ${mqtts_src}/
 fi
 
 # Moving the backup to S3 bucket
@@ -37,7 +37,6 @@ then
         s3cmd ls --no-mime-magic s3://"${S3_BUCKET_MQTTS}"/  --human-readable | grep -i "${SOURCE_NAME}"_mqtts_data | cut -d' ' -f3- | tac | head -10 | sed "s,s3:\/\/${S3_BUCKET_MQTTS}\/,,g" &>> /tmp/mqtts.txt
         echo "" >> /tmp/mqtts.txt
         echo "************** END **************************" >> /tmp/mqtts.txt
-
 else
         echo "DATE:" "$DATE" > /tmp/mqtts.txt
         echo "" >> /tmp/mqtts.txt

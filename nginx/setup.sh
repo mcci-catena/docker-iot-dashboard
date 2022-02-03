@@ -51,11 +51,11 @@ fi
 
 # run cerbot to set up Nginx
 if [ "$CERTBOT_TEST" != "test" ]; then
-    certbot --agree-tos --email "${CERTBOT_EMAIL}" --non-interactive --domains "$CERTBOT_DOMAINS" --nginx --agree-tos --rsa-key-size 4096 --redirect || exit 4
+	certbot --agree-tos --email "${CERTBOT_EMAIL}" --non-interactive --domains "$CERTBOT_DOMAINS" --nginx --agree-tos --rsa-key-size 4096 --redirect || exit 4
 
-    # certbot actually launched Nginx. The simple hack is to stop it; then launch 
-    # it again after we've edited the config files.
-    /usr/sbin/nginx -s stop && echo "stopped successfully"
+	# certbot actually launched Nginx. The simple hack is to stop it; then launch 
+	# it again after we've edited the config files.
+	/usr/sbin/nginx -s stop && echo "stopped successfully"
 fi
 
 # now, add the fields to the virtual host section for https.
@@ -66,7 +66,7 @@ if [ "$1" != "proxy-*.conf" ] ; then
 	sed -e '/listen 443 ssl;/r/tmp/proxyspecs.conf' /etc/nginx/sites-available/default  > /tmp/000-default-le-ssl-local.conf || exit 6
 	mv /tmp/000-default-le-ssl-local.conf /etc/nginx/sites-available || exit 7
 	echo "enable the modified site, and disable the ssl defaults"
-        rm -rf /etc/nginx/sites-enabled/default || echo exit 8
-        rm -rf /etc/nginx/sites-enabled/000-default-le-ssl-local.conf || exit 9
-        ln -s /etc/nginx/sites-available/000-default-le-ssl-local.conf /etc/nginx/sites-enabled/000-default-le-ssl-local.conf || exit 10
+		rm -rf /etc/nginx/sites-enabled/default || echo exit 8
+		rm -rf /etc/nginx/sites-enabled/000-default-le-ssl-local.conf || exit 9
+		ln -s /etc/nginx/sites-available/000-default-le-ssl-local.conf /etc/nginx/sites-enabled/000-default-le-ssl-local.conf || exit 10
 fi

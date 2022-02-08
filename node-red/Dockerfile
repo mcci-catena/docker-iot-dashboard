@@ -13,8 +13,13 @@ ENV NODE_TLS_REJECT_UNAUTHORIZED=0
 # Install required modules
 ARG node_red_install_modules
 RUN npm install ${node_red_install_modules}
+
 # we always want the influxdb plug-in.
 RUN npm install node-red-contrib-influxdb
+
+# Install base64 module
+RUN npm install node-red-node-base64
+
 # fix any dependency issues
 RUN npm audit fix
 

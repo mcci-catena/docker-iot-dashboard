@@ -58,6 +58,12 @@ if [ "$CERTBOT_TEST" != "test" ]; then
 	/usr/sbin/nginx -s stop && echo "stopped successfully"
 fi
 
+# Configuring Mongodb connection access using Nginx SSL Termination method
+grep '27020' /etc/nginx/nginx.conf || $(sed -i "s/domain/$CERTBOT_DOMAINS/g" /root/mongo.txt && sed -i $'/http {/{e cat /root/mongo.txt\n}' /etc/nginx/nginx.conf)
+
+# To fix snapshot issue "413 Request Entity too large"
+grep -i 'client_max_body_size' /etc/nginx/nginx.conf || sed -i '/http {/a\\tclient_max_body_size 10M;' /etc/nginx/nginx.conf
+
 # now, add the fields to the virtual host section for https.
 set -- proxy-*.conf
 if [ "$1" != "proxy-*.conf" ] ; then

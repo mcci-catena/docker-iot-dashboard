@@ -4,10 +4,29 @@
 # 2. Grafana
 # 3. Nginx
 # 4. Mqtts
+# 5. mongodb
 
+# To find the version of installed Mongodb service
+FROM mongo:latest AS mongodb
+RUN env | grep MON > /root/env
+
+
+# Building cron-backup instance
 FROM phusion/baseimage:master-amd64
+# Copying mongodb's version
+COPY --from=mongodb /root/env /root/env
 
-#some basic package installation for troubleshooting
+# Installing same Mongodb's tools as in the copied version here in the cron-backup instance
+RUN set -x \
+        && export $(xargs < /root/env) \
+        && echo "deb http://$MONGO_REPO/apt/ubuntu focal/${MONGO_PACKAGE%-unstable}/$MONGO_MAJOR multiverse" | tee "/etc/apt/sources.list.d/${MONGO_PACKAGE%-unstable}.list" \
+        && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 656408E390CFB1F5 \
+        && export DEBIAN_FRONTEND=noninteractive && apt-get update && ln -s /bin/true /usr/local/bin/systemctl && apt-get install -y \
+                ${MONGO_PACKAGE}=$MONGO_VERSION \
+                ${MONGO_PACKAGE}-tools=$MONGO_VERSION
+
+
+# some basic package installation for troubleshooting
 RUN apt-get update && apt-get install -y \
     iputils-ping \
     net-tools \
@@ -60,6 +79,10 @@ RUN chmod +x /bin/nginx_backup.sh
 # Backup script for Mqtts data directory backup
 COPY mqtts_backup.sh /bin/mqtts_backup.sh
 RUN chmod +x /bin/mqtts_backup.sh
+
+# Backup script for mongodb
+COPY mongodb_backup.sh /bin/mongodb_backup.sh
+RUN chmod +x /bin/mongodb_backup.sh
 
 # Start the postfix daemon during container startup
 COPY postfix.sh /etc/my_init.d/postfix.sh

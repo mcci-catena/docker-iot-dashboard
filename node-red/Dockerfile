@@ -1,4 +1,4 @@
-# 
+#
 # Dockerfile for building the node red image.
 #
 

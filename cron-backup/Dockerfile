@@ -20,7 +20,7 @@ COPY --from=mongodb /root/env /root/env
 RUN set -x \
         && export $(xargs < /root/env) \
         && echo "deb http://$MONGO_REPO/apt/ubuntu focal/${MONGO_PACKAGE%-unstable}/$MONGO_MAJOR multiverse" | tee "/etc/apt/sources.list.d/${MONGO_PACKAGE%-unstable}.list" \
-        && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 656408E390CFB1F5 \
+        && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys B00A0BD1E2C63C11 \
         && export DEBIAN_FRONTEND=noninteractive && apt-get update && ln -s /bin/true /usr/local/bin/systemctl && apt-get install -y \
                 ${MONGO_PACKAGE}=$MONGO_VERSION \
                 ${MONGO_PACKAGE}-tools=$MONGO_VERSION

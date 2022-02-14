@@ -179,6 +179,7 @@
 #
 # IOT_DASHBOARD_CRON_BACKUP_EMAIL
 #   To send backup mail in cron-backup container. Use "space" to delimit the MAIL IDs.
+#
 # IOT_DASHBOARD_MONGO_INITDB_ROOT_USERNAME
 #   The Username to be used for accessing Mongodb.
 #

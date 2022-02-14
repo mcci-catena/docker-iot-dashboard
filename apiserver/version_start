@@ -1,2 +1,2 @@
 #!/bin/sh
-cd /version && npm install && npm start
+cd /opt/version && npm install && npm start

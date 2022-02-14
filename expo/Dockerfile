@@ -18,8 +18,8 @@ RUN apt-get update && apt-get install git -y
 RUN npm install expo-cli --global
 
 # Copying public keys to get SSH access to this Container
-COPY *.pub /tmp/ || true
-RUN cat /tmp/*.pub >> /root/.ssh/authorized_keys && rm -f /tmp/*.pub || true
+COPY *.pub /tmp/
+RUN cat /tmp/*.pub >> /root/.ssh/authorized_keys && rm -f /tmp/*.pub
 
 # Starting Expo Service
 COPY expo_start /etc/service/expo_start/run

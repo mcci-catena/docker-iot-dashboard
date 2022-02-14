@@ -15,8 +15,8 @@ RUN curl -sL https://deb.nodesource.com/setup_16.x | bash -
 RUN apt-get update && apt-get install nodejs -y
 
 # Copying public keys to get SSH access to this Container
-COPY *.pub /tmp/ || true
-RUN cat /tmp/*.pub >> /root/.ssh/authorized_keys && rm -f /tmp/*.pub || true
+COPY *.pub /tmp/
+RUN cat /tmp/*.pub >> /root/.ssh/authorized_keys && rm -f /tmp/*.pub
 
 # Copying the version-source 
 ADD version.tar.gz /opt/

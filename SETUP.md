@@ -185,6 +185,17 @@ The following instructions are essentially independent of the cloud provider and
 
 3. Get a fully-qualified domain name (FQDN) for the server, for which the DNS can be controlled. Point it to the server. Make sure it works, using "`dig FQDN`" -- get back an `A` record pointing to your server's IP address.
 
+### Create a data directory for your server
+
+We recommend that the directory be named `/var/docker/dashboard.example.com`; but it can be anything. You'll need the name below. Here's a sample for creating it:
+
+```bash
+sudo mkdir /var/docker
+sudo mkdir /var/docker/dashboard.example.com
+```
+
+Note, therefore, that the _code_ for your dashboard lives at `/opt/docker/dashboard.example.com`. The _data_ for your dashboard lives at `/var/docker/dashboard.example.com`.
+
 ### Create and edit the .env file
 
 First, create a .env file. The following comand sequence can be cut and paste to generate an empty template:

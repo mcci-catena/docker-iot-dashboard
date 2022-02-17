@@ -14,6 +14,7 @@ RUN apt-get update && apt-get install -y \
 ARG hostname
 ARG relay_ip
 ARG domain
+ARG smtp_auth
 ARG smtp_login
 ARG smtp_password
 ARG tls_security_level
@@ -36,7 +37,7 @@ RUN echo $domain > /etc/mailname
 # set up the credentials for SMTP authentication using username and password
 RUN echo "$relay_ip $smtp_login:$smtp_password" >/etc/postfix/sasl_passwd && chmod 600 /etc/postfix/sasl_passwd && postmap /etc/postfix/sasl_passwd && \
     printf '%s\n' '# set up login for SMTP' \
-        'smtp_sasl_auth_enable=yes' \
+        "smtp_sasl_auth_enable=$smtp_auth" \
         'smtp_sasl_password_maps=hash:/etc/postfix/sasl_passwd' \
         'smtp_sasl_security_options=noanonymous' \
         'smtp_sasl_tls_security_options=noanonymous' \

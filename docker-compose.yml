@@ -66,6 +66,9 @@
 # IOT_DASHBOARD_AWS_S3_BUCKET_INFLUXDB
 #   The S3 bucket to be used for uploading the influxdb backup data.
 #
+# IOT_DASHBOARD_AWS_S3_BUCKET_MONGODB
+#   The S3 bucket to be used for uploading the mongodb backup data.
+#
 # IOT_DASHBOARD_AWS_HOST_BASE
 #   The S3 endpoint is used to configure 3rd party clients(s3cmd). 
 #   For Amazon:  s3.amazonaws.com , For DigitalOcean: nyc3.digitaloceanspaces.com
@@ -132,9 +135,12 @@
 # IOT_DASHBOARD_MAIL_RELAY_IP
 #   The mail relay machine, assuming that the real mailer is upstream from us.
 #
+# IOT_DASHBOARD_MAIL_SMTP_AUTH
+#   To enable SMTP authentication, set to "yes". 
+#   Defaults to "no"
+#
 # IOT_DASHBOARD_MAIL_SMTP_LOGIN
-#   The mail relay login: name@example.com -- it will come from your upstream
-#       provider.
+#   The mail relay login: name@example.com -- it will come from your upstream provider.
 #
 # IOT_DASHBOARD_MAIL_SMTP_PASSWORD
 #   The mail relay password
@@ -323,6 +329,7 @@ services:
         hostname: "${IOT_DASHBOARD_MAIL_HOST_NAME:-iotmail}"
         relay_ip: "${IOT_DASHBOARD_MAIL_RELAY_IP:-}"
         domain: "${IOT_DASHBOARD_MAIL_DOMAIN:-example.com}"
+        smtp_auth: "${IOT_DASHBOARD_MAIL_SMTP_AUTH:-no}"
         smtp_login: "${IOT_DASHBOARD_MAIL_SMTP_LOGIN:-}"
         smtp_password: "${IOT_DASHBOARD_MAIL_SMTP_PASSWORD:-}"
       # Enable SSL/TLS postfix communication
@@ -386,7 +393,7 @@ services:
 
   mongodb:
     restart: unless-stopped
-    image: mongo:latest
+    image: mongo:5.0
     environment:
       MONGO_INITDB_ROOT_USERNAME: "${IOT_DASHBOARD_MONGO_INITDB_ROOT_USERNAME:-}"
       MONGO_INITDB_ROOT_PASSWORD: "${IOT_DASHBOARD_MONGO_INITDB_ROOT_PASSWORD:-}"

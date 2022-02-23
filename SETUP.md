@@ -626,17 +626,18 @@ Status of the containers can be seen as below
 
 ```console
 $ docker-compose ps
-
-               Name                             Command                  State                           Ports
------------------------------------------------------------------------------------------------------------------------------------
+        Name                      Command                  State                                        Ports
+-----------------------------------------------------------------------------------------------------------------------------------------------
+dashboard.example.com_apiserver_1     /sbin/my_init                    Up             0.0.0.0:6789->22/tcp,:::6789->22/tcp, 8891/tcp, 8892/tcp, 8893/tcp
 dashboard.example.com_cron-backup_1   /sbin/my_init                    Up
-dashboard.example.com_grafana_1       /run.sh                          Up                                3000/tcp
-dashboard.example.com_influxdb_1      /sbin/my_init                    Up                                8086/tcp
-dashboard.example.com_mqtts_1         /sbin/my_init                    Up                                0.0.0.0:8083->8083/tcp, 0.0.0.0:8883->8883/tcp
-dashboard.example.com_nginx_1         /sbin/my_init                    Up                                0.0.0.0:443->443/tcp, 0.0.0.0:80->80/tcp
-dashboard.example.com_node-red_1      npm --no-update-notifier - ...   Up (healthy)                      1880/tcp
-dashboard.example.com_postfix_1       /sbin/my_init                    Up                                25/tcp
-
+dashboard.example.com_expo_1          /sbin/my_init                    Up             19006/tcp, 0.0.0.0:6791->22/tcp,:::6791->22/tcp
+dashboard.example.com_grafana_1       /run.sh                          Up             3000/tcp
+dashboard.example.com_influxdb_1      /sbin/my_init                    Up             8086/tcp
+dashboard.example.com_mongodb_1       docker-entrypoint.sh mongod      Up             27017/tcp
+dashboard.example.com_mqtts_1         /sbin/my_init                    Up             0.0.0.0:8083->8083/tcp,:::8083->8083/tcp,0.0.0.0:8883->8883/tcp,:::8883->8883/tcp
+dashboard.example.com_nginx_1         /sbin/my_init                    Up             0.0.0.0:27020->27020/tcp,:::27020->27020/tcp,0.0.0.0:443->443/tcp,::443->443/tcp, 0.0.0.0:80->80/tcp,:::80->80/tcp
+dashboard.example.com_node-red_1      npm --no-update-notifier - ...   Up (healthy)   1880/tcp
+dashboard.example.com_postfix_1       /sbin/my_init                    Up             0.0.0.0:2525->25/tcp,:::2525->25/tcp
 ```
 
 ### Initial testing

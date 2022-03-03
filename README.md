@@ -25,7 +25,7 @@ You can set this up on a Docker droplet from [Digital Ocean](https://www.digital
 	- [Logging in to Grafana](#logging-in-to-grafana)
 	- [Data source settings in Grafana](#data-source-settings-in-grafana)
 - [MQTTS Examples](#mqtts-examples)
-- [Integrating DNC Support](#integrating-dnc-support)
+- [Integrating Data Normalization Control(DNC) Support](#integrating-data-normalization-controldnc-support)
   - [What is DNC?](#what-is-dnc)
     - [Advantages](#advantages)
   - [Application Architecture](#application-architecture)

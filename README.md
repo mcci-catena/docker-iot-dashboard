@@ -25,6 +25,13 @@ You can set this up on a Docker droplet from [Digital Ocean](https://www.digital
 	- [Logging in to Grafana](#logging-in-to-grafana)
 	- [Data source settings in Grafana](#data-source-settings-in-grafana)
 - [MQTTS Examples](#mqtts-examples)
+- [Integrating DNC Support](#integrating-dnc-support)
+  - [What is DNC?](#what-is-dnc)
+    - [Advantages](#advantages)
+  - [Application Architecture](#application-architecture)
+    - [DNC Components](#dnc-components)
+    - [Plugins](#plugins)
+  - [DNC server Architecture](#dnc-server-architecture)
 - [Setup Instructions](#setup-instructions)
 - [Influxdb Backup and Restore](#influxdb-backup-and-restore)
 - [Release History](#release-history)
@@ -301,6 +308,96 @@ MQTT over TLS/SSL | dashboard.example.com | 8883 | Username/Password come from m
 WebSockets over TLS/SSL | <wss://dashboard.example.com/> | 8083 | Username/Password come from mosquitto’s configuration (password_file)
 MQTT over TCP protocol (not secure) | dashboard.example.com | 1883 |Username/Password come from mosquitto’s configuration (password_file)
 
+## Integrating Data Normalization Control(DNC) Support
+
+### What is DNC?
+
+DNC is a logical data server, designed to achieve location based data measurement by provide customized tag mapping on top of a general database where sensor data is organized based on device IDs (Hardware device ID).
+
+![About DNC](assets/about_dnc.png)
+
+The visibility of clients Data Server is controlled by the DNC Server, users can make data query based on the tags provided in the DNC device mapping, DNC Server removes the customized DNC tags and add required tags available in the mapping field, send converted query to client’s Data Server, receives the response, then remove the tags, add the respective DNC tags and send the response to the user.
+
+#### Advantages
+
+- Location-based data measurement
+- Device is considered as a logical unique object, loosely coupled with hardware
+- Device changing of a location can easily be mapped.
+- No data loss due to device change/replacement
+- User can provide convenient naming for their device
+
+### Application Architecture
+
+![Application Architecture](assets/dnc_arch.png)
+
+#### DNC Components
+
+##### Client
+
+In DNC, Client is like a profile, each client can be created with a set of tags, and it requires Database credentials to query data from Data Server.
+
+| Field | Description |
+|-------|-------------|
+| Name | Name of the Client |
+| TagsList | List of Tags (Customized tags)
+|| Example-1:
+|| Tag1 – Country, Tag2 – State, Tag3 – City, Tag4 – Street, Tag5 – Device Name
+|| Example-2:
+|| Tag1- Site, Tag2 – Pile, Tag3 – Location, Tag4 - DeviceName
+| DBData | DataBase Server Credentials. (Most cases: InfluxDB)
+|| 1. DB URL, 2. UserName, 3. Password, 4. Database Name |
+
+A Client can be created only by the Master Admin, once a client profile is created, Admin and User account can be created for that Client. The Client admin can add new devices under the Client profile.
+
+##### Device Registry
+
+This is the gateway for adding devices to the DNC Server. This record contains all devices entries irrespective of Clients.
+
+| Fields | Description |
+|--------|-------------|
+| Client | Name Device will be assigned to this Client |
+|Hardware ID | ID of the Hardware printed in the PCB |
+| deviceID | ID received from TTN/Sigfox – This data should be existed as a tag in the influxDB database |
+| devID | ID received from TTN/Sigfox– This data should be existed as a tag in the influxDB database |
+| devEUI | ID received from TTN/Sigfox– This data should be existed as a tag in the influxDB database |
+| Measurement Name | Where the device data gets logged in the Database Server. (In InfluxDB it is called as measurement name)|
+| Field Data Name | Name of the Data which required by the Client.  Example [ tWater/rh/vBat etc.] This data should be existed as a field tag in the influxDB database |
+| Date of Installation | The date when the device installed in the field |
+| Data of Removal | The date when device removed from the field. This will not be asked while adding device, required only remove/replace device |
+
+The Master Admin has the access to manage this record, no other can do any changes in this record.
+**Note:-** The deviceID, devID and devEUI are optional but any-one should be mandatory.
+
+##### Devices
+
+This is the gateway for adding devices under a client with the customized tag details. All tag details are optional, the admin can add device with or without tag fields.
+
+| Fields | Description |
+|------- | ----------- |
+| Hardware ID | Select from the Master Record, direct entry not allowed |
+| Tag 1 - optional | Value for the Tag |
+| Tag 2 - optional | Value for the Tag N - optional Value for the Tag |
+| Latitude | Location coordinates – Required when showing data on world map |
+| Longitude | Location coordinates – Required when showing data on world map |
+| Installation Date | Get it from the Master record |
+| Removal Date | Enter the date when the device removed from the field. This date automatically updated to Master record. |
+
+#### Plugins
+
+Plugins are created to provide User interface for using DNC application, which communicates with DNC engine by using the Plugin API.
+
+##### Standard Plugin API
+
+This API receives the request from Excel sheet or Google sheet Plugin, communicates with the DNC server, InfluxDB and sends back the response to the Plugin.
+
+##### Grafana Influx Plugin API
+
+This API receives requests from Grafana application, which are influxDB based queries. In Grafana UI all the requests are redirected to Grafana Influx Plugin, which communicates with DNC server, InfluxDB and then sends the response back to Grafana UI.
+
+### DNC server Architecture
+
+![dnc_server_arch](assets/dnc_server_arch.png)
+
 ## Setup Instructions
 
 Please refer to [`SETUP.md`](./SETUP.md) for detailed basic set-up instructions.
@@ -316,6 +413,7 @@ Please refer to [`influxdb/README.md`](./influxdb/README.md).
 - HEAD has the following changes.
 
   - Included `Apiserver` and `Expo` Containers for DNC support.
+  - Documented the process behind the `DNC` support.
   - Provided backup support for `Mongodb` container's data
 
 - [v2.0.0](https://github.com/mcci-catena/docker-iot-dashboard/releases/tag/v2.0.0) includes the following changes

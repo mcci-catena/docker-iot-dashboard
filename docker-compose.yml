@@ -378,6 +378,7 @@ services:
     build:
       context: ./apiserver
       dockerfile: Dockerfile
+    #profiles: ['dnc']
     expose:
       - "8891" # Generic DNC server
       - "8892" # DNC standard Plugin
@@ -397,6 +398,7 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: "${IOT_DASHBOARD_MONGO_INITDB_ROOT_USERNAME:-}"
       MONGO_INITDB_ROOT_PASSWORD: "${IOT_DASHBOARD_MONGO_INITDB_ROOT_PASSWORD:-}"
+    #profiles: ['dnc']
     expose:
       - "27017"
     volumes:
@@ -409,6 +411,7 @@ services:
     build:
       context: ./expo
       dockerfile: Dockerfile
+    #profiles: ['dnc']
     expose:
       - "19006"
     ports:

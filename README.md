@@ -2,7 +2,7 @@
 
 This repository contains a complete example that grabs device data from IoT-Network server, stores it in a database, and then displays the data using a web-based dashboard.
 
-You can set this up on a Docker droplet from [Digital Ocean](https://www.digitalocean.com/) (or on an Ubuntu VM from [DreamCompute](https://www.dreamhost.com/cloud/computing/), or on an "Ubuntu + Docker" VM from the [Microsoft Azure store](https://portal.azure.com/)) with minimal effort. You should set up this service to run all the time to capture the data from your devices; you then access the data at your convenience using a web browser.
+You can set this up on a Docker droplet from [Digital Ocean](https://www.digitalocean.com/) (or on a Ubuntu VM from [DreamCompute](https://www.dreamhost.com/cloud/computing/), or on a "Ubuntu + Docker" VM from the [Microsoft Azure store](https://portal.azure.com/)) with minimal effort. You should set up this service to run all the time to capture the data from your devices; you then access the data at your convenience using a web browser.
 
 ## Table of Contents
 
@@ -204,9 +204,9 @@ Remember, if the server is running on a cloud platform like Microsoft Azure or A
 When designing this collection of services, there were two choices to store the
 data files:
 
-- We could keep them inside the docker containers, or
+- we could keep them inside the docker containers, or
 
-- We could keep them in locations on the host system.
+- we could keep them in locations on the host system.
 
 The advantage of the former is that everything is reset when the docker images are rebuilt. The disadvantage of the former is that there is a possibility to lose all the data when it’s rebuilt. On the other hand, there's another level of indirection when keeping things on the host, as the files reside in different locations on the host and in the docker containers.
 
@@ -400,7 +400,7 @@ This API receives requests from Grafana application, which are influxDB based qu
 
 ## Setup Instructions
 
-Please refer to [`SETUP.md`](./SETUP.md) for detailed basic set-up instructions.
+Please refer to [`SETUP.md`](./SETUP.md) for detailed set-up instructions.
 
 Please create a `New discussion` [`on this repository`](https://github.com/mcci-catena/docker-iot-dashboard/discussions) for getting support on DNC.
 

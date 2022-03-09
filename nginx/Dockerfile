@@ -14,7 +14,7 @@ RUN apt-get update && apt-get install -y \
 	apache2-utils
 
 # Copying Proxy files 
-COPY setup.sh proxy-*.conf /root/
+COPY setup.sh proxy-*.conf mongo.txt /root/
 
 # Running scripts during container startup for letsencrypt update and configuring proxy files behind Nginx
 RUN mkdir -p /etc/my_init.d

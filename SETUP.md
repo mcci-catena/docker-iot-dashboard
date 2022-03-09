@@ -23,7 +23,7 @@
 	- [Set up first data source](#set-up-first-data-source)
 	- [Test Node-RED](#test-node-red)
 	- [Creating an InfluxDB database](#creating-an-influxdb-database)
-    - [Test Postfix Mail setup](#Test-Postfix-Mail-setup)
+    - [Test Postfix Mail setup](#test-postfix-mail-setup)
     - [Test MQTT Channels](#test-mqtt-channels)
 	
 
@@ -183,85 +183,174 @@ The following instructions are essentially independent of the cloud provider and
     cd /opt/docker/dashboard.example.com
     ```
 
-3. Get a fully-qualified domain name (FQDN) for the server, for which the DNS can be controlled. Point it to the server. Make sure it works, using "`dig FQDN`" -- get back an `A` record pointing to your server's IP address.
+3. Get a fully-qualified domain name (FQDN) for the server, for which the DNS can be controlled. Point it to the server. Make sure it works, using "`dig FQDN`" -- get back a `A` record pointing to your server's IP address.
 
-### Create and edit the .env file
+### Create and edit the .env file
 
-First, create a .env file. The following comand sequence can be cut and paste to generate an empty template:
+First, create a .env file. The following command sequence can be cut and paste to generate an empty template:
 
 ```bash
 sed -ne '/^#+++/,/^#---/p' docker-compose.yml | sed -e '/^#[^ \t]/d' -e '/^# IOT/s/$/=/' > .env
 ```
 
-Then, edit the .env file as follows:
+Then, edit the .env file as follows:
 
 1. `IOT_DASHBOARD_NGINX_FQDN=dashboard.example.com`
 
     This sets the name of the resulting server. It tells Nginx what it's serving out. It must be a fully-qualified domain name (FQDN) that resolves to the IP address of the container host.
 
-2. `IOT_DASHBOARD_CERTBOT_FQDN=dashboard.example.com`
+2. `IOT_DASHBOARD_AWS_ACCESS_KEY_ID=xxxxxxxxxxxxxxx`
 
-    This should be the same as `IOT_DASHBOARD_NGINX_FQDN`.
+    This sets access key for `s3 bucket` for the data backup.
 
-3. `IOT_DASHBOARD_CERTBOT_EMAIL=someone@example.com`
+3. `IOT_DASHBOARD_AWS_SECRET_ACCESS_KEY=xxxxxxxxxxxxxxx`
+
+    This sets secret access key for `s3 bucket` for the data backup.
+
+4. `IOT_DASHBOARD_AWS_DEFAULT_REGION=regionname`
+
+    This sets default region for the `s3 bucket`.
+
+5. `IOT_DASHBOARD_AWS_S3_BUCKET=s3bucketname`
+
+    This sets `s3bucketname` to be used for the whole data backup.
+
+6. `IOT_DASHBOARD_AWS_S3_BUCKET_NGINX=s3bucketname/nginx`
+
+    This creates `nginx` folder for nginx data backup.
+
+7. `IOT_DASHBOARD_AWS_S3_BUCKET_NODERED=s3bucketname/nodered`
+
+    This creates `nodered` folder for nodered data backup.
+
+8. `IOT_DASHBOARD_AWS_S3_BUCKET_GRAFANA=s3bucketname/grafana`
+
+    This creates `grafana` folder for grafana data backup.
+
+9. `IOT_DASHBOARD_AWS_S3_BUCKET_MQTTS=s3bucketname/mqtts`
+
+    This creates `mqtts` folder for mqtts data backup.
+
+10. `IOT_DASHBOARD_AWS_S3_BUCKET_INFLUXDB=s3bucketname/influxdb`
+
+    This creates `influxdb` folder for influxdb database backup.
+
+11. `IOT_DASHBOARD_AWS_S3_BUCKET_MONGODB=s3bucketname/mongodb`
+
+    This creates `mongodb` folder for mongodb database backup.
+
+12. `IOT_DASHBOARD_AWS_HOST_BASE=s3.amazonaws.com`
+
+    This sets S3 endpoint to configure 3rd party clients(s3cmd).
+
+    For Amazon: s3.amazonaws.com
+
+    For DigitalOcean: `nyc3`.digitaloceanspaces.com
+
+    Please change the region `nyc3` with your s3 bucket region for the DigitalOcean.
+
+13. `IOT_DASHBOARD_AWS_HOST_BUCKET='%(${IOT_DASHBOARD_AWS_S3_BUCKET})s.s3.amazonaws.com'`
+
+    This sets S3 endpoint to access host bucket.
+
+    For Amazon: '%(${IOT_DASHBOARD_AWS_S3_BUCKET})s.s3.amazonaws.com'
+
+    For DigitalOcean: '%(${IOT_DASHBOARD_AWS_S3_BUCKET}).`nyc3`.digitaloceanspaces.com'
+
+    Please change the region `nyc3` with your s3 bucket region for the DigitalOcean.
+
+14. `IOT_DASHBOARD_CERTBOT_EMAIL=someone@example.com`
 
     This sets the contact email for Let's Encrypt. The script automatically accepts the Let's Encrypt terms of service, and this indicates who is doing the accepting.
 
-4. `IOT_DASHBOARD_DATA=/full/path/to/directory/`
+15. `IOT_DASHBOARD_CERTBOT_FQDN=dashboard.example.com`
 
-    The trailing slash is required! This will put all the data files for this instance as subdirectories of the specified path. If this is undefined, `docker-compose` will print error messages and quit.
+    This should be the same as`IOT_DASHBOARD_NGINX_FQDN`.
 
-5. `IOT_DASHBOARD_GRAFANA_ADMIN_PASSWORD=SomethingVerySecretIndeed`
+16. `IOT_DASHBOARD_DATA=/full/path/to/directory/`
 
-    This needs to be confidential. Indeed this sets the *initial* password for the Grafana admin login.This should be changed via the Grafana UI after booting the server.
+    The trailing slash is required! This will put all the data files for this instance as subdirectories of the specified path. If this is undefined,`docker-compose`will print error messages and quit.
 
-6. `IOT_DASHBOARD_GRAFANA_SMTP_FROM_ADDRESS`
+17. `IOT_DASHBOARD_GRAFANA_ADMIN_PASSWORD=SomethingVerySecretIndeed`
+
+    This needs to be confidential. Indeed, this sets the *initial* password for the Grafana admin login. This should be changed via the Grafana UI after booting the server.
+
+18. `IOT_DASHBOARD_GRAFANA_SMTP_FROM_ADDRESS`
 
     This sets the Grafana originating mail address.
 
-7. `IOT_DASHBOARD_GRAFANA_INSTALL_PLUGINS=plugin plugin2`
+19. `IOT_DASHBOARD_GRAFANA_INSTALL_PLUGINS=plugin plugin2`
 
     This sets a list of Grafana plugins to install.
 
-8. `IOT_DASHBOARD_INFLUXDB_INITIAL_DATABASE_NAME=demo`
+20. `IOT_DASHBOARD_INFLUXDB_INITIAL_DATABASE_NAME=demo`
 
     Change "demo" to the desired name of the initial database that will be created in InfluxDB.
 
-9. `IOT_DASHBOARD_MAIL_HOST_NAME=dashboard.example.com`
-
-    This sets the name of your mail server. Used by Postfix.
-
-10. `IOT_DASHBOARD_MAIL_DOMAIN=example.com`
+21. `IOT_DASHBOARD_MAIL_DOMAIN=example.com`
 
     This sets the domain name of your mail server. Used by Postfix.
 
-11. `IOT_DASHBOARD_NODERED_INSTALL_PLUGINS=node-red-node-example1 node-red-node-example2`
+22. `IOT_DASHBOARD_MAIL_HOST_NAME=dashboard.example.com`
+
+    This sets the name of your mail server. Used by Postfix.
+
+23. `IOT_DASHBOARD_MAIL_RELAY_IP=xx.xx.xx.xx:port`
+
+    This sets SMTP server through which your Emails will be forwarded.
+
+24. `IOT_DASHBOARD_MAIL_SMTP_AUTH=<yes|no>`
+
+    This enables/disables SMTP authentication to access the SMTP server.
+
+25. `IOT_DASHBOARD_MAIL_SMTP_LOGIN=xxxxx`
+
+    This sets credential to access the above SMTP server
+
+26. `IOT_DASHBOARD_MAIL_SMTP_PASSWORD=xxxxxx`
+
+    This sets credential to access the above SMTP server
+
+27. `IOT_DASHBOARD_NODERED_INSTALL_PLUGINS=node-red-node-module1 node-red-node-module2`
 
     This installs one or more Node-RED plug-ins.
 
-12. `IOT_DASHBOARD_TIMEZONE=Europe/Paris`
+28. `IOT_DASHBOARD_TIMEZONE=Europe/Paris`
 
     If not defined, the default time zone will be GMT.
 
-13. `IOT_DASHBOARD_INFLUXDB_MAIL_HOST_NAME=dashboard.example.com`
+29. `IOT_DASHBOARD_INFLUXDB_MAIL_HOST_NAME=dashboard.example.com`
 
     This sets the name of your mail server for backup mail. Used by Postfix.
 
-14. `IOT_DASHBOARD_INFLUXDB_BACKUP_EMAIL=a@example.com b@example.com`
+30. `IOT_DASHBOARD_INFLUXDB_BACKUP_EMAIL=a@example.com b@example.com`
 
-    Backup mail will be sent to the mentioned MAIL IDs.
+    InfluxDB Backup mail will be sent to the mentioned MAIL IDs.
 
-The resulting `.env` file should look like this:
+31. `IOT_DASHBOARD_CRON_BACKUP_EMAIL=a@example.com b@example.com`
+
+    Backup mail for `Grafana, Mongodb, Mqtts, Nginx, and Nodered` will be sent to the mentioned MAIL IDs.
+
+32. `IOT_DASHBOARD_MONGO_INITDB_ROOT_USERNAME=xxxxxx`
+
+    This sets username to be used for accessing Mongodb.
+
+33. `IOT_DASHBOARD_MONGO_INITDB_ROOT_PASSWORD=xxxxxxxxx`
+
+    This sets password to be used for accessing Mongodb root user.
+
+The resulting `.env` file should look like this:
 
 ```bash
 ### env file for configuring dashboard.example.com
+
 IOT_DASHBOARD_NGINX_FQDN=dashboard.example.com
 #   The fully-qualified domain name to be served by NGINX.
 #
 IOT_DASHBOARD_AWS_ACCESS_KEY_ID=xxxxxxxxxxxxxx
 #   The access key for AWS for backups.
 #
-IOT_DASHBOARD_AWS_SECRET_ACCESS_KEY=xxxxxxxxxxxxx
+IOT_DASHBOARD_AWS_SECRET_ACCESS_KEY=xxxxxxxxxxxxxx
 #   The AWS API secret key for backing up influxdb data.
 #
 IOT_DASHBOARD_AWS_DEFAULT_REGION=us-east-1
@@ -281,15 +370,18 @@ IOT_DASHBOARD_AWS_S3_BUCKET_GRAFANA=dashboard.example.com/grafana
 #
 IOT_DASHBOARD_AWS_S3_BUCKET_MQTTS=dashboard.example.com/mqtts
 #   The name of S3 bucket for Mqtts backup
-#      
+#
 IOT_DASHBOARD_AWS_S3_BUCKET_INFLUXDB=dashboard.example.com/influxdb
 #   The S3 bucket to be used for uploading the influxdb backup data.
 #
-IOT_DASHBOARD_AWS_HOST_BASE=s3.amazonaws.com
-#   The S3 endpoint is used to configure 3rd party clients(s3cmd). 
+IOT_DASHBOARD_AWS_S3_BUCKET_MONGODB=dashboard.example.com/mongodb
+#   The S3 bucket to be used for uploading the mongodb backup data.
+#
+IOT_DASHBOARD_AWS_HOST_BASE=nyc3.digitaloceanspaces.com
+#   The S3 endpoint is used to configure 3rd party clients(s3cmd).
 #   For Amazon:  s3.amazonaws.com , For DigitalOcean: nyc3.digitaloceanspaces.com
 #
-IOT_DASHBOARD_AWS_HOST_BUCKET='%(${IOT_DASHBOARD_AWS_S3_BUCKET})s.s3.amazonaws.com'
+IOT_DASHBOARD_AWS_HOST_BUCKET='%(${IOT_DASHBOARD_AWS_S3_BUCKET}).nyc3.digitaloceanspaces.com'
 #   The S3 endpoint to access host bucket.
 #   For Amazon: '%(${IOT_DASHBOARD_AWS_S3_BUCKET})s.s3.amazonaws.com'
 #   For DigitalOcean: '%(${IOT_DASHBOARD_AWS_S3_BUCKET}).nyc3.digitaloceanspaces.com'
@@ -298,7 +390,7 @@ IOT_DASHBOARD_CERTBOT_EMAIL=someone@dashboard.example.com
 #   The email address to be used for registering with Let's Encrypt.
 #
 IOT_DASHBOARD_CERTBOT_FQDN=dashboard.example.com
-#   The domain(s) to be used by certbot when registering with Let's Encrypt.
+#   The domain(s) to be used by cert bot when registering with Let's Encrypt.
 #
 IOT_DASHBOARD_DATA=/var/opt/docker/dashboard.example.com/
 #   The path to the data directory. This must end with a '/', and must either
@@ -339,7 +431,7 @@ IOT_DASHBOARD_INFLUXDB_ADMIN_PASSWORD=xxxxxxxx
 #   ignored after the influxdb database has been built.
 #
 IOT_DASHBOARD_INFLUXDB_INITIAL_DATABASE_NAME=demo
-#   The inital database to be created on first launch of influxdb. Ignored
+#   The initial database to be created on first launch of influxdb. Ignored
 #   after influxdb has been launched.
 #
 IOT_DASHBOARD_MAIL_DOMAIN=example.com
@@ -348,19 +440,22 @@ IOT_DASHBOARD_MAIL_DOMAIN=example.com
 IOT_DASHBOARD_MAIL_HOST_NAME=dashboard.example.com
 #   The external FQDN for the mail host.
 #
-IOT_DASHBOARD_MAIL_RELAY_IP=[smtp.mailgun.org]:465
+IOT_DASHBOARD_MAIL_RELAY_IP=[smtp.example.com]:465
 #   The mail relay machine, assuming that the real mailer is upstream from us.
 #
+IOT_DASHBOARD_MAIL_SMTP_AUTH=yes
+#   To enable SMTP authentication, set to "yes".
+#   Defaults to "no"
+#
 IOT_DASHBOARD_MAIL_SMTP_LOGIN=iotdashboard@example.com
-#   The mail relay login: name@example.com -- it will come from your upstream
-#       provider.
+#   The mail relay login: name@example.com -- it will come from your upstream provider.
 #
 IOT_DASHBOARD_MAIL_SMTP_PASSWORD=xxxxxxxx
 #   The mail relay password
 #
 IOT_DASHBOARD_MAIL_TLS_SECURITY_LEVEL=encrypt
 #   To enable SSL/TLS support for postfix container. set to "encrypt" to enable SSL/TLS
-#   Defaults to "may" 
+#   Defaults to "may"
 #
 IOT_DASHBOARD_MAIL_TLS_WRAPPERMODE=yes
 #   To enable SSL/TLS support for postfix container. set to "yes" to enable SSL/TLS
@@ -398,6 +493,13 @@ IOT_DASHBOARD_INFLUXDB_BACKUP_EMAIL=someone@dashboard.example.com
 #
 IOT_DASHBOARD_CRON_BACKUP_EMAIL=someone@dashboard.example.com
 #   To send backup mail in cron-backup container. Use "space" to delimit the MAIL IDs.
+#
+IOT_DASHBOARD_MONGO_INITDB_ROOT_USERNAME=xxxxxxx
+#   The Username to be used for accessing Mongodb.
+#
+IOT_DASHBOARD_MONGO_INITDB_ROOT_PASSWORD=xxxxxxx
+#   The Password to be used for accessing Mongodb root user.
+#
 
 ```
 
@@ -430,7 +532,7 @@ If migrating from an older version of the dashboard that used Apache, you'll nee
   - For Node-red:
     `${IOT_DASHBOARD_DATA}docker-nginx/authdata/nodered/.htpasswd`
 
-  - For Infludb Queries:
+  - For Influxdb Queries:
     `${IOT_DASHBOARD_DATA}docker-nginx/authdata/influxdb/.htpasswd`
 
 - If you are migrating older `htpasswd` files, please skip steps `[1-4]` to `htpasswd` below.
@@ -444,7 +546,7 @@ If migrating from an older version of the dashboard that used Apache, you'll nee
     #
     ```
 
-   If this fails with the message, `ERROR: Couldn't connect to Docker daemon at http+docker://localunixsocket - is it running?`, then probably the user ID is not in the `docker` group. To fix this, `sudo adduser MYUSER docker`, where "MYUSER" is the login ID. Then (**very important**) log out and log back in.
+   If this fails with the message,`ERROR: Couldn't connect to Docker daemon at http+docker://localunixsocket - is it running?`, then probably the user ID is not in the`docker`group. To fix this,`sudo adduser MYUSER docker`, where "MYUSER" is the login ID. Then (**very important**) log out and log back in.
 
 2. Create `.htpasswd` files for node-red and influxdb queries authentication.
 
@@ -455,7 +557,7 @@ If migrating from an older version of the dashboard that used Apache, you'll nee
     chown www-data /etc/nginx/authdata/nodered/.htpasswd
     ```
 
-3. Add user logins for node-red and influxdb queries. Make `USERS` be a list of login IDs.
+3. Add user logins for node-red and influxdb queries. Make`USERS`be a list of login IDs.
 
    - For Node-red authentication:
 
@@ -490,7 +592,7 @@ To access mqtt channel, user needs credentials to access it.
    #
    ```
 
-2. In the container, Create username and password using `mosquitto_passwd` command. ( option `-c` - Create a new password file. If the file already exists, it will be overwritten. so `-c` should be used for the first user creation. please avoid `-c` for the second user creation onwards. )
+2. In the container, Create username and password using `mosquitto_passwd` command. (option `-c` - Create a new password file. If the file already exists, it will be overwritten. So `-c` should be used for the first user creation. Please avoid `-c` for the second user creation onwards.)
 
    ```bash
    # mosquitto_passwd -c /etc/mosquitto/credentials/passwd <user>
@@ -524,22 +626,23 @@ Status of the containers can be seen as below
 
 ```console
 $ docker-compose ps
-
-               Name                             Command                  State                           Ports
------------------------------------------------------------------------------------------------------------------------------------
+        Name                      Command                  State                                        Ports
+-----------------------------------------------------------------------------------------------------------------------------------------------
+dashboard.example.com_apiserver_1     /sbin/my_init                    Up             0.0.0.0:6789->22/tcp,:::6789->22/tcp, 8891/tcp, 8892/tcp, 8893/tcp
 dashboard.example.com_cron-backup_1   /sbin/my_init                    Up
-dashboard.example.com_grafana_1       /run.sh                          Up                                3000/tcp
-dashboard.example.com_influxdb_1      /sbin/my_init                    Up                                8086/tcp
-dashboard.example.com_mqtts_1         /sbin/my_init                    Up                                0.0.0.0:8083->8083/tcp, 0.0.0.0:8883->8883/tcp
-dashboard.example.com_nginx_1         /sbin/my_init                    Up                                0.0.0.0:443->443/tcp, 0.0.0.0:80->80/tcp
-dashboard.example.com_node-red_1      npm --no-update-notifier - ...   Up (healthy)                      1880/tcp
-dashboard.example.com_postfix_1       /sbin/my_init                    Up                                25/tcp
-
+dashboard.example.com_expo_1          /sbin/my_init                    Up             19006/tcp, 0.0.0.0:6791->22/tcp,:::6791->22/tcp
+dashboard.example.com_grafana_1       /run.sh                          Up             3000/tcp
+dashboard.example.com_influxdb_1      /sbin/my_init                    Up             8086/tcp
+dashboard.example.com_mongodb_1       docker-entrypoint.sh mongod      Up             27017/tcp
+dashboard.example.com_mqtts_1         /sbin/my_init                    Up             0.0.0.0:8083->8083/tcp,:::8083->8083/tcp,0.0.0.0:8883->8883/tcp,:::8883->8883/tcp
+dashboard.example.com_nginx_1         /sbin/my_init                    Up             0.0.0.0:27020->27020/tcp,:::27020->27020/tcp,0.0.0.0:443->443/tcp,::443->443/tcp, 0.0.0.0:80->80/tcp,:::80->80/tcp
+dashboard.example.com_node-red_1      npm --no-update-notifier - ...   Up (healthy)   1880/tcp
+dashboard.example.com_postfix_1       /sbin/my_init                    Up             0.0.0.0:2525->25/tcp,:::2525->25/tcp
 ```
 
 ### Initial testing
 
-- Open Grafana on [https://dashboard.example.com](https://dashboard.example.com/), and log in as admin.
+- Open Grafana on [https://dashboard.example.com](https://dashboard.example.com/), and log in as admin.
 
 - Change the admin password.
 
@@ -547,7 +650,7 @@ dashboard.example.com_postfix_1       /sbin/my_init                    Up       
 
 Use the Grafana UI -- either click on "add first data source" or use "Configure >Add Data Source", and add an InfluxDB data source.
 
-- Set the URL (under HTTP Settings) to `<http://influxdb:8086>`.
+- Set the URL (under HTTP Settings) to `<http://influxdb:8086>`.
 
 - Select the database. If InfluxDB is properly initialized in a database, connect to it as a Grafana data source. If not, [create an InfluxDB database](https://github.com/mcci-catena/docker-iot-dashboard/blob/master/SETUP.md#creating-an-influxdb-database).
 
@@ -557,11 +660,11 @@ Use the Grafana UI -- either click on "add first data source" or use "Configure 
 
 ### Test Node-RED
 
-Open Node-RED on <https://dashboard.example.com/node-red/>, and build a flow that stores data in InfluxDB. **Be sure to add the trailing slash! Otherwise a 404 error pops from Grafana. This will be fixed soon.**
+Open Node-RED on <https://dashboard.example.com/node-red/>, and build a flow that stores data in InfluxDB. **Be sure to add the trailing slash! Otherwise, a 404 error pops from Grafana. This will be fixed soon.**
 
 ### Creating an InfluxDB database
 
-To create a database, log in to the host machine, and cd to `/opt/docker/dashboard.example.com`. Use the following commands:
+To create a database, log in to the host machine, and cd to `/opt/docker/dashboard.example.com`. Use the following commands:
 
 ```console
 $ docker-compose exec influxdb /bin/bash
@@ -597,7 +700,7 @@ $
 
         ![grafana_mail_testing](assets/graf-mail_test_2.png)
   
-  3. Input the required info as shown below. *Be sure to select type as `Email`*. Click `Test" button finally to send test mail.
+  3. Input the required info as shown below. *Be sure to select type as `Email`*. Click `Test` button finally to send test mail.
 
         ![grafana_mail_testing](assets/graf-mail_test_3.png)
 
@@ -638,10 +741,10 @@ $
 
     ![nodered_mail_testing](assets/postfix_node_2.png)
 
-    here,
-  - `msg.payload` will be act as `mail body`.
-  - `msg.topic`will be act as `subject`.
-  - `msg.from` will be act as `Sender`
+    Here,
+  - `msg.payload` will be acted as `mail body`.
+  - `msg.topic`will be acted as `subject`.
+  - `msg.from` will be acted as `Sender`
 
    ***Email node's configuration***
 

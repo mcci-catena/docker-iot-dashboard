@@ -1,25 +1,38 @@
 #
-# Dockerfile for building Node-red
+# Dockerfile for building the node red image.
 #
 
-# Build the Node-red using phusion base image
-FROM phusion/passenger-nodejs:latest
+# build the node red image using the offical node red distribution
+# passing arguments to build specific image
+ARG node_red_version
+FROM nodered/node-red:${node_red_version}
 
-# Installing basic net tools 
-RUN apt-get update && apt-get install net-tools -y
+# To avoid SSL certification issue
+ENV NODE_TLS_REJECT_UNAUTHORIZED=0
 
-# Copying the library files
-COPY lib/* /nodered_lib/
+# Install required modules
+ARG node_red_install_modules
+RUN npm install ${node_red_install_modules}
 
-# Install Node-red 
-RUN npm install -g --unsafe-perm node-red node-red-admin
+# we always want the influxdb plug-in.
+RUN npm install node-red-contrib-influxdb
 
-# Starting Node-red service 
-RUN mkdir /etc/service/nodered_start
-COPY anodered_start /etc/service/nodered_start/run
-RUN chmod +x /etc/service/nodered_start/run
+# Install base64 module
+RUN npm install node-red-node-base64
 
-# Moving Library files
-RUN mkdir /etc/service/nodered_start_lib
-COPY bnodered_start_lib /etc/service/nodered_start_lib/run
-RUN chmod +x /etc/service/nodered_start_lib/run
+# fix any dependency issues
+RUN npm audit fix
+
+# add The Things Network connector -- this must be after npm audit fix becuase
+# it uses a deprecated API.
+ARG node_red_contrib_ttn_version
+RUN npm install node-red-contrib-ttn@${node_red_contrib_ttn_version}
+
+# copy the settings file
+USER node-red
+COPY settings.js /usr/src/node-red/.node-red/
+
+# change the startup command to be sure to use our settings.
+CMD ["npm", "start", "--", "--userDir", "/data", "--settings", "/usr/src/node-red/.node-red/settings.js"]
+
+# end of file

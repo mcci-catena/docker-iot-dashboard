@@ -6,7 +6,7 @@
 # 	Configure the docker-iot-dashboard collection of docker containers.
 #
 # Copyright:
-#	This file copyright (c) 2017-2021 by
+#	This file copyright (c) 2017-2022 by
 #
 #		MCCI Corporation
 #		3520 Krums Corners Road
@@ -65,6 +65,9 @@
 #
 # IOT_DASHBOARD_AWS_S3_BUCKET_INFLUXDB
 #   The S3 bucket to be used for uploading the influxdb backup data.
+#
+# IOT_DASHBOARD_AWS_S3_BUCKET_MONGODB
+#   The S3 bucket to be used for uploading the mongodb backup data.
 #
 # IOT_DASHBOARD_AWS_HOST_BASE
 #   The S3 endpoint is used to configure 3rd party clients(s3cmd). 
@@ -132,9 +135,12 @@
 # IOT_DASHBOARD_MAIL_RELAY_IP
 #   The mail relay machine, assuming that the real mailer is upstream from us.
 #
+# IOT_DASHBOARD_MAIL_SMTP_AUTH
+#   To enable SMTP authentication, set to "yes". 
+#   Defaults to "no"
+#
 # IOT_DASHBOARD_MAIL_SMTP_LOGIN
-#   The mail relay login: name@example.com -- it will come from your upstream
-#       provider.
+#   The mail relay login: name@example.com -- it will come from your upstream provider.
 #
 # IOT_DASHBOARD_MAIL_SMTP_PASSWORD
 #   The mail relay password
@@ -179,6 +185,13 @@
 #
 # IOT_DASHBOARD_CRON_BACKUP_EMAIL
 #   To send backup mail in cron-backup container. Use "space" to delimit the MAIL IDs.
+#
+# IOT_DASHBOARD_MONGO_INITDB_ROOT_USERNAME
+#   The Username to be used for accessing Mongodb.
+#
+# IOT_DASHBOARD_MONGO_INITDB_ROOT_PASSWORD
+#   The Password to be used for accessing Mongodb root user.
+#
 #---
 
 # Also see nginx/setup.sh, which uses some additional test variables when
@@ -198,6 +211,7 @@ services:
     ports:
       - "${IOT_DASHBOARD_PORT_HTTP:-80}:80"
       - "${IOT_DASHBOARD_PORT_HTTPS:-443}:443"
+      - "${IOT_DASHBOARD_PORT_MONGODB_PROXY:-27020}:27020"
     volumes:
       - "${IOT_DASHBOARD_DATA}docker-nginx/htdocs:/usr/local/nginx/htdocs"
       - "${IOT_DASHBOARD_DATA}docker-nginx/letsencrypt:/etc/letsencrypt"
@@ -214,6 +228,8 @@ services:
       - node-red
       - influxdb
       - mqtts
+      - apiserver
+      - expo
 
   node-red:
     restart: unless-stopped
@@ -313,13 +329,14 @@ services:
         hostname: "${IOT_DASHBOARD_MAIL_HOST_NAME:-iotmail}"
         relay_ip: "${IOT_DASHBOARD_MAIL_RELAY_IP:-}"
         domain: "${IOT_DASHBOARD_MAIL_DOMAIN:-example.com}"
+        smtp_auth: "${IOT_DASHBOARD_MAIL_SMTP_AUTH:-no}"
         smtp_login: "${IOT_DASHBOARD_MAIL_SMTP_LOGIN:-}"
         smtp_password: "${IOT_DASHBOARD_MAIL_SMTP_PASSWORD:-}"
       # Enable SSL/TLS postfix communication
         tls_security_level: "${IOT_DASHBOARD_MAIL_TLS_SECURITY_LEVEL:-may}" 
         tls_wrappermode: "${IOT_DASHBOARD_MAIL_TLS_WRAPPERMODE:-no}"
-    expose:
-      - "25"
+    ports:
+      - "2525:25"
     hostname: "${IOT_DASHBOARD_MAIL_HOST_NAME:-iotmail}"
 
   cron-backup:
@@ -343,12 +360,64 @@ services:
       - "${IOT_DASHBOARD_DATA}node-red:/nodered"
       - "${IOT_DASHBOARD_DATA}docker-nginx:/nginx"
       - "${IOT_DASHBOARD_DATA}mqtt/credentials:/mqtts"
+      - "${IOT_DASHBOARD_DATA}mongodb/mongodb_data:/var/lib/mongodb"
+      - "${IOT_DASHBOARD_DATA}mongodb/mongodb-S3-bucket:/var/lib/mongodb-S3-bucket"
     environment:
       CRON_BACKUP_MAIL: "${IOT_DASHBOARD_CRON_BACKUP_EMAIL:-}"
+      MONGO_INITDB_ROOT_USERNAME: "${IOT_DASHBOARD_MONGO_INITDB_ROOT_USERNAME:-}"
+      MONGO_INITDB_ROOT_PASSWORD: "${IOT_DASHBOARD_MONGO_INITDB_ROOT_PASSWORD:-}"
       SOURCE_NAME: "${IOT_DASHBOARD_CERTBOT_FQDN}"
       S3_BUCKET_NODERED: "${IOT_DASHBOARD_AWS_S3_BUCKET_NODERED:-.}"
       S3_BUCKET_GRAFANA: "${IOT_DASHBOARD_AWS_S3_BUCKET_GRAFANA:-.}"
       S3_BUCKET_NGINX: "${IOT_DASHBOARD_AWS_S3_BUCKET_NGINX:-.}"
       S3_BUCKET_MQTTS: "${IOT_DASHBOARD_AWS_S3_BUCKET_MQTTS:-.}"
+      S3_BUCKET_MONGODB: "${IOT_DASHBOARD_AWS_S3_BUCKET_MONGODB:-.}"
+
+  apiserver:
+    restart: unless-stopped
+    build:
+      context: ./apiserver
+      dockerfile: Dockerfile
+    #profiles: ['dnc']
+    expose:
+      - "8891" # Generic DNC server
+      - "8892" # DNC standard Plugin
+      - "8893" # DNC Granfana Influx Plugin
+    ports:
+      - "${IOT_DASHBOARD_PORT_APISERVER_SSH:-6789}:22"
+    hostname: "${IOT_DASHBOARD_APISERVER_HOST_NAME:-apiserver}"
+    volumes:
+      - "${IOT_DASHBOARD_DATA}apiserver/dncserver:/apiserver/dncserver"
+      - "${IOT_DASHBOARD_DATA}apiserver/dncstdplugin:/apiserver/dncstdplugin"
+      - "${IOT_DASHBOARD_DATA}apiserver/dncgiplugin:/apiserver/dncgiplugin"
+      - "${IOT_DASHBOARD_DATA}apiserver/version:/vers"
+
+  mongodb:
+    restart: unless-stopped
+    image: mongo:5.0
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: "${IOT_DASHBOARD_MONGO_INITDB_ROOT_USERNAME:-}"
+      MONGO_INITDB_ROOT_PASSWORD: "${IOT_DASHBOARD_MONGO_INITDB_ROOT_PASSWORD:-}"
+    #profiles: ['dnc']
+    expose:
+      - "27017"
+    volumes:
+      - "${IOT_DASHBOARD_DATA}mongodb/mongodb_data:/data/db"
+      - "${IOT_DASHBOARD_DATA}mongodb/mongodb_backup:/var/lib/mongodb_backup"
+    hostname: "${IOT_DASHBOARD_MONGODB_HOST_NAME:-mongodb}"
+
+  expo:
+    restart: unless-stopped
+    build:
+      context: ./expo
+      dockerfile: Dockerfile
+    #profiles: ['dnc']
+    expose:
+      - "19006"
+    ports:
+      - "${IOT_DASHBOARD_PORT_EXPO_SSH:-6791}:22"
+    hostname: "${IOT_DASHBOARD_EXPO_HOST_NAME:-expo}"
+    volumes:
+      - "${IOT_DASHBOARD_DATA}expo/dncui:/expo/dncui"
 
 ### end of file ###

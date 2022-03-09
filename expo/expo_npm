@@ -1,0 +1,3 @@
+#!/bin/bash
+cd /expo/dncui || exit
+/usr/bin/npm install

@@ -1,0 +1,3 @@
+#!/bin/sh
+cd /expo/dncui/ && npm install && npm audit fix
+cd /expo/dncui/ && /usr/bin/expo start -w

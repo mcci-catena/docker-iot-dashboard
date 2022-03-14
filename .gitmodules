@@ -1,0 +1,16 @@
+[submodule "DNC-SERVER"]
+	path = apiserver/dncserver
+	url = git@github.com:mcci-catena/DNC-Server.git
+	branch = master
+[submodule "DNC-Grafana-Influx-Plugin"]
+	path = apiserver/dncgiplugin
+	url = git@github.com:mcci-catena/DNC-Grafana-Influx-Plugin.git
+	branch = master
+[submodule "DNC-Std-Plugin"]
+	path = apiserver/dncstdplugin
+	url = git@github.com:mcci-catena/DNC-Std-Plugin.git
+	branch = master
+[submodule "DNC-UI"]
+	path = expo/dncui
+	url = git@github.com:mcci-catena/DNC-UI.git
+	branch = master

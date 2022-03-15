@@ -9,7 +9,7 @@ cd $src_p || exit
 while IFS= read -r i
 do
     echo "$i"
-    if docker-compose -f "${i}/docker-compose.yml" ps | grep -i "nginx" | grep -i "up" > /dev/null
+    if docker-compose --env-file "${i}/.env" -f "${i}/docker-compose.yml" ps | grep -i "nginx" | grep -i "up" > /dev/null
     then
             wd="$i"
             echo "$wd"

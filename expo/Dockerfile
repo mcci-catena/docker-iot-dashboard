@@ -21,6 +21,9 @@ RUN npm install expo-cli --global
 COPY *.pub /tmp/
 RUN cat /tmp/*.pub >> /root/.ssh/authorized_keys && rm -f /tmp/*.pub
 
+# Copying DNC-UI source
+ADD dncui/ /expo/dncui/
+
 # Starting Expo Service
 COPY expo_start /etc/service/expo_start/run
 RUN chmod +x /etc/service/expo_start/run

@@ -387,9 +387,6 @@ services:
       - "${IOT_DASHBOARD_PORT_APISERVER_SSH:-6789}:22"
     hostname: "${IOT_DASHBOARD_APISERVER_HOST_NAME:-apiserver}"
     volumes:
-      - "${IOT_DASHBOARD_DATA}apiserver/dncserver:/apiserver/dncserver"
-      - "${IOT_DASHBOARD_DATA}apiserver/dncstdplugin:/apiserver/dncstdplugin"
-      - "${IOT_DASHBOARD_DATA}apiserver/dncgiplugin:/apiserver/dncgiplugin"
       - "${IOT_DASHBOARD_DATA}apiserver/version:/vers"
 
   mongodb:
@@ -417,7 +414,5 @@ services:
     ports:
       - "${IOT_DASHBOARD_PORT_EXPO_SSH:-6791}:22"
     hostname: "${IOT_DASHBOARD_EXPO_HOST_NAME:-expo}"
-    volumes:
-      - "${IOT_DASHBOARD_DATA}expo/dncui:/expo/dncui"
 
 ### end of file ###

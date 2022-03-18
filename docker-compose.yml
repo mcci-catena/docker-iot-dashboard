@@ -192,6 +192,15 @@
 # IOT_DASHBOARD_MONGO_INITDB_ROOT_PASSWORD
 #   The Password to be used for accessing Mongodb root user.
 #
+# IOT_DASHBOARD_MONGO_DNC_DBNAME
+#   The DNC-DB to be used for managing DNC configurations
+#
+# IOT_DASHBOARD_MONGO_DNC_USERNAME
+#   The Username to be used for accessing DNC-DB
+#
+# IOT_DASHBOARD_MONGO_DNC_PASSWD
+#   The Password to be used for accessing DNC-DB
+#
 #---
 
 # Also see nginx/setup.sh, which uses some additional test variables when
@@ -378,6 +387,12 @@ services:
     build:
       context: ./apiserver
       dockerfile: Dockerfile
+    environment:
+      MONGO_DNC_USERNAME: "${IOT_DASHBOARD_MONGO_DNC_USERNAME:-}"
+      MONGO_DNC_PASSWD: "${IOT_DASHBOARD_MONGO_DNC_PASSWD:-}"
+      MONGO_DNC_DBNAME: "${IOT_DASHBOARD_MONGO_DNC_DBNAME:-dncdb}"
+      MONGO_INITDB_ROOT_USERNAME: "${IOT_DASHBOARD_MONGO_INITDB_ROOT_USERNAME:-}"
+      MONGO_INITDB_ROOT_PASSWORD: "${IOT_DASHBOARD_MONGO_INITDB_ROOT_PASSWORD:-}"
     #profiles: ['dnc']
     expose:
       - "8891" # Generic DNC server

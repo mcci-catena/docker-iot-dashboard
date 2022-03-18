@@ -16,10 +16,14 @@
 	- [Set up the Node-RED and InfluxDB API logins](#set-up-the-node-red-and-influxdb-api-logins)
 		- [Migrating `htpasswd` from Apache to Nginx (if required)](#migrating-htpasswd-from-apache-to-nginx-if-required)
 		- [Creating new `htpasswd` files](#creating-new-htpasswd-files)
-   - [Set up the `MQTTs` User Credentials](#set-up-the-mqtts-user-credentials)
+    - [Set up the `MQTTs` User Credentials](#set-up-the-mqtts-user-credentials)
+    - [Set up environment for Expo container](#set-up-environment-for-expo-container)
 	- [Start the server](#start-the-server)
 	- [Restart servers in the background](#restart-servers-in-the-background)
+    - [Manual configuration for EXPO](#manual-configuration-for-expo)
 	- [Initial testing](#initial-testing)
+    - [Testing DNC setup](#testing-dnc-setup)
+    - [Set up crontab for fetching docker-iot-dashboard version info](#set-up-crontab-for-fetching-docker-iot-dashboard-version-info)
 	- [Set up first data source](#set-up-first-data-source)
 	- [Test Node-RED](#test-node-red)
 	- [Creating an InfluxDB database](#creating-an-influxdb-database)
@@ -581,7 +585,7 @@ If migrating from an older version of the dashboard that used Apache, you'll nee
 
 4. Exit Nginx's container with Control+D.
 
-#### Set up the `MQTTs` User Credentials
+### Set up the `MQTTs` User Credentials
 
 To access mqtt channel, user needs credentials to access it.
 
@@ -601,6 +605,15 @@ To access mqtt channel, user needs credentials to access it.
    ```
 
 3. Close the connection to mqtts (Ctrl+D).
+
+### Set up environment for `Expo` container
+
+Linux uses the `inotify` package to observe file system events, individual files or directories. Since React / Angular hot-reloads and recompile files on save, it needs to keep track of all project's files. Increasing the `inotify` watch limit should hide the warning messages.
+
+```console
+    # insert the new value into the system config
+    echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
+```
 
 ### Start the server
 
@@ -640,11 +653,51 @@ dashboard.example.com_node-red_1      npm --no-update-notifier - ...   Up (healt
 dashboard.example.com_postfix_1       /sbin/my_init                    Up             0.0.0.0:2525->25/tcp,:::2525->25/tcp
 ```
 
+### Manual configuration for `EXPO`
+
+- `DNC UI` have some limitations that need to be corrected. Once the `Expo` container became up, the below steps have to be completed.
+
+    Follow the below steps:
+
+    ```console
+    docker-compose exec expo bash
+
+    cd /expo/dncui
+
+    bash -c 'echo "export const ViewPropTypes = { style: null };" >> node_modules/react-native-web/dist/index.js'
+
+    sed -i "s/Text.displayName = 'Text';/Text.propTypes = ()=> {};/g" node_modules/react-native-web/dist/exports/Text/index.js
+
+    sed -i '/^  BackAndroid,$/d' node_modules/react-native-awesome-alerts/src/AwesomeAlert.js
+    ```
+
 ### Initial testing
 
 - Open Grafana on [https://dashboard.example.com](https://dashboard.example.com/), and log in as admin.
 
 - Change the admin password.
+
+### Testing DNC setup
+
+- To test **DNS Server**:
+    In Browser, have a look at the version number using URL: <https://dashboard.example.com/dncserver/version>
+- To test **DNC Standard Plugin**:
+    In Browser, have a look at the version number using URL: <https://dashboard.example.com/dncstdplugin/version>
+- To test **DNC Grafana-Influx Plugin**:
+    In Browser, have a look at the version number using URL: <https://dashboard.example.com/dncgiplugin/version>
+- To test **DNC UI**:
+    In Browser, have a look at the version number using URL: <https://dashboard.example.com/dncui>
+
+### Set up crontab for fetching `docker-iot-dashboard` version info
+
+- In the Host machine, a cronjob needs to be configured as below.
+
+    ```console
+    sudo echo "0 * * * * /bin/bash -l -c '/opt/docker/dashboard.example.com/apiserver/version_check.sh'" >> /etc/crontab
+    ```
+
+- To test **Version info**:
+    In Browser, have a look at the version number using URL: <https://dashboard.example.com/version>
 
 ### Set up first data source
 

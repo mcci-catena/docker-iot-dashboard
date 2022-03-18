@@ -178,7 +178,7 @@ The following instructions are essentially independent of the cloud provider and
 1. Clone this repository.
 
     ```bash
-    git clone git@github.com:mcci-catena/docker-iot-dashboard.git /opt/docker/dashboard.example.com
+    git clone --recurse-submodules git@github.com:mcci-catena/docker-iot-dashboard.git /opt/docker/dashboard.example.com
     ```
 
 2. Move to the directory populated in step 1.

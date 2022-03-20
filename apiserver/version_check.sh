@@ -70,13 +70,13 @@ function _parseenv {
 
 IOT_DASHBOARD_DATA="$(_parseenv ".env" | sed -ne 's/^IOT_DASHBOARD_DATA //p')"
 
-dncsrv=$(cd "${IOT_DASHBOARD_DATA}"apiserver/dncserver && git describe --tags || echo "Oops, something went wrong")
+dncsrv=$(cd "${wd}"/apiserver/dncserver && git describe --tags || echo "Oops, something went wrong")
 
-dncgiv=$(cd "${IOT_DASHBOARD_DATA}"apiserver/dncgiplugin && git describe --tags || echo "Oops, something went wrong")
+dncgiv=$(cd "${wd}"/apiserver/dncgiplugin && git describe --tags || echo "Oops, something went wrong")
 
-dncstdv=$(cd "${IOT_DASHBOARD_DATA}"apiserver/dncstdplugin && git describe --tags || echo "Oops, something went wrong")
+dncstdv=$(cd "${wd}"/apiserver/dncstdplugin && git describe --tags || echo "Oops, something went wrong")
 
-dncuiv=$(cd "${IOT_DASHBOARD_DATA}"expo/dncui && git describe --tags || echo "Oops, something went wrong")
+dncuiv=$(cd "${wd}"/expo/dncui && git describe --tags || echo "Oops, something went wrong")
 
 #datv=$(date +%Y-%m-%d_%H:%M:%S%Z)
 datv=$(date)

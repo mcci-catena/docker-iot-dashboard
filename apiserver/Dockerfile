@@ -23,6 +23,15 @@ ADD version.tar.gz /opt/
 COPY version_start /etc/service/version_start/run
 RUN chmod +x /etc/service/version_start/run
 
+# Copying the DNC-Server source
+ADD dncserver/ /apiserver/dncserver/
+
+# Copying the DNC-Std-Plugin source
+ADD dncstdplugin/ /apiserver/dncstdplugin/
+
+# Copying the DNC-Grafana-Influx-Plugin source
+ADD dncgiplugin/ /apiserver/dncgiplugin/
+
 # To start DNC-SERVER during system boot
 COPY dncserver_start /etc/service/dncserver_start/run
 RUN chmod +x /etc/service/dncserver_start/run

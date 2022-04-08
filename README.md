@@ -410,7 +410,7 @@ Please refer to [`influxdb/README.md`](./influxdb/README.md).
 
 ## Release History
 
-- HEAD has the following changes.
+- v3.0.0 has the following changes.
 
   - Included `Apiserver` and `Expo` Containers for DNC support.
   - Documented the process behind the `DNC` support.

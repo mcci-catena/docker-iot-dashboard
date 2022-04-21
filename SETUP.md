@@ -693,7 +693,7 @@ dashboard.example.com_postfix_1       /sbin/my_init                    Up       
 - In the Host machine, a cronjob needs to be configured as below.
 
     ```console
-    sudo echo "0  *    * * *   root    /bin/bash -l -c '/opt/docker/training.mcci.io/apiserver/version_check.sh'" >> /etc/crontab
+    sudo printf '0\t*\t*\t*\t/bin/bash -l -c /opt/docker/dashboard.example.com/apiserver/version_check.sh\n' >> /etc/crontab
     ```
 
 - To test **Version info**:

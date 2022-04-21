@@ -767,7 +767,7 @@ $
     ```bash
     docker-compose exec influxdb bash
 
-    root@influxdbbackup:/# mail -s "Testing mail from Influxdb" cmurugan@mcci.com
+    root@influxdbbackup:/# mail -s "Testing mail from Influxdb" user@example.com
     Cc:
     Testing1
     ```
@@ -779,7 +779,7 @@ $
     ```bash
     docker-compose exec postfix bash
 
-    root@dashboard:/# mail -s "Testing mail from Postfix" cmurugan@mcci.com
+    root@dashboard:/# mail -s "Testing mail from Postfix" user@example.com
     Cc:
     Testing1
     ```

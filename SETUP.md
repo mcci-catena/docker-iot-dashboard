@@ -693,7 +693,7 @@ dashboard.example.com_postfix_1       /sbin/my_init                    Up       
 - In the Host machine, a cronjob needs to be configured as below.
 
     ```console
-    sudo echo "0 * * * * /bin/bash -l -c '/opt/docker/dashboard.example.com/apiserver/version_check.sh'" >> /etc/crontab
+    sudo printf '0\t*\t*\t*\t/bin/bash -l -c /opt/docker/dashboard.example.com/apiserver/version_check.sh\n' >> /etc/crontab
     ```
 
 - To test **Version info**:
@@ -745,15 +745,15 @@ $
 ### Test Postfix Mail setup
 
 - Testing Mail setup on `Grafana`
-  1. Click on "Bell icon" and click the "Notification channels" option as shown below
+  1. Click on "Bell icon" and click the "Contact points" option as shown below
 
         ![grafana_mail_testing](assets/graf-mail_test_1.png)
 
-  2. Click "Add Channel" as shown below
+  2. Click "New contact point" to add New contacts as shown below
 
         ![grafana_mail_testing](assets/graf-mail_test_2.png)
   
-  3. Input the required info as shown below. *Be sure to select type as `Email`*. Click `Test` button finally to send test mail.
+  3. Input the required info as shown below. *Be sure to select type as `Email`*. Click `Test` button to send test mail and Click "Save contact point" to finally save the Contact.
 
         ![grafana_mail_testing](assets/graf-mail_test_3.png)
 
@@ -767,7 +767,7 @@ $
     ```bash
     docker-compose exec influxdb bash
 
-    root@influxdbbackup:/# mail -s "Testing mail from Influxdb" cmurugan@mcci.com
+    root@influxdbbackup:/# mail -s "Testing mail from Influxdb" user@example.com
     Cc:
     Testing1
     ```
@@ -779,7 +779,7 @@ $
     ```bash
     docker-compose exec postfix bash
 
-    root@dashboard:/# mail -s "Testing mail from Postfix" cmurugan@mcci.com
+    root@dashboard:/# mail -s "Testing mail from Postfix" user@example.com
     Cc:
     Testing1
     ```

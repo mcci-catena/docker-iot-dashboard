@@ -410,6 +410,13 @@ Please refer to [`influxdb/README.md`](./influxdb/README.md).
 
 ## Release History
 
+- v3.0.2 has the following changes.
+  - Updated DNC-Std-Plugin - Added Token Validation & new Status code
+
+- v3.0.1 has the following changes.
+  - Updated DNC-server - Modified Login response and Query response
+  - Updated DNC-Std-Plugin - Added support for DNC Mapping
+
 - v3.0.0 has the following changes.
 
   - Included `Apiserver` and `Expo` Containers for DNC support.

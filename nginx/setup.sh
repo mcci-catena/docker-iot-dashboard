@@ -59,7 +59,7 @@ if [ "$CERTBOT_TEST" != "test" ]; then
 fi
 
 # Configuring Mongodb connection access using Nginx SSL Termination method
-grep '27020' /etc/nginx/nginx.conf || $(sed -i "s/domain/$CERTBOT_DOMAINS/g" /root/mongo.txt && sed -i $'/http {/{e cat /root/mongo.txt\n}' /etc/nginx/nginx.conf)
+# grep '27020' /etc/nginx/nginx.conf || $(sed -i "s/domain/$CERTBOT_DOMAINS/g" /root/mongo.txt && sed -i $'/http {/{e cat /root/mongo.txt\n}' /etc/nginx/nginx.conf)
 
 # To fix snapshot issue "413 Request Entity too large"
 grep -i 'client_max_body_size' /etc/nginx/nginx.conf || sed -i '/http {/a\\tclient_max_body_size 10M;' /etc/nginx/nginx.conf
@@ -69,10 +69,13 @@ set -- proxy-*.conf
 if [ "$1" != "proxy-*.conf" ] ; then
 	echo "add proxy-specs to configuration from:" "$@"
 	sed -e "s/@{FQDN}/${NGINX_FQDN}/g" "$@" > /tmp/proxyspecs.conf || exit 5
-	sed -e '/listen 443 ssl;/r/tmp/proxyspecs.conf' /etc/nginx/sites-available/default  > /tmp/000-default-le-ssl-local.conf || exit 6
+	# sed -ie '/location \/ {/,+5d' /etc/nginx/sites-available/default
+	cp /etc/nginx/sites-available/default /etc/nginx/sites-available/default.orig
+    sed -e '/location \/ {/,/}/d' /etc/nginx/sites-available/default > /etc/nginx/sites-available/default
+	sed -e '/listen 443 ssl;/r/tmp/proxyspecs.conf' /etc/nginx/sites-available/default > /tmp/000-default-le-ssl-local.conf || exit 6
 	mv /tmp/000-default-le-ssl-local.conf /etc/nginx/sites-available || exit 7
 	echo "enable the modified site, and disable the ssl defaults"
-		rm -rf /etc/nginx/sites-enabled/default || echo exit 8
-		rm -rf /etc/nginx/sites-enabled/000-default-le-ssl-local.conf || exit 9
-		ln -s /etc/nginx/sites-available/000-default-le-ssl-local.conf /etc/nginx/sites-enabled/000-default-le-ssl-local.conf || exit 10
+	rm -rf /etc/nginx/sites-enabled/default || echo exit 8
+	rm -rf /etc/nginx/sites-enabled/000-default-le-ssl-local.conf || exit 9
+	ln -s /etc/nginx/sites-available/000-default-le-ssl-local.conf /etc/nginx/sites-enabled/000-default-le-ssl-local.conf || exit 10
 fi

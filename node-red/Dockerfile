@@ -21,12 +21,12 @@ RUN npm install node-red-contrib-influxdb
 RUN npm install node-red-node-base64
 
 # fix any dependency issues
-RUN npm audit fix
+# RUN npm audit fix
 
 # add The Things Network connector -- this must be after npm audit fix becuase
 # it uses a deprecated API.
-ARG node_red_contrib_ttn_version
-RUN npm install node-red-contrib-ttn@${node_red_contrib_ttn_version}
+# ARG node_red_contrib_ttn_version
+# RUN npm install node-red-contrib-ttn@${node_red_contrib_ttn_version}
 
 # copy the settings file
 USER node-red

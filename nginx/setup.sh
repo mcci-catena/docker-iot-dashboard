@@ -71,7 +71,7 @@ if [ "$1" != "proxy-*.conf" ] ; then
 	sed -e "s/@{FQDN}/${NGINX_FQDN}/g" "$@" > /tmp/proxyspecs.conf || exit 5
 	# sed -ie '/location \/ {/,+5d' /etc/nginx/sites-available/default
 	cp /etc/nginx/sites-available/default /etc/nginx/sites-available/default.orig
-    sed -e '/location \/ {/,/}/d' /etc/nginx/sites-available/default > /etc/nginx/sites-available/default
+    sed -ie '/location \/ {/,/}/d' /etc/nginx/sites-available/default
 	sed -e '/listen 443 ssl;/r/tmp/proxyspecs.conf' /etc/nginx/sites-available/default > /tmp/000-default-le-ssl-local.conf || exit 6
 	mv /tmp/000-default-le-ssl-local.conf /etc/nginx/sites-available || exit 7
 	echo "enable the modified site, and disable the ssl defaults"

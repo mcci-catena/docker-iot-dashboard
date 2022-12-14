@@ -183,8 +183,8 @@
 # IOT_DASHBOARD_INFLUXDB_BACKUP_EMAIL
 #   To send backup mail in Influxdb container. Use "space" to delimit the MAIL IDs.
 #
-# IOT_DASHBOARD_CRON_BACKUP_EMAIL
-#   To send backup mail in cron-backup container. Use "space" to delimit the MAIL IDs.
+# IOT_DASHBOARD_BACKUP_EMAIL
+#   To send backup mail in backup container. Use "space" to delimit the MAIL IDs.
 #
 # IOT_DASHBOARD_MONGO_INITDB_ROOT_USERNAME
 #   The Username to be used for accessing Mongodb.
@@ -348,13 +348,13 @@ services:
       - "2525:25"
     hostname: "${IOT_DASHBOARD_MAIL_HOST_NAME:-iotmail}"
 
-  cron-backup:
+  backup:
     restart: unless-stopped
     build:
-      context: ./cron-backup
+      context: ./backup
       dockerfile: Dockerfile
       args:
-        hostname: "${IOT_DASHBOARD_CRONBACKUP_MAIL_HOST_NAME:-cron-backup}"
+        hostname: "${IOT_DASHBOARD_CRONBACKUP_MAIL_HOST_NAME:-backup}"
         relay_ip: "postfix:25"
         domain: "${IOT_DASHBOARD_MAIL_DOMAIN:-example.com}"
       # Moving backup data to S3 Bucket
@@ -363,7 +363,7 @@ services:
         AWS_DEFAULT_REGION: "${IOT_DASHBOARD_AWS_DEFAULT_REGION:-.}"
         AWS_HOST_BASE: "${IOT_DASHBOARD_AWS_HOST_BASE:-.}"
         AWS_HOST_BUCKET: "${IOT_DASHBOARD_AWS_HOST_BUCKET:-.}"
-    hostname: "${IOT_DASHBOARD_CRONBACKUP_MAIL_HOST_NAME:-cron-backup}"
+    hostname: "${IOT_DASHBOARD_CRONBACKUP_MAIL_HOST_NAME:-backup}"
     volumes:
       - "${IOT_DASHBOARD_DATA}grafana:/grafana"
       - "${IOT_DASHBOARD_DATA}node-red:/nodered"
@@ -372,7 +372,7 @@ services:
       - "${IOT_DASHBOARD_DATA}mongodb/mongodb_data:/var/lib/mongodb"
       - "${IOT_DASHBOARD_DATA}mongodb/mongodb-S3-bucket:/var/lib/mongodb-S3-bucket"
     environment:
-      CRON_BACKUP_MAIL: "${IOT_DASHBOARD_CRON_BACKUP_EMAIL:-}"
+      BACKUP_MAIL: "${IOT_DASHBOARD_BACKUP_EMAIL:-}"
       MONGO_INITDB_ROOT_USERNAME: "${IOT_DASHBOARD_MONGO_INITDB_ROOT_USERNAME:-}"
       MONGO_INITDB_ROOT_PASSWORD: "${IOT_DASHBOARD_MONGO_INITDB_ROOT_PASSWORD:-}"
       SOURCE_NAME: "${IOT_DASHBOARD_CERTBOT_FQDN}"

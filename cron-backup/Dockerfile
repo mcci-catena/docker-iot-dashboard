@@ -80,16 +80,18 @@ RUN chmod +x /bin/nginx_backup.sh
 COPY mqtts_backup.sh /bin/mqtts_backup.sh
 RUN chmod +x /bin/mqtts_backup.sh
 
+# Backup script for startup.sh
+COPY startup.sh /etc/service/startup/run
+RUN chmod +x /etc/service/startup/run
+
 # Backup script for mongodb
-COPY mongodb_backup.sh /bin/mongodb_backup.sh
-RUN chmod +x /bin/mongodb_backup.sh
+#COPY mongodb_backup.sh /etc/service/mongodb_backup/run
+#RUN chmod +x /etc/service/mongodb_backup/run
+
 
 # Start the postfix daemon during container startup
+RUN mkdir -p /etc/my_init.d
 COPY postfix.sh /etc/my_init.d/postfix.sh
 RUN chmod +x /etc/my_init.d/postfix.sh
 
-# To Enable crontab
-RUN mkdir -p /etc/my_init.d
-COPY cron.sh /etc/my_init.d/cron.sh
-RUN chmod +x /etc/my_init.d/cron.sh
 # end of file

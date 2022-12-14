@@ -406,7 +406,7 @@ services:
 
   mongodb:
     restart: unless-stopped
-    image: mongo:5.0
+    image: mongo:6.0
     environment:
       MONGO_INITDB_ROOT_USERNAME: "${IOT_DASHBOARD_MONGO_INITDB_ROOT_USERNAME:-}"
       MONGO_INITDB_ROOT_PASSWORD: "${IOT_DASHBOARD_MONGO_INITDB_ROOT_PASSWORD:-}"

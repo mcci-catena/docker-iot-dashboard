@@ -7,7 +7,7 @@
 # 5. mongodb
 
 # To find the version of installed Mongodb service
-FROM mongo:latest AS mongodb
+FROM mongo:5.0.11 AS mongodb
 RUN env | grep MON > /root/env
 
 

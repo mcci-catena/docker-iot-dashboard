@@ -1,4 +1,6 @@
 *.swp
 .env
+*.env
 *~
 .vscode
+venv

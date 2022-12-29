@@ -1,0 +1,7 @@
+# count all rows
+SELECT SUM(count) FROM (SELECT *,count::INTEGER FROM radiobridge GROUP BY count FILL(1))
+
+#
+SELECT SUM("candied") FROM "hearts" \
+WHERE time >= '2017-02-14T16:00:00Z' AND time <= '2017-02-14T22:00:00Z' \
+GROUP BY time(1h) fill(none)

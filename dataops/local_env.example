@@ -1,0 +1,4 @@
+# 
+INFLUX_USER=loradmin
+INFLUX_PASS=xxxxxxx
+INFLUX_DBNAME=iotdashdb

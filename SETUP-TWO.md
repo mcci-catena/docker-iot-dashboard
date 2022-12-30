@@ -31,21 +31,33 @@ You need a file named `.env` in the docker-compose folder.
 Sample `.env` contents:
 
 ```bash
-IOT_DASHBOARD_NGINX_FQDN=surveyor1.somedomain.yours
-IOT_DASHBOARD_CERTBOT_FQDN=surveyor1.somedomain.yours
+IOT_DASHBOARD_TIMEZONE=America/Chicago
 
-IOT_DASHBOARD_CERTBOT_EMAIL=certs@somedomain.yours
-
+# Host (VM) location for Peristent Data Storage
 IOT_DASHBOARD_DATA=/var/opt/dashstack
 
-IOT_DASHBOARD_GRAFANA_SMTP_FROM_ADDRESS=monitor@somedomain.yours
-IOT_DASHBOARD_GRAFANA_ADMIN_PASSWORD=${GETYOUROWN}
+# Match DNS config for routing
+IOT_DASHBOARD_NGINX_FQDN=surveyor1.example.com
 
-IOT_DASHBOARD_INFLUXDB_INITIAL_DATABASE_NAME=iotdashdb
+# Match DNS config for SSL Certificate Validation
+IOT_DASHBOARD_CERTBOT_FQDN=surveyor1.example.com
 
+# Your certbot customer ID (confirm)
+IOT_DASHBOARD_CERTBOT_EMAIL=certs@example.com
+
+# pick a DB name
+IOT_DASHBOARD_INFLUXDB_INITIAL_DATABASE_NAME=dashdb
+
+# Node-RED Plugins
 IOT_DASHBOARD_NODERED_INSTALL_PLUGINS=node-red-contrib-influxdb node-red-node-base64
 
-IOT_DASHBOARD_TIMEZONE=America/Chicago
+# Grafana if enabled
+# IOT_DASHBOARD_GRAFANA_SMTP_FROM_ADDRESS=monitor@example.com
+# IOT_DASHBOARD_GRAFANA_ADMIN_PASSWORD=G3tY0ur0mm%$@#!
+
+# if using Postfix
+# IOT_DASHBOARD_MAIL_HOST_NAME=surveyor1.example.com
+# IOT_DASHBOARD_MAIL_DOMAIN=surveyor1.example.com
 ```
 
 ## Setup the .htpasswd files

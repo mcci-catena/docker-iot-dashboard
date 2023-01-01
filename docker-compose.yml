@@ -233,9 +233,9 @@ services:
     # informed about the nature of the redirections.
     #
     links:
-      - grafana
+      # - grafana
       - node-red
-      - influxdb
+      # - influxdb
       - mqtts
       # - apiserver
       # - expo
@@ -255,8 +255,8 @@ services:
     environment:
       TZ: "${IOT_DASHBOARD_TIMEZONE:-GMT}"
     # nodered opens ports on influxdb and postfix so it needs to be able to talk to it.
-    links:
-      - influxdb
+    # links:
+      # - influxdb
       # - postfix
 
   mqtts:
@@ -275,59 +275,59 @@ services:
       - "${IOT_DASHBOARD_DATA}mqtt/credentials:/etc/mosquitto/credentials"
     hostname: "${IOT_DASHBOARD_MQTT_HOST_NAME:-mqtts}"
 
-  influxdb:
-    restart: unless-stopped
-    build:
-      context: ./influxdb
-      dockerfile: Dockerfile
-      args:
-        distrib_id: "${IOT_DASHBOARD_OS_DISTRIB_ID:-ubuntu}"
-        distrib_codename: "${IOT_DASHBOARD_OS_DISTRIB_CODENAME:-focal}"
-        hostname: "${IOT_DASHBOARD_INFLUXDB_MAIL_HOST_NAME:-influxdb}"
-        relay_ip: "postfix:25"
-        domain: "${IOT_DASHBOARD_MAIL_DOMAIN:-example.com}"
-      # Backing up influxdb metadata and database to S3 Bucket
-        AWS_ACCESS_KEY_ID: "${IOT_DASHBOARD_AWS_ACCESS_KEY_ID:-.}"
-        AWS_SECRET_ACCESS_KEY: "${IOT_DASHBOARD_AWS_SECRET_ACCESS_KEY:-.}"
-        AWS_DEFAULT_REGION: "${IOT_DASHBOARD_AWS_DEFAULT_REGION:-.}"
-        AWS_HOST_BASE: "${IOT_DASHBOARD_AWS_HOST_BASE:-.}"
-        AWS_HOST_BUCKET: "${IOT_DASHBOARD_AWS_HOST_BUCKET:-.}"
-    hostname: "${IOT_DASHBOARD_INFLUXDB_MAIL_HOST_NAME:-influxdb}"
-    expose:
-      - "8086"
-    volumes:
-      - "${IOT_DASHBOARD_DATA}influxdb:/var/lib/influxdb"
-    environment:
-      INFLUXDB_INIT_PWD: "${IOT_DASHBOARD_INFLUXDB_ADMIN_PASSWORD:-!notset}"
-      PRE_CREATE_DB: "${IOT_DASHBOARD_INFLUXDB_INITIAL_DATABASE_NAME:-demo}"
-      INFLUXDB_BIND_ADDRESS: "influxdb:8088"
-      INFLUXDB_BACKUP_MAIL: "${IOT_DASHBOARD_INFLUXDB_BACKUP_EMAIL:-}"
-      SOURCE_NAME: "${IOT_DASHBOARD_CERTBOT_FQDN}"
-      S3_BUCKET_INFLUXDB: "${IOT_DASHBOARD_AWS_S3_BUCKET_INFLUXDB:-.}"
+  # influxdb:
+  #   restart: unless-stopped
+  #   build:
+  #     context: ./influxdb
+  #     dockerfile: Dockerfile
+  #     args:
+  #       distrib_id: "${IOT_DASHBOARD_OS_DISTRIB_ID:-ubuntu}"
+  #       distrib_codename: "${IOT_DASHBOARD_OS_DISTRIB_CODENAME:-focal}"
+  #       hostname: "${IOT_DASHBOARD_INFLUXDB_MAIL_HOST_NAME:-influxdb}"
+  #       relay_ip: "postfix:25"
+  #       domain: "${IOT_DASHBOARD_MAIL_DOMAIN:-example.com}"
+  #     # Backing up influxdb metadata and database to S3 Bucket
+  #       AWS_ACCESS_KEY_ID: "${IOT_DASHBOARD_AWS_ACCESS_KEY_ID:-.}"
+  #       AWS_SECRET_ACCESS_KEY: "${IOT_DASHBOARD_AWS_SECRET_ACCESS_KEY:-.}"
+  #       AWS_DEFAULT_REGION: "${IOT_DASHBOARD_AWS_DEFAULT_REGION:-.}"
+  #       AWS_HOST_BASE: "${IOT_DASHBOARD_AWS_HOST_BASE:-.}"
+  #       AWS_HOST_BUCKET: "${IOT_DASHBOARD_AWS_HOST_BUCKET:-.}"
+  #   hostname: "${IOT_DASHBOARD_INFLUXDB_MAIL_HOST_NAME:-influxdb}"
+  #   expose:
+  #     - "8086"
+  #   volumes:
+  #     - "${IOT_DASHBOARD_DATA}influxdb:/var/lib/influxdb"
+  #   environment:
+  #     INFLUXDB_INIT_PWD: "${IOT_DASHBOARD_INFLUXDB_ADMIN_PASSWORD:-!notset}"
+  #     PRE_CREATE_DB: "${IOT_DASHBOARD_INFLUXDB_INITIAL_DATABASE_NAME:-demo}"
+  #     INFLUXDB_BIND_ADDRESS: "influxdb:8088"
+  #     INFLUXDB_BACKUP_MAIL: "${IOT_DASHBOARD_INFLUXDB_BACKUP_EMAIL:-}"
+  #     SOURCE_NAME: "${IOT_DASHBOARD_CERTBOT_FQDN}"
+  #     S3_BUCKET_INFLUXDB: "${IOT_DASHBOARD_AWS_S3_BUCKET_INFLUXDB:-.}"
 
-  grafana:
-    restart: unless-stopped
-    image: grafana/grafana:${IOT_DASHBOARD_GRAFANA_VERSION:-latest}
-    user: "root"
-    volumes:
-      - "${IOT_DASHBOARD_DATA}grafana:/var/lib/grafana"
-    environment:
-      GF_SECURITY_ADMIN_PASSWORD: "${IOT_DASHBOARD_GRAFANA_ADMIN_PASSWORD:-!notset}"
-      GF_SERVER_DOMAIN: "${IOT_DASHBOARD_NGINX_FQDN}"
-      GF_SERVER_ROOT_URL: "https://%(domain)s/grafana/"
-      GF_SMTP_ENABLED: "${IOT_DASHBOARD_GRAFANA_SMTP_ENABLED:-true}"
-      GF_SMTP_SKIP_VERIFY: "${IOT_DASHBOARD_GRAFANA_SMTP_SKIP_VERIFY:-true}"
-      GF_SMTP_HOST: "postfix:25"
-      GF_SMTP_FROM_ADDRESS: "${IOT_DASHBOARD_GRAFANA_SMTP_FROM_ADDRESS:-grafana@localhost}"
-      GF_SMTP_FROM_NAME: "${IOT_DASHBOARD_GRAFANA_PROJECT_NAME:-Default} grafana admin"
-      GF_LOG_MODE: "${IOT_DASHBOARD_GRAFANA_LOG_MODE:-console,file}"
-      GF_LOG_LEVEL: "${IOT_DASHBOARD_GRAFANA_LOG_LEVEL:-info}"
-      GF_INSTALL_PLUGINS: "${IOT_DASHBOARD_GRAFANA_INSTALL_PLUGINS:-grafana-worldmap-panel}"
-      GF_USERS_ALLOW_SIGN_UP: "${IOT_DASHBOARD_GRAFANA_USERS_ALLOW_SIGN_UP:-false}"
-    # grafana opens ports on influxdb and postfix, so it needs to be able to talk to it.
-    links:
-      - influxdb
-      # - postfix
+  # grafana:
+  #   restart: unless-stopped
+  #   image: grafana/grafana:${IOT_DASHBOARD_GRAFANA_VERSION:-latest}
+  #   user: "root"
+  #   volumes:
+  #     - "${IOT_DASHBOARD_DATA}grafana:/var/lib/grafana"
+  #   environment:
+  #     GF_SECURITY_ADMIN_PASSWORD: "${IOT_DASHBOARD_GRAFANA_ADMIN_PASSWORD:-!notset}"
+  #     GF_SERVER_DOMAIN: "${IOT_DASHBOARD_NGINX_FQDN}"
+  #     GF_SERVER_ROOT_URL: "https://%(domain)s/grafana/"
+  #     GF_SMTP_ENABLED: "${IOT_DASHBOARD_GRAFANA_SMTP_ENABLED:-true}"
+  #     GF_SMTP_SKIP_VERIFY: "${IOT_DASHBOARD_GRAFANA_SMTP_SKIP_VERIFY:-true}"
+  #     GF_SMTP_HOST: "postfix:25"
+  #     GF_SMTP_FROM_ADDRESS: "${IOT_DASHBOARD_GRAFANA_SMTP_FROM_ADDRESS:-grafana@localhost}"
+  #     GF_SMTP_FROM_NAME: "${IOT_DASHBOARD_GRAFANA_PROJECT_NAME:-Default} grafana admin"
+  #     GF_LOG_MODE: "${IOT_DASHBOARD_GRAFANA_LOG_MODE:-console,file}"
+  #     GF_LOG_LEVEL: "${IOT_DASHBOARD_GRAFANA_LOG_LEVEL:-info}"
+  #     GF_INSTALL_PLUGINS: "${IOT_DASHBOARD_GRAFANA_INSTALL_PLUGINS:-grafana-worldmap-panel}"
+  #     GF_USERS_ALLOW_SIGN_UP: "${IOT_DASHBOARD_GRAFANA_USERS_ALLOW_SIGN_UP:-false}"
+  #   # grafana opens ports on influxdb and postfix, so it needs to be able to talk to it.
+  #   links:
+  #     - influxdb
+  #     # - postfix
 
   # postfix:
   #   restart: unless-stopped

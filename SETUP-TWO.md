@@ -157,7 +157,7 @@ Start the Docker-Compose stack and Detach with:
 
 > `docker-compose up -d`
 
-### RTFM
+### RTFM docker-compose
 
 * docker-compose ps
 * docker-compose logs

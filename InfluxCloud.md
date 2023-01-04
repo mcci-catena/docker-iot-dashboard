@@ -7,11 +7,18 @@ The DBRP maps a v1 DB name to a v2 bucket name with a retention policy.
 
 The `influx cli` command below creates the needed mapping.
 
-```
+```bash
 influx v1 dbrp create \
   --bucket-id 3001cad66570963c \
   --db surveyor \
   --rp surveyor \
   --default
 ```
-
+Another example
+```bash
+influx v1 dbrp create \
+  --bucket-id 834623352d10ec39 \
+  --db nodedev \
+  --rp nodedev \
+  --default
+```

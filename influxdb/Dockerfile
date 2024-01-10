@@ -2,7 +2,7 @@
 # Dockerfile for building the influxdb instance with S3-backup and Mail alert setup
 #
 
-FROM phusion/baseimage:master-amd64
+FROM phusion/baseimage:jammy-1.0.1
 
 # Default InfluxDB host
 ENV INFLUX_HOST=influxdb
@@ -13,7 +13,7 @@ ARG distrib_id
 ARG distrib_codename
 
 RUN echo "${distrib_id}"
-RUN wget -qO- https://repos.influxdata.com/influxdb.key | apt-key add -
+RUN wget -qO- https://repos.influxdata.com/influxdata-archive_compat.key | apt-key add -
 RUN /bin/bash -c "source /etc/lsb-release"
 RUN echo "deb https://repos.influxdata.com/${distrib_id} ${distrib_codename} stable" | tee /etc/apt/sources.list.d/influxdb.list
 

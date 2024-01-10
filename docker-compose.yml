@@ -254,6 +254,7 @@ services:
       - "${IOT_DASHBOARD_DATA}node-red:/data"
     environment:
       TZ: "${IOT_DASHBOARD_TIMEZONE:-GMT}"
+      NODE_RED_ENABLE_PROJECTS: "true"
     # nodered opens ports on influxdb and postfix so it needs to be able to talk to it.
     links:
       - influxdb

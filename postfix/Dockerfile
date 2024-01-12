@@ -2,8 +2,8 @@
 # Dockerfile for building POSTFIX
 #
 # Build the Postfix  using phusion base image
-FROM phusion/baseimage:master-amd64
 
+FROM phusion/baseimage:jammy-1.0.1
 # some basic package installation for troubleshooting
 RUN apt-get update && apt-get install -y \
     iputils-ping \

@@ -2,7 +2,7 @@
 # Dockerfile for building the influxdb instance with S3-backup and Mail alert setup
 #
 
-FROM phusion/baseimage:master-amd64
+FROM phusion/baseimage:jammy-1.0.1
 
 # Default InfluxDB host
 ENV INFLUX_HOST=influxdb
@@ -13,7 +13,7 @@ ARG distrib_id
 ARG distrib_codename
 
 RUN echo "${distrib_id}"
-RUN wget -qO- https://repos.influxdata.com/influxdb.key | apt-key add -
+RUN wget -qO- https://repos.influxdata.com/influxdata-archive_compat.key | apt-key add -
 RUN /bin/bash -c "source /etc/lsb-release"
 RUN echo "deb https://repos.influxdata.com/${distrib_id} ${distrib_codename} stable" | tee /etc/apt/sources.list.d/influxdb.list
 
@@ -61,8 +61,6 @@ COPY influxdb.conf /etc/influxdb/influxdb.conf
 
 # Enable influxdb database automatic backup crontab
 RUN mkdir -p /etc/my_init.d
-COPY influxdb_cron.sh /etc/my_init.d/influxdb_cron.sh
-RUN chmod +x /etc/my_init.d/influxdb_cron.sh
 
 # Start the postfix daemon during container startup
 COPY postfix.sh /etc/my_init.d/postfix.sh
@@ -72,5 +70,9 @@ RUN chmod +x /etc/my_init.d/postfix.sh
 RUN mkdir /etc/service/influx
 COPY influx.sh /etc/service/influx/run
 RUN chmod +x /etc/service/influx/run
+
+# Backup script for influxdb
+COPY influxstart.sh /etc/service/influxstart/run
+RUN chmod +x /etc/service/influxstart/run
 
 # end of file

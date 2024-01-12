@@ -7,24 +7,25 @@
 # 5. mongodb
 
 # To find the version of installed Mongodb service
-FROM mongo:latest AS mongodb
+FROM mongo:5.0.11 AS mongodb
 RUN env | grep MON > /root/env
 
 
 # Building cron-backup instance
-FROM phusion/baseimage:master-amd64
+FROM phusion/baseimage:jammy-1.0.1
 # Copying mongodb's version
 COPY --from=mongodb /root/env /root/env
 
-# Installing same Mongodb's tools as in the copied version here in the cron-backup instance
 RUN set -x \
         && export $(xargs < /root/env) \
-        && echo "deb http://$MONGO_REPO/apt/ubuntu focal/${MONGO_PACKAGE%-unstable}/$MONGO_MAJOR multiverse" | tee "/etc/apt/sources.list.d/${MONGO_PACKAGE%-unstable}.list" \
-        && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys B00A0BD1E2C63C11 \
-        && export DEBIAN_FRONTEND=noninteractive && apt-get update && ln -s /bin/true /usr/local/bin/systemctl && apt-get install -y \
-                ${MONGO_PACKAGE}=$MONGO_VERSION \
-                ${MONGO_PACKAGE}-tools=$MONGO_VERSION
-
+        && echo "deb http://security.ubuntu.com/ubuntu focal-security main" | tee /etc/apt/sources.list.d/focal-security.list \
+        && apt-get install -y gpg curl \
+        && curl -fsSL https://pgp.mongodb.com/server-7.0.asc | \
+        gpg -o /usr/share/keyrings/mongodb-server-7.0.gpg \
+        --dearmor\
+        && echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-7.0.list\
+        && apt-get update \
+        && apt-get install -y mongodb-org mongodb-org-database  mongodb-org-server  mongodb-org-shell  mongodb-org-mongos  mongodb-org-tools
 
 # some basic package installation for troubleshooting
 RUN apt-get update && apt-get install -y \
@@ -80,16 +81,18 @@ RUN chmod +x /bin/nginx_backup.sh
 COPY mqtts_backup.sh /bin/mqtts_backup.sh
 RUN chmod +x /bin/mqtts_backup.sh
 
+# Backup script for startup.sh
+COPY startup.sh /etc/service/startup/run
+RUN chmod +x /etc/service/startup/run
+
 # Backup script for mongodb
-COPY mongodb_backup.sh /bin/mongodb_backup.sh
-RUN chmod +x /bin/mongodb_backup.sh
+#COPY mongodb_backup.sh /etc/service/mongodb_backup/run
+#RUN chmod +x /etc/service/mongodb_backup/run
+
 
 # Start the postfix daemon during container startup
+RUN mkdir -p /etc/my_init.d
 COPY postfix.sh /etc/my_init.d/postfix.sh
 RUN chmod +x /etc/my_init.d/postfix.sh
 
-# To Enable crontab
-RUN mkdir -p /etc/my_init.d
-COPY cron.sh /etc/my_init.d/cron.sh
-RUN chmod +x /etc/my_init.d/cron.sh
 # end of file

@@ -1,65 +1,78 @@
 #!/bin/bash
-#The Shell script will be used for taking backup and send it to S3 bucket.
+# Shell script for MongoDB backup with pruning and S3 strategy
 
-# TO list all Databases in mongodb databases
 DATE1=$(date +%Y%m%d%H%M)
 DATE=$(date +%d-%m-%y_%H-%M)
+MONTH=$(date +%b)
+backup_dir="/var/lib/backup/mongodb"
+mongodb_backup_dir="/var/lib/mongodb-backup"
+mongodb_data_dir="/root/mongodb_data"
+report_file="/tmp/mongodbbackup.txt"
 
-mkdir -p /var/lib/backup/mongodb
+mkdir -p $backup_dir $mongodb_backup_dir $mongodb_data_dir
 
-#Full Mongodb backup
+# Full MongoDB backup
+mongodump --host mongodb:27017 --authenticationDatabase admin -u "$MONGO_INITDB_ROOT_USERNAME" -p "$MONGO_INITDB_ROOT_PASSWORD" -o $mongodb_backup_dir
 
-mongodump --host mongodb:27017 --authenticationDatabase admin -u "$MONGO_INITDB_ROOT_USERNAME" -p "$MONGO_INITDB_ROOT_PASSWORD" -o /var/lib/mongodb-backup/dump
+# List databases
+mongosh --quiet --host mongodb:27017 --eval "printjson(db.adminCommand('listDatabases'))" \
+  -u "$MONGO_INITDB_ROOT_USERNAME" -p "$MONGO_INITDB_ROOT_PASSWORD" \
+  | grep -i name | awk -F'"' '{print $4}' > /mongo_dbs.txt
 
-
-showdb(){
-mongo --quiet --host mongodb:27017 --eval  "printjson(db.adminCommand('listDatabases'))" -u "$MONGO_INITDB_ROOT_USERNAME" -p "$MONGO_INITDB_ROOT_PASSWORD" | grep -i name | awk -F'"' '{print $4}'
-}
-
-
-showdb > /mongo_dbs.txt
-
-#Backing up the databases listed.
-while read -r db
-do
+# Backup listed databases
+while read -r db; do
   echo "Creating backup for $db"
-  mongodump --host mongodb:27017 --db "$db" --authenticationDatabase admin -u "$MONGO_INITDB_ROOT_USERNAME" -p "$MONGO_INITDB_ROOT_PASSWORD" -o /var/lib/mongodb-backup/
-done < "/mongo_dbs.txt"
+  mongodump --host mongodb:27017 --db "$db" --authenticationDatabase admin \
+    -u "$MONGO_INITDB_ROOT_USERNAME" -p "$MONGO_INITDB_ROOT_PASSWORD" -o $mongodb_backup_dir
+done < /mongo_dbs.txt
 
-tar czf /var/lib/backup/mongodb/"${SOURCE_NAME}"_mongodb_db_backup_"${DATE1}".tgz /var/lib/mongodb-backup/. && rsync -avr /var/lib/mongodb/ /root/mongodb_data/ && tar czf /var/lib/backup/mongodb/"${SOURCE_NAME}"_mongodb_data_backup_"${DATE1}".tgz /root/mongodb_data/.
+# Archive backups
+tar czf "$backup_dir/${SOURCE_NAME}_mongodb_db_backup_${DATE1}.tgz" $mongodb_backup_dir/. \
+  && rsync -avr /var/lib/mongodb/ $mongodb_data_dir/ \
+  && tar czf "$backup_dir/${SOURCE_NAME}_mongodb_data_backup_${DATE1}.tgz" $mongodb_data_dir/.
 
-# Moving the backup to S3 bucket
-if s3cmd put -r --no-mime-magic /var/lib/backup/mongodb/ s3://"${S3_BUCKET_MONGODB}"/; 
-then
-        echo "DATE:" "$DATE" > /tmp/mongodbbackup.txt
-        echo " " >> /tmp/mongodbbackup.txt
-        echo "DESCRIPTION: ${SOURCE_NAME}_Mongodb backup" >> /tmp/mongodbbackup.txt
-        echo " " >> /tmp/mongodbbackup.txt
-        echo "STATUS: mongodb backup is Successful." >> /tmp/mongodbbackup.txt
-        echo " " >> /tmp/mongodbbackup.txt
-        echo "******* Mongodb Database Backup ****************" >> /tmp/mongodbbackup.txt
-        echo " " >> /tmp/mongodbbackup.txt
-        s3cmd ls --no-mime-magic s3://"${S3_BUCKET_MONGODB}"/  --human-readable | grep -i "${SOURCE_NAME}"_mongodb_db | cut -d' ' -f3- | tac | head -10 | sed "s,s3:\/\/${S3_BUCKET_MONGODB}\/,,g" &>> /tmp/mongodbbackup.txt
-        echo " " >> /tmp/mongodbbackup.txt
-        echo "************** Mongodb data Backup *************" >> /tmp/mongodbbackup.txt
-        echo " " >> /tmp/mongodbbackup.txt
-        s3cmd ls --no-mime-magic s3://"${S3_BUCKET_MONGODB}"/  --human-readable | grep -i "${SOURCE_NAME}"_mongodb_data | cut -d' ' -f3- | tac | head -10 | sed "s,s3:\/\/${S3_BUCKET_MONGODB}\/,,g" &>> /tmp/mongodbbackup.txt
-        echo " " >> /tmp/mongodbbackup.txt
-        echo "********************** END *********************" >> /tmp/mongodbbackup.txt
+# Upload backups to S3 (Daily Backup)
+if s3cmd put -r --no-mime-magic $backup_dir/ s3://"${S3_BUCKET_MONGODB}"/daily_backup/; then
+  echo "Daily backup succeeded." >> $report_file
 else
-        echo "DATE:" "$DATE" > /tmp/mongodbbackup.txt
-        echo " " >> /tmp/mongodbbackup.txt
-        echo "DESCRIPTION: ${SOURCE_NAME}_Mongodb backup" >> /tmp/mongodbbackup.txt
-        echo " " >> /tmp/mongodbbackup.txt
-        echo "STATUS: mongodb backup is Failed." >> /tmp/mongodbbackup.txt
-        echo " " >> /tmp/mongodbbackup.txt
-        echo "Something went wrong, Please check it"  >> /tmp/mongodbbackup.txt
-        < /tmp/mongodbbackup.txt mail -s "${SOURCE_NAME}: mongodb backup" "${CRON_BACKUP_MAIL}"
+  echo "Daily backup failed." >> $report_file
 fi
 
-# Remove the old backup data in local directory to avoid excessive storage use
-find /var/lib/backup/mongodb/ -type f -exec rm {} \;
-find /root/mongodb_data/ -type f -exec rm {} \;
-find /var/lib/mongodb-backup/ -type f -exec rm {} \;
+# Monthly Backup
+if [ "$(date -d +1day +%d)" -eq 1 ]; then
+  if s3cmd put -r --no-mime-magic $backup_dir/ s3://"${S3_BUCKET_MONGODB}"/monthly_backup/; then
+    echo "Monthly backup succeeded." >> $report_file
+  else
+    echo "Monthly backup failed." >> $report_file
+  fi
+fi
 
-< /tmp/mongodbbackup.txt mail -s "${SOURCE_NAME}: mongodb backup" "${CRON_BACKUP_MAIL}"
+# Quarterly Backup
+if [[ "$MONTH" == "Mar" || "$MONTH" == "Jun" || "$MONTH" == "Sep" || "$MONTH" == "Dec" ]] && [ "$(date -d +1day +%d)" -eq 1 ]; then
+  if s3cmd put -r --no-mime-magic $backup_dir/ s3://"${S3_BUCKET_MONGODB}"/quarterly_backup/; then
+    echo "Quarterly backup succeeded." >> $report_file
+  else
+    echo "Quarterly backup failed." >> $report_file
+  fi
+fi
+
+# Prune old backups from S3
+# Daily Backup Prune (31 days)
+s3cmd ls -r s3://"${S3_BUCKET_MONGODB}"/daily_backup/ | \
+  awk -v DEL="$(date +%F -d "31 days ago")" '$1 < DEL {print $4}' | while read -r file; do s3cmd rm "$file"; done
+
+# Monthly Backup Prune (1 year)
+s3cmd ls -r s3://"${S3_BUCKET_MONGODB}"/monthly_backup/ | \
+  awk -v DEL="$(date +%F -d "3 months ago")" '$1 < DEL {print $4}' | while read -r file; do s3cmd rm "$file"; done
+
+# Quarterly Backup Prune (3 years)
+s3cmd ls -r s3://"${S3_BUCKET_MONGODB}"/quarterly_backup/ | \
+  awk -v DEL="$(date +%F -d "3 years ago")" '$1 < DEL {print $4}' | while read -r file; do s3cmd rm "$file"; done
+
+# Send report via email
+< $report_file mail -s "${SOURCE_NAME}: MongoDB Backup Report" "${CRON_BACKUP_MAIL}"
+
+# Clean up local backup data
+find $backup_dir $mongodb_data_dir $mongodb_backup_dir -type f -exec rm {} \;
+rm $report_file
+

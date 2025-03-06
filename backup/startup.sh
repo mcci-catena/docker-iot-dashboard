@@ -19,6 +19,11 @@ do
                 /bin/nginx_backup.sh
     sleep 60
     fi
+    if [ "$HOUR" = "10" ] && [ "$MINUTE" = "35" ]
+    then
+                /bin/mongodb_backup.sh
+    sleep 60
+    fi
     if [ "$HOUR" = "09" ] && [ "$MINUTE" = "35" ]
     then
                 /bin/mqtts_backup.sh

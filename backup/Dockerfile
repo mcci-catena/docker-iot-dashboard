@@ -86,8 +86,8 @@ COPY startup.sh /etc/service/startup/run
 RUN chmod +x /etc/service/startup/run
 
 # Backup script for mongodb
-#COPY mongodb_backup.sh /etc/service/mongodb_backup/run
-#RUN chmod +x /etc/service/mongodb_backup/run
+COPY mongodb_backup.sh /etc/service/mongodb_backup/run
+RUN chmod +x /etc/service/mongodb_backup/run
 
 
 # Start the postfix daemon during container startup

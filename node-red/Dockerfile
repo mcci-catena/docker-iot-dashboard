@@ -5,7 +5,7 @@
 # build the node red image using the offical node red distribution
 # passing arguments to build specific image
 ARG node_red_version
-FROM nodered/node-red:${node_red_version}
+FROM nodered/node-red:2.2.3
 
 # To avoid SSL certification issue
 ENV NODE_TLS_REJECT_UNAUTHORIZED=0

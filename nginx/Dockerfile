@@ -3,8 +3,8 @@
 #
 
 # Start from Phusion.
-FROM phusion/baseimage:master-amd64
 
+FROM phusion/baseimage:jammy-1.0.1
 # Installing the required packages
 RUN apt-get update && apt-get install -y \
 	software-properties-common \

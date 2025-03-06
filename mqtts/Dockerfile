@@ -3,8 +3,7 @@
 #
 
 # Build the MQTTS using phusion base image
-FROM phusion/baseimage:master-amd64
-
+FROM phusion/baseimage:jammy-1.0.1
 # Installing mosquitto packages and certbot
 RUN apt-add-repository ppa:mosquitto-dev/mosquitto-ppa
 RUN apt-get update && apt-get install -y \
